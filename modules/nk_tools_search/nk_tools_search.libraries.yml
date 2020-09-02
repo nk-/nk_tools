@@ -1,0 +1,11 @@
+search_widget:
+  version: VERSION
+  js:
+    js/nk_tools.search.js: {}
+  css:
+    component: 
+      css/nk_tools.search.css: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce

@@ -1,0 +1,5 @@
+entity.nk_tools_swiper.overview:
+  title: Nk tools Swipers
+  parent: nk_tools.config_overview
+  description: 'List of Swiper formatter templates'
+  route_name: entity.nk_tools_swiper.collection

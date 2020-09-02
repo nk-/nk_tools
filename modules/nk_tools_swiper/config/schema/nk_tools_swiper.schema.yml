@@ -1,0 +1,77 @@
+nk_tools_swiper.nk_tools_swiper.*:
+  type: config_entity
+  label: Add Swiper template
+  mapping:
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    uuid:
+      type: string
+    description:
+      type: string
+    swiper_options:
+      type: mapping
+      mapping: 
+        direction:
+          type: string
+          label: Swiping direction
+        slidesPerView:
+          type: integer
+          label: Number of slides per view
+        loopedSlides:
+          type: integer
+          label: Number of slides looped at once
+        lazy_load:
+          type: boolean
+          label: Lazy load images
+        effect:
+          type: string
+          label: Swiper transition effect
+        autoplay:
+          type: mapping
+          mapping:
+            delay:
+              type: integer
+              label: Autoplay delay in milliseconds
+        autoHeight:
+          type: boolean
+          label: Auto height
+        grabCursor:
+          type: boolean
+          label: Grab cursor
+        noSwipingSelector:
+          type: string
+          label: Exclude selectors, no swipe
+        navigation:
+          type: mapping
+          mapping: 
+            navigation_enabled:
+              type: boolean
+              label: Enable/disable navigation
+            nextEl: 
+              type: string
+              label: Next nav selector
+            prevEl: 
+              type: string
+              label: Prev nav selector
+        pagination:
+          type: mapping
+          mapping: 
+            pagination_enabled:
+              type: boolean
+              label: Enable/disable pagination
+            type:
+              type: string
+              label: Paginatin type
+            el:
+              type: string
+              label: Pagination element selector
+            dynamicBullets:
+              type: boolean
+              label: Dynamic pagination bullets
+            clickable:
+              type: boolean
+              label: Bullets clickable

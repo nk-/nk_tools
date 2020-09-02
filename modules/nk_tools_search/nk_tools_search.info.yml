@@ -1,0 +1,7 @@
+name: Nk tools Search
+type: module
+description: 'Plugins and hooks related to Search API'
+package: 'Nk tools'
+core: 8.x
+dependencies:
+  - nk_tools:nk_tools

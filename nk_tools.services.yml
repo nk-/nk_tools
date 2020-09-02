@@ -1,0 +1,9 @@
+services:
+  nk_tools.main_service:
+    class: Drupal\nk_tools\NkToolsBase
+    arguments: ['@entity_type.manager', '@current_route_match', '@entity_field.manager', '@renderer']
+  #nk_tools.twig_extension:
+  #  class: Drupal\nk_tools\TwigExtension\NkToolsTwigExtension
+    #arguments: ['@renderer', '@url_generator', '@theme.manager', '@date.formatter']
+  #  tags:
+  #   - { name: twig.extension }

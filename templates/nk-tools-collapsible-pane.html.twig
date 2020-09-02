@@ -1,0 +1,110 @@
+{#
+/**
+ * @file
+ * Theme override for a set of links.
+ *
+ * Available variables:
+ * - attributes: Attributes for the UL containing the list of links.
+ * - items: array of itmes to be shown as collapsible pane.
+ *   Each item contains array of items with:
+ *   - attributes: HTML attributes to be applied to each collapsible content.
+ *   - content: The content of the collapsible pane element.
+ *   - label: A collapsible toggle label/markup
+ *   - target: An ID attribute of collapsible pane
+ */
+#}
+
+{# Both of the classes sets right below are mandatory, it's of course ok to add some more if needed #} 
+{%
+  set collapsible_toggle_classes = [
+    'pointer',
+    'nk-tools-collapsible-toggle', 
+  ]
+%}
+{%
+  set collapsible_content_classes = [
+    nk_tools.hidden_class,
+    'animated',
+    'faster',
+    'nk-tools-collapsible-content',
+  ]
+%}
+
+{%- if scroll_placeholder -%} 
+  <div {{ create_attribute({'id': scroll_placeholder }).addClass('visually-hidden') }}></div>
+{%- endif -%}
+
+{%- if items or empty -%}
+{# {% if items is not null and items is not empty %} #}
+
+  {%- if items -%}
+    
+       
+    {% for item in items %}  
+
+      
+      {% for key, panel in item %}
+ 
+        {% if panel.content or panel.label %}
+ 
+          {%- if pane_wrapper_attributes -%}
+            <div {{ pane_wrapper_attributes }}>
+          {%- endif -%}
+
+
+          {% set target_id = panel.target ? panel.target : 'panel-' ~ loop.index %}
+        
+          {% if panel.label %}
+
+            {% set collapsible_toggle_attributes = toggle_attributes ? toggle_attributes.addClass(collapsible_toggle_classes) : create_attribute({'class': collapsible_toggle_classes}) %}
+            {% set toggle_icon = toggle_attributes and toggle_attributes['data-icon'] ? toggle_attributes['data-icon'] %}
+            {% set toggle_icon_back = toggle_attributes and toggle_attributes['data-icon-back'] ? toggle_attributes['data-icon-back'] %}
+            <div {{ collapsible_toggle_attributes.setAttribute('data-target', target_id) }}>
+            
+              {%- if toggle_icon and not panel.is_link -%}
+                <div class="row between-xs middle-xs">
+                  {%- if toggle_icon_back -%}
+                    <i class="material-icons col-xs-1 icon-back {{ diplo_layout.hidden_class }}">{{ toggle_icon_back }}</i>
+                  {% endif %}
+                  <div class="pl-8 col-xs-9">{{ panel.label }}</div>
+                  <i class="material-icons toggle-icon end-xs">{{ toggle_icon }}</i>
+                </div> 
+              {%- else -%}
+                {%- if toggle_icon_back -%}
+                  <i class="material-icons icon-back mr-16 {{ diplo_layout.hidden_class }}">{{ toggle_icon_back }}</i>
+                {% endif %}
+                {{ panel.label }}
+              {%- endif -%}
+            </div>
+          {% endif %}
+ 
+          {% if panel.content %}
+            {% if list_type %} 
+              <{{ list_type }} {{ attributes.addClass(collapsible_content_classes).setAttribute('id', target_id) }}>
+                <li {{ wrapper_attributes }}>
+                  {{ panel.content }}  
+                </li>          
+              </{{ list_type }}>
+            {%  else  %}
+              <div {{ attributes.addClass(collapsible_content_classes).setAttribute('id', target_id) }}>
+                {{ panel.content }}
+              </div>
+            {% endif %}
+          {% endif %}
+
+          {%- if pane_wrapper_attributes -%}
+             </div>
+          {%- endif -%}
+         
+        {% endif %}
+
+      {% endfor %}
+  
+    {% endfor %}
+
+
+  {%- else -%}
+    {{- empty -}}
+  {%- endif -%}
+
+{%- endif -%}

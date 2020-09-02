@@ -1,0 +1,39 @@
+uuid: 9bf60bfd-357c-4c68-a1dd-fac7d7383d3f
+langcode: en
+status: true
+dependencies:
+  module:
+    - nk_tools_search
+  theme:
+    - rtp_material
+id: nk_tools_search_input
+theme: rtp_material
+region: navbar_right
+weight: 0
+provider: null
+plugin: nk_tools_search_input_block
+settings:
+  id: nk_tools_search_input_block
+  label: 'Search input'
+  provider: nk_tools_search
+  label_display: '0'
+  inline: 0
+  inline_target: ''
+  collapsed: 1
+  placeholder: 'Search by any term'
+  icon: search
+  border: 0
+  border_classes: ''
+  view_id: null
+  display_id: null
+  argument: null
+  filter: null
+  block_label:
+    value: null
+    format: basic_html
+  hide_mobile: null
+  hide_init: null
+  additional_class: null
+  animation_in: null
+  animation_out: null
+visibility: {  }

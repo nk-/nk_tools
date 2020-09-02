@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * Default output for a Swiper object.
+ *
+ * Available variables:
+ * - attributes: An array of attributes to apply to the element.
+ * - content.list: A renderable array of the swiper list
+ * - options: An array containing given swiper settings; those are taken from configuration entity chosen as a template.
+ * - loader: A flag to enable lazy loading of images
+ *
+ * @see template_preprocess_swiper()
+ */
+#}
+
+{% if title %}
+  <h3>{{ title }}</h3>
+{% endif %}
+
+<div{{ attributes }}>
+
+  {# Slides #}
+  {{ content.list }}
+
+  {# Add Pagination #}
+  {% if options.pagination %}
+    <div class="{{ options.pagination_classes }}"></div>
+  {% endif %}
+
+  {# Add navigation buttons #}
+  {% if options.navigation %}
+    <div class="{{ options.navigation_classes.prev }} "></div>
+    <div class="{{ options.navigation_classes.next }}"></div>
+  {% endif %}
+
+</div>

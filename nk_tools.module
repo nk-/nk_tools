@@ -1,0 +1,300 @@
+<?php
+
+use Drupal\Core\Site\Settings;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_theme().
+ */ 
+function nk_tools_theme() {
+
+  return [
+
+    'nk_tools_fixed_banner' => [
+      'variables' => [
+        'attributes' => [],
+        'node' => NULL,
+        'image' => NULL,
+        'caption' => NULL,
+        'video' => NULL,
+        'config' => [],
+      ],
+    ],
+    
+    'nk_tools_collapsible_pane' => [
+      'variables' => [
+        'attributes' => [],
+        'wrapper_attributes' => [],
+        'toggle_attributes' => [],
+        'pane_wrapper_attributes' => NULL,
+        'hook' => NULL,
+        'block_id' => NULL,
+        'level' => NULL,
+        'count_items' => NULL,
+        'list_type' => NULL,
+        'items' => [],
+        'config' => [],
+        'scroll_placeholder' => NULL, 
+      ],
+    ], 
+
+    'nk_tools_collapsible_tabs' => [
+      'variables' => [
+        'items' => [],
+        'target' => NULL,
+        'list_type' => NULL,
+        'context' => [],
+        'attributes' => [],
+        'wrapper_attributes' => []
+      ],
+    ],
+
+    'nk_tools_multi_block' => [
+      'variables' => [
+        'list_type' => NULL,
+        'list_title' => NULL,
+        'show_list_title' => NULL,
+        'node' => NULL,
+        'items' => [],
+        'config' => NULL,
+        'target' => NULL,
+        'context' => [],
+        //'empty' => NULL,
+        'attributes' => [],
+        'wrapper_attributes' => []
+      ],
+    ],
+
+    'nk_tools_async_view_block' => [
+      'variables' => [
+        'config' => [],
+        'dom_id' => NULL,
+        'attributes' => [],
+      ],
+    ],
+
+  ];  
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function nk_tools_page_attachments(array &$page) {
+  $nk_tools_config = \Drupal::config('nk_tools.settings');
+  // $is_front = \Drupal::service('path.matcher')->isFrontPage();
+
+  // Add our specific config to drupalSettings object
+  // @see /admin/structure/nk-tools/settings
+  $page['#attached']['drupalSettings']['nk_tools'] = [];
+  if (!empty($nk_tools_config->get('layout'))) {
+    $page['#attached']['drupalSettings']['nk_tools']['layout'] = $nk_tools_config->get('layout');
+  } 
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function nk_tools_form_block_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (isset($form['settings']['nk_tools_fields']) && isset($form['settings']['nk_tools_fields']['#default_value']) && !empty($form['settings']['nk_tools_fields']['#default_value'])) {
+    if (isset($form['settings']['nk_tools_fields']['#default_value']['block_label'])) {
+      $form['settings']['label']['#title'] = 'Admin label';
+      //$form['settings']['label']['#description'] = 'This label will show as a description on block page.';   
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_region_alter().
+ */
+function nk_tools_theme_suggestions_region_alter(array &$suggestions, array $variables) {
+  
+  $route_name = \Drupal::routeMatch()->getCurrentRouteMatch()->getRouteName();
+
+  if ($node = \Drupal::routeMatch()->getParameter('node')) {
+    if ($node instanceof NodeInterface) {
+      $suggestions[] = 'region__' . $variables['elements']['#region'] . '__' . $node->bundle();
+      $suggestions[] = 'region__' . $variables['elements']['#region'] . '__' . $node->id();
+    }
+  }
+  else if (strpos($route_name, 'view') !== FALSE) {
+    $chunks = explode('.', $route_name);
+    if (isset($chunks[1])) {
+      $suggestions[] = 'region__' . $variables['elements']['#region'] . '__' . $chunks[1];
+      if (isset($chunks[2])) {
+        $suggestions[] = 'region__' . $variables['elements']['#region'] . '__' . $chunks[1] . '__'. $chunks[2]; 
+      }
+    }
+    $suggestions[] = 'region__' . $variables['elements']['#region'] . '__' . str_replace('.', '_', $route_name);
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ */
+function nk_tools_theme_suggestions_block_alter(array &$suggestions, array $variables) {
+  if ($variables['elements']['#base_plugin_id'] == 'nk_tools_multi_block') {
+    $node = NULL;
+    if ($variables['elements']['content']['#node'] && $variables['elements']['content']['#node'] instanceof NodeInterface) {
+      $node = $variables['elements']['content']['#node'];
+      $suggestions[] = 'block__nk_tools_multi_block__' . $node->getType();
+    }
+
+    if ($variables['elements']['#configuration']['hide_init']) {
+      $suggestions[] = 'block__nk_tools_multi_block__hidden';
+      if ($node) {
+        $suggestions[] = 'block__nk_tools_multi_block__hidden__' . $node->getType(); 
+      }
+    }
+   
+    // Our multi block defines fine tuned properties per field/field type so based on that we can have pretty unique twig templates
+    if (isset($variables['elements']['content']['#context']) && !empty($variables['elements']['content']['#context'])) {
+      foreach ($variables['elements']['content']['#context'] as $key => $context) {
+        
+        $suggestions[] = 'block__nk_tools_multi_block__' . $context;
+        $suggestions[] = 'block__nk_tools_multi_block__' . $context . '__' . $node->getType();
+
+        if ($variables['elements']['#configuration']['hide_init']) {
+          $suggestions[] = 'block__nk_tools_multi_block__' . $context .'__hidden';
+          $suggestions[] = 'block__nk_tools_multi_block__' . $context . '__' . $node->getType() .'__hidden';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function nk_tools_theme_suggestions_nk_tools_multi_block(array $variables) {
+  $suggestions = [];
+  if (isset($variables['node']) && $variables['node'] instanceof NodeInterface) {
+    $suggestions[] = 'nk_tools_multi_block__' . $variables['node']->getType();  
+  }
+  
+  if (isset($variables['config']) && $variables['config']['hide_init']) {
+    $suggestions[] = 'nk_tools_multi_block__hidden'; 
+    $suggestions[] = 'nk_tools_multi_block__hidden_' . $variables['node']->getType(); 
+  }
+
+  // Our multi block defines fine tuned properties per field/field type so based on that we can have pretty unique twig templates
+  if (isset($variables['context']) && !empty($variables['context'])) {
+    foreach ($variables['context'] as $key => $context) {
+
+      $suggestions[] = 'nk_tools_multi_block__' . $context;
+      $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType();
+
+      if ($variables['elements']['#configuration']['hide_init']) {
+        $suggestions[] = 'nk_tools_multi_block__' . $context .'__hidden'; 
+        $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType() .'__hidden';
+      }
+    }
+  }
+
+  return $suggestions; 
+}
+
+/**
+ * Implements hook_preprocess().
+ */ 
+function nk_tools_preprocess(&$variables, $hook) {
+
+  $variables['nk_tools_environment'] =  Settings::get('nk_tools_environment', []); 
+
+  $nk_tools_config = \Drupal::config('nk_tools.settings');
+  $variables['nk_tools'] = $nk_tools_config->get('layout');
+
+  $admin_route = \Drupal::service('router.admin_context')->isAdminRoute();
+  //$current_theme = \Drupal::service('theme.manager')->getActiveTheme();
+  //ksm($current_theme); 
+  if (!$admin_route) {
+    
+    $variables['#attached']['library'][] = 'nk_tools/fonts';
+    $variables['#attached']['library'][] = 'nk_tools/animate.css';
+    $variables['#attached']['library'][] = 'nk_tools/flexboxgrid';
+
+    // This is our main JS factory with re-usable methods, so load it everywhere
+    $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory';
+  }
+}
+
+/**
+ * Implements template_preprocess_HOOK().
+ */ 
+function template_preprocess_nk_tools_collapsible_pane(&$variables) {
+  
+  $variables['wrapper_attributes'] = new Attribute($variables['wrapper_attributes']);
+  
+  foreach ($variables['items'] as &$item) {
+    $attributes = [];
+
+    // Set the item's value and attributes for the template.
+    $item = [
+      'value' => $item,
+      'attributes' => new Attribute($attributes),
+    ];
+  }
+}
+
+/**
+ * Implements template_preprocess_HOOK().
+ */ 
+function template_preprocess_nk_tools_multi_block(&$variables) {
+  
+  $variables['wrapper_attributes'] = new Attribute($variables['wrapper_attributes']);
+  
+  foreach ($variables['items'] as &$item) {
+    $attributes = [];
+
+    // If the item value is an array, then it is a render array.
+    if (is_array($item)) {
+
+      // List items support attributes via the '#wrapper_attributes' property.
+      if (isset($item['#wrapper_attributes'])) {
+        $attributes = $item['#wrapper_attributes'];
+      }
+
+      // Determine whether there are any child elements in the item that are not
+      // fully-specified render arrays. If there are any, then the child
+      // elements present nested lists and we automatically inherit the render
+      // array properties of the current list to them.
+      foreach (Element::children($item) as $key) {
+        $child =& $item[$key];
+
+        // If this child element does not specify how it can be rendered, then
+        // we need to inherit the render properties of the current list.
+        if (!isset($child['#type']) && !isset($child['#theme']) && !isset($child['#markup'])) {
+
+          // Since item-list.html.twig supports both strings and render arrays
+          // as items, the items of the nested list may have been specified as
+          // the child elements of the nested list, instead of #items. For
+          // convenience, we automatically move them into #items.
+          if (!isset($child['#items'])) {
+
+            // This is the same condition as in
+            // \Drupal\Core\Render\Element::children(), which cannot be used
+            // here, since it triggers an error on string values.
+            foreach ($child as $child_key => $child_value) {
+              if ($child_key[0] !== '#') {
+                $child['#items'][$child_key] = $child_value;
+                unset($child[$child_key]);
+              }
+            }
+          }
+
+          // Lastly, inherit the original theme variables of the current list.
+          $child['#theme'] = $variables['theme_hook_original'];
+          $child['#list_type'] = $variables['list_type'];
+        }
+      }
+    }
+    
+    // Set the item's value and attributes for the template.
+    $item = [
+      'value' => $item,
+      'attributes' => new Attribute($attributes),
+    ];
+  }
+}

@@ -1,0 +1,5 @@
+name: Nk tools Swiper
+type: module
+description: 'Basic integration of Swiper.js, as a configuration entity, with theme etc.'
+package: 'Nk tools'
+core: 8.x

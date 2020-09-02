@@ -1,0 +1,170 @@
+<?php
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function nk_tools_menu_entity_base_field_info(EntityTypeInterface $entity_type) {
+  if ($entity_type->id() === 'menu_link_content') {
+    $fields['highlighted'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Highlighted'))
+      ->setDescription(t('If you want this item to be highlighted set a CSS class for it here, without dot'))
+      //->setSetting('allowed_values_function', 'function_to_control_options')
+      ->setDisplayOptions('form', [
+        'type' => 'textfield',
+        'weight' => 0
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+     $fields['icon'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Icon'))
+      ->setDescription(t('Icon attached to this menu item'))
+      //->setSetting('allowed_values_function', 'function_to_control_options')
+      ->setDisplayOptions('form', [
+        'type' => 'textfield',
+        'weight' => 0
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    return $fields;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function nk_tools_menu_theme() {
+  return [
+    // Expandable menu block
+    'nk_tools_expandable_menu' => [
+      'variables' => [
+        'config' => [],
+        'target_id' => NULL,
+        'icon' => NULL,
+        'close_icon' => NULL,
+        'menu_tree' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ */
+function nk_tools_menu_theme_suggestions_menu_alter(array &$suggestions, array $variables) {
+  $current_path = explode('/', Url::fromRoute('<current>')->toString()); 
+  array_shift($current_path);
+  if ($variables['menu_name'] == 'main') {
+    $suggestions[] = 'menu__' . $variables['menu_name'] . '__' . $current_path[0];
+    $suggestions[] = 'menu__' . $variables['menu_name'] . '__' . implode('_', $current_path);
+  }
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ */
+function nk_tools_menu_preprocess_menu(&$variables, $hook) { 
+  
+  /*
+  $nk_tools_config = \Drupal::config('nk_tools.settings');
+  //$variables['diplo_layout'] = $diplo_config->get('layout');
+  //$widgets = $diplo_config->get('widgets');
+  //$variables['diplo_widgets'] = $widgets;
+
+  $menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
+
+  $search_menu_uuid = NULL;
+  if (is_array($widgets) && isset($widgets['use_search']) && isset($widgets['search']['menu']) && !empty($widgets['search']['menu'])) {
+    
+    $search_menu_uuid = $widgets['search']['menu_uuid'];
+    // Take care of search_inpu as a menu_link case
+    $search_input_load = isset($widgets['search']['menu_uuid']) && !empty($widgets['search']['menu_uuid']) ? $menu_link_storage->loadByProperties(['uuid' => $widgets['search']['menu_uuid']]) : NULL;
+    $search_input = !empty($search_input_load) ? reset($search_input_load) : NULL;
+    $search_input_menu_key = 'menu_link_content:' . $search_menu_uuid;
+    if ($search_input instanceof MenuLinkContent && isset($variables['items'][$search_input_menu_key])) {
+
+      $icon = $search_input->hasField('icon') && !empty($search_input->get('icon')->getValue()) ? $search_input->get('icon')->getValue()[0]['value'] : 'search'; 
+      $variables['items'][$search_input_menu_key]['is_expanded'] = TRUE;
+      $variables['items'][$search_input_menu_key]['is_icon'] = $icon;
+        
+      $view_id = isset($widgets['search']['view_container']['view_id']) && !empty($widgets['search']['view_container']['view_id']) ? $widgets['search']['view_container']['view_id'] : NULL;
+      $display_id = isset($widgets['search']['view_container']['display']['display_id']) && !empty($widgets['search']['view_container']['display']['display_id']) ? $widgets['search']['view_container']['display']['display_id'] : NULL;
+      $view_filter = isset($widgets['search']['view_container']['view_filter']) && !empty($widgets['search']['view_container']['view_filter']) ? $widgets['search']['view_container']['view_filter'] : 'search_api_fulltext';
+      
+      // Support for search_api_autocomplete module   
+      $params = [
+        '#config' => [],
+      ];
+      if (\Drupal::moduleHandler()->moduleExists('search_api_autocomplete')) {
+        $plugin_id = 'views:' . $view_id;
+        $search_storage = \Drupal::service('entity_type.manager')->getStorage('search_api_autocomplete_search');
+        $search = $search_storage->loadBySearchPlugin($plugin_id);
+        if ($search && $search->getEntityTypeId() == 'search_api_autocomplete_search') {
+          $params['#config']['search_api_autocomplete'] = TRUE;
+          $params['#config']['input_type'] = 'search_api_autocomplete';
+          $params['#config']['view'] = ['view_id' => $view_id, 'display_id' => $display_id, 'view_filter' => $view_filter];    
+          //$element['#type'] = 
+          //$element['#search_id'] = $search->id();
+          //$element['#additional_data'] = $data;
+        }
+      }
+      // Render View filter
+      $diplo_factory = \Drupal::service('diplo_formatters.main_service');
+      $variables['items'][$search_input_menu_key]['title'] = $diplo_factory->renderViewFilter($view_id, $display_id, TRUE, $params);
+    }
+  }
+*/
+
+  // These are the extra base fields on menu_link_content
+  foreach ($variables['items'] as $index => &$item) {
+    $metadata = $item['original_link']->getMetaData();
+    if (isset($metadata['entity_id']) && !empty($metadata['entity_id'])) {
+      $menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
+      $entity = $menu_link_storage->load($metadata['entity_id']);
+      if ($entity->uuid() != $search_menu_uuid) {
+        if ($entity->hasField('highlighted') && !empty($entity->get('highlighted')->getValue()) && isset($entity->get('highlighted')->getValue()[0]['value']) && !empty($entity->get('highlighted')->getValue()[0]['value'])) {
+          $item['attributes']->addClass($entity->get('highlighted')->getValue()[0]['value']);
+          $item['highlighted'] = TRUE;
+        }
+        if ($entity->hasField('icon') && !empty($entity->get('icon')->getValue()) && isset($entity->get('icon')->getValue()[0]['value']) && !empty($entity->get('icon')->getValue()[0]['value'])) {
+          $item['title'] = Markup::create('<i class="material-icons menu-icon mr-8">' . $entity->get('icon')->getValue()[0]['value'] .'</i>' . '<span class="menu-item-with-icon">'. $item['title'] .'</span>');
+        }
+
+        if ($entity->hasField('description') && !empty($entity->get('description')->getValue()) && isset($entity->get('description')->getValue()[0]['value']) && !empty($entity->get('description')->getValue()[0]['value'])) {
+          $item['description'] =  $entity->get('description')->getValue()[0]['value'];
+        }
+
+      }
+    }
+  } 
+}
+
+/**
+ * Implements hook_preprocess_hook().
+ */
+/*
+function nk_tools_menu_preprocess_diplo_search_input(&$variables) {
+  $diplo_config = \Drupal::config('diplo_formatters.settings');
+  $diplo_widgets = $diplo_config->get('widgets');
+  if (isset($diplo_widgets['search']) && isset($diplo_widgets['search']['menu']) && !empty($diplo_widgets['search']['menu'])) {  
+    // Set this flag important for classes choice in the twig template
+    $variables['config']['is_menu'] = TRUE;
+    // Hardcode this for now, does not make much sense to have search input in menu expanded initi
+    $variables['config']['collapsed'] = TRUE; 
+    // Set some extra classes to this special element
+    $variables['attributes']['class'][] = 'search-menu';
+    if (!empty($diplo_config->get('widgets')['search']['menu_item'])) { 
+      $variables['attributes']['class'][] = 'menu--' . str_replace(':', '', $diplo_config->get('widgets')['search']['menu_item']);  
+    }
+  }
+}
+*/

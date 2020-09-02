@@ -1,0 +1,6 @@
+nk_tools.searchwidget:
+  title: Search widget
+  class: Drupal\nk_tools\Plugin\Menu\NkToolsSearchMenuLink
+  #form_class: Drupal\views\Plugin\Menu\Form\ViewsMenuLinkForm
+  #menu_name: highlights
+  deriver: Drupal\nk_tools\Plugin\Derivative\NkToolsSearchMenuLink

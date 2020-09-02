@@ -1,0 +1,4 @@
+services:
+  nk_tools_search.main_service:
+    class: Drupal\nk_tools_search\NkToolsSearchManager
+    arguments: ['@entity_type.manager']

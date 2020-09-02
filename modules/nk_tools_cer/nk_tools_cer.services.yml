@@ -1,0 +1,9 @@
+services:
+  nk_tools_cer.route_subscriber:
+    class: Drupal\nk_tools_cer\Routing\AutocompleteRouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  nk_tools_cer.autocomplete_matcher:
+    class: Drupal\nk_tools_cer\CorrespondingEntityAutocompleteMatcher
+    arguments: ['@plugin.manager.entity_reference_selection']

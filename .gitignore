@@ -1,0 +1,8 @@
+# Ignore files starting with dot but include this file (self) 
+.*
+/.*
+!/.gitignore
+!/.htaccess
+
+# Ignore temp/working files
+*~

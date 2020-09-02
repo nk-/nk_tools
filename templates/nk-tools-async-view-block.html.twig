@@ -1,0 +1,43 @@
+{#
+{% if config.block_show_links is not empty and config.block_links is not empty %}
+  <div class="col-md-offset-3 col-xs-12 col-md-6 row start-xs middle-xs pl-4-5p pr-64 pt-16 pb-16"> 
+    <div class="no-p row between-xs middle-xs col-xs-12">
+      {% set links = config.block_links[0]|split(', ') %} 
+      {%if links is not empty %}
+        {% for link in links %}
+          <a class="btn btn-raised btn-grey btn-colored col-xs-3 no-m mb-8 pl-4 pr-4 radios-tab-wrapper" data-id="{{ link }}" href="#" id="button-{{ link }}" name="button-{{ link }}">{{ link|capitalize }}</a>
+        {% endfor %}
+      {% endif %}       
+    </div>
+  </div>
+{% endif %}
+#}
+
+{% if config.links is not empty  %}
+  {%
+    set link_classes = [
+      'fs-default',
+      'fw-500',
+      'btn',
+      'btn-raised',
+      'btn-grey',
+      'btn-colored',
+      'col-xs',
+      'ml-0',
+      'mr-4',
+      'mb-8',
+      'pl-8',
+      'pr-8',
+    ]
+   %}
+   <div class="col-md-offset-3 col-md-6 row start-xs middle-xs pl-4-5p pr-64 pt-16 pb-16"> 
+    <div class="no-p row start-xs between-sm middle-xs col-xs-12">
+      {% for item in config.links %}
+        {% if item.url %}
+           {{ link(item.title, item.url, {class: link_classes}) }}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+<div class="js-view-dom-id-{{ dom_id }}"></div>

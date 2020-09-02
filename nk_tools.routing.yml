@@ -1,0 +1,25 @@
+nk_tools.config_overview:
+  path: '/admin/structure/nk-tools'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Nk tools'
+  requirements:
+    _permission: 'administer nk_tools'
+
+nk_tools.settings:
+  path: '/admin/structure/nk-tools/settings'
+  defaults:
+    _form: '\Drupal\nk_tools\Form\NkToolsMainConfigForm'
+    _title: 'Nk tools settings'
+  requirements:
+    _permission: 'administer site configuration'
+nk_tools.cache_clear:
+  path: '/nk-tools/cache/clear'
+  defaults:
+    _controller: '\Drupal\nk_tools\Controller\NkToolsController::cacheClear'
+    _title: 'Clear cache'
+  #options:
+  #  _admin_route: TRUE
+  requirements:
+    _permission: 'access cache clear'
+    _csrf_token: 'TRUE'

@@ -1,0 +1,32 @@
+entity.nk_tools_swiper.collection:
+  path: '/admin/structure/nk-tools/nk-tools-swiper'
+  defaults:
+    _entity_list: 'nk_tools_swiper'
+    _title: 'Swiper configuration'
+  requirements:
+    _permission: 'administer nk_tools_swiper'
+
+entity.nk_tools_swiper.add_form:
+  path: '/admin/structure/nk-tools/nk_tools_swiper/add'
+  defaults:
+    _entity_form: 'nk_tools_swiper.add'
+    _title: 'Add Swiper'
+  requirements:
+    _permission: 'administer nk_tools_swiper'
+
+entity.nk_tools_swiper.edit_form:
+  path: '/admin/structure/nk-tools/nk-tools-swiper/{nk_tools_swiper}'
+  defaults:
+    _entity_form: 'nk_tools_swiper.edit'
+    _title: 'Edit Swiper'
+  requirements:
+    _permission: 'administer nk_tools_swiper'
+
+entity.nk_tools_swiper.delete_form:
+  path: '/admin/structure/nk-tools/nk-tools-swiper/{nk_tools_swiper}/delete'
+  defaults:
+    _entity_form: 'nk_tools_swiper.delete'
+    _title: 'Delete Swiper'
+  requirements:
+    _permission: 'administer nk_tools_swiper'
+

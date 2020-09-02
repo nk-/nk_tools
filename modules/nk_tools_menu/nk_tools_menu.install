@@ -1,0 +1,44 @@
+<?php
+
+function nk_tools_menu_update_8002(&$sandbox) {
+
+  $spec = [
+    'type' => 'varchar',
+    'description' => "Highlighted css class",
+    'length' => 20,
+    'not null' => FALSE,
+  ]; 
+
+  //$schema = \Database::getConnection()->schema();
+  $injected_database = \Drupal::getContainer()->get('database'); 
+  $table_name = 'menu_link_content';
+  //$revision_table_name = 'field_revision_field_myfield';
+  $field_name = 'highlighted';
+  $injected_database->schema()->dropField($table_name, $field_name);
+  //db_remove_field($data_table_name, $field_name, $spec);
+  // db_add_field($revision_table_name, $field_name, $spec); 
+  //$schema->addField('menu_link_content', 'highlighted', $spec);
+} 
+
+
+function nk_tools_menu_update_8003() {
+
+  $injected_database = \Drupal::getContainer()->get('database');
+
+  $spec = [
+    'type' => 'varchar',
+    'description' => "Highlighted css class",
+    'length' => 20,
+    'not null' => FALSE,
+  ]; 
+
+  //$schema = \Database::getConnection()->schema();
+  
+  $table_name = 'menu_link_content_data';
+  //$revision_table_name = 'field_revision_field_myfield';
+  $field_name = 'highlighted';
+ // db_add_field($data_table_name, $field_name, $spec);
+  // db_add_field($revision_table_name, $field_name, $spec); 
+  //$schema->addField('menu_link_content', 'highlighted', $spec);
+  $injected_database->schema()->addField($table_name, $field_name, $spec);
+} 

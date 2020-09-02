@@ -1,0 +1,4 @@
+services:
+  nk_tools_swiper.swiper_services:
+    class: Drupal\nk_tools_swiper\Entity\NkToolsSwiper
+    arguments: []

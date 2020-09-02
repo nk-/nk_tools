@@ -1,0 +1,23 @@
+swiper:
+  remote: https://github.com/nolimits4web/swiper
+  version: 4.5.0
+  license:
+    name: MIT
+    url: https://github.com/nolimits4web/swiper/blob/master/LICENSE
+    gpl-compatible: true
+  js:
+    https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/js/swiper.min.js: { type: external, minified: true }
+  css:
+    component: 
+      https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/css/swiper.min.css: { type: external, minified: true }
+nk_tools_swiper:
+  version: VERSION
+  js:
+    js/nk_tools.swiper.js: {}
+  css:
+    theme: 
+      css/nk_tools.swiper.css: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce

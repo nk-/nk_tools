@@ -1,0 +1,83 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a facets item list.
+ *
+ * Available variables:
+ * - items: A list of items. Each item contains:
+ *   - attributes: HTML attributes to be applied to each list item.
+ *   - value: The content of the list element.
+ * - title: The title of the list.
+ * - list_type: The tag for list element ("ul" or "ol").
+ * - wrapper_attributes: HTML attributes to be applied to the list wrapper.
+ * - attributes: HTML attributes to be applied to the list.
+ * - empty: A message to display when there are no items. Allowed value is a
+ *   string or render array.
+ * - context: A list of contextual data associated with the list. May contain:
+ *   - list_style: The ID of the widget plugin this facet uses.
+ * - facet: The facet for this result item.
+ *   - id: the machine name for the facet.
+ *   - label: The facet label.
+ *
+ * @see facets_preprocess_facets_item_list()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{% set list_classes = ['row', 'top-xs', 'start-xs'] %}
+{% set item_class = facet.widget.type == 'links' ? 'mb-8' : '' %}
+
+<div class="{{ widget_class }} facets-widget- {{- facet.widget.type -}} ">
+  {% if facet.widget.type %}
+    {%- set attributes = attributes.addClass('item-list__' ~ facet.widget.type) %}
+  {% endif %}
+  {% if items or empty %}
+    {%- if title is not empty -%}
+      <h3>{{ title }}</h3>
+    {%- endif -%}
+
+    {%- if items -%}
+      <{{ list_type }}{{ attributes.addClass(list_classes) }}>
+
+        {% set item_values = [] %}
+
+        {%- for year, item in items -%}
+        
+          {# {% if facet.widget.type == 'links' %} {% endif %}<li style="width:100%;"{{ item.attributes.addClass(item_class) }}><i class="material-icons">arrow_right</i>{{ item.value }}</li> #}
+          
+          {#           {% set item_values = item_values|merge({'content': item.value, 'label': year}) %} #}
+          {%- for month, printed in item -%}
+            {# <li {{ item.attributes.addClass(item_class, 'w-full') }}><i class="material-icons">arrow_right</i>{{ month }}</li> #}
+          {%- endfor -%}
+
+          {% 
+            set collapsible = {
+              '#theme': 'nk_tools_collapsible_pane',
+              '#items': [{
+                'target': 'pane-' ~ year,
+                'content': item.value,
+                'label': year,
+                'classes': {toggle: 'pl-32 pointer', content: 'facet-item pl-32 pr-0'}
+              }]
+            }
+          %}
+
+          <li {{ item.attributes.addClass(item_class) }}>
+            {{ collapsible|render }}
+          </li>
+
+        {%- endfor -%}
+      </{{ list_type }}>
+    {%- else -%}
+      {{- empty -}}
+    {%- endif -%}
+  {%- endif %}
+
+{#
+{% if facet.widget.type == "dropdown" %}
+  <label id="facet_{{ facet.id }}_label">Facet {{ facet.label }}</label>
+{%- endif %}
+#}
+
+</div>

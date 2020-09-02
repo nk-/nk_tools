@@ -1,0 +1,141 @@
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ *
+ * Available variables:
+ * - plugin_id: The ID of the block implementation.
+ * - label: The configured label of the block if visible.
+ * - configuration: A list of the block's configuration values.
+ *   - label: The configured label for the block.
+ *   - label_display: The display settings for the label.
+ *   - provider: The module or other provider that provided this block plugin.
+ *   - Block plugin specific settings will also be stored here.
+ * - content: The content of this block.
+ * - attributes: array of HTML attributes populated by modules, intended to
+ *   be added to the main container tag of this template.
+ *   - id: A valid HTML ID and guaranteed unique.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ *
+ * @see template_preprocess_block()
+ */
+#}
+{%
+  set classes = [  
+    'fixed-bg',
+    'contextual-links',
+    'relative',
+    nk_tools.animated_class,
+    'fadeIn',
+    'm-auto',
+    'text-align-left',
+  ]
+%}
+
+{% if caption %} 
+  
+  {% set caption_position = config.caption_position %}
+  {% set classes = classes|merge(['row']) %} 
+
+  {% if caption_position == 'left_middle' %}
+    {% set classes = classes|merge(['start-xs', 'middle-xs']) %} 
+  {% elseif caption_position == 'left_bottom' %}
+    {% set classes = classes|merge(['start-xs', 'bottom-xs']) %} 
+  {% elseif caption_position == 'center_middle' %} 
+    {% set classes = classes|merge(['center-xs', 'middle-xs']) %} 
+  {% elseif caption_position == 'right_middle' %} 
+    {% set classes = classes|merge(['end-xs', 'middle-xs']) %} 
+  {% elseif caption_position == 'right_bottom' %} 
+    {% set classes = classes|merge(['end-xs', 'bottom-xs']) %} 
+  {% endif %} 
+
+{% endif %}
+
+
+{% if image and config.css_bg %}
+  {%
+    set bg_classes = [
+      'bg-light-grey',
+      'animated',
+      'fadeIn',
+      'fast',
+      'delay-2s',
+      'nk-tools-nodes-banner-block',
+      'z-index--1',
+      'fixed-bg'
+    ]
+  %}
+
+{#   {% set load_image = content.image|raw %} #}
+
+{#   {% set bg_image = 'background-image: url(' ~ content.image|render ~ ')' %}  #}
+
+  {% set bg_image = image and config.css_bg ? 'background-image: url(' ~ image ~ ')' %}    
+
+  {% if bg_image and config.color %}
+    {% set bg_image = bg_image ~ '; background-color: ' ~ config.color %}
+  {% endif %}
+
+  {% if bg_image and config.opacity %}
+    {% set bg_image = bg_image ~ '; opacity: ' ~ config.opacity %}
+  {% endif %}
+  
+{% endif %}
+
+
+<div{{ attributes.addClass(classes).setAttribute('id', config.block_id) }} {% if bg_image %} {{ attributes.setAttribute('style', bg_image) }} {% endif %} {{ attributes.setAttribute('data-header', '#secondary-navigation').setAttribute('data-caption', '#node-banner-caption') }}>
+
+  {% if not config.css_bg and image %} 
+     {{ image }}
+  {% endif %}
+
+  {% if caption %}
+      
+    {%
+      set caption_classes = [
+        nk_tools.hidden_class,
+        'animated',
+        'fadeIn',
+        'fast',
+        'delay-2s',
+        'col-xs-8',
+        'banner-caption',
+        'pl-64',
+        'ml-16',
+        'z-index-1',
+        'text-white'
+      ]
+    %}
+      
+    {% if caption and config.caption_position == 'left_bottom' %} 
+      {% set caption_classes = caption_classes|merge(['pb-24']) %}
+    {% endif %}
+
+    <div {{ create_attribute({'class': caption_classes}).setAttribute('id', 'node-banner-caption') }}>
+        
+      {# These two fields, "title" and "body" may not be the real field names, the logic tries to "get it" from the real machine name #}
+      {% if caption.title %}
+        <h1 class="title uppercase lh-1-5 ls-1-5 fw-500 fs-1-5">{{ caption.title }}</h1>
+      {% endif %}
+        
+      {% if caption.body %}
+        <div class="caption-body fs-1-25 lh-1-2">{{ caption.body }}</div>
+      {% endif %}
+
+      {# Anyhow, if the guess was wrong here we will print just any fields without repeating previous two #}
+      {{ caption|without('title', 'body') }}
+    </div>
+
+  {% endif %} 
+  
+  {% if video %}
+    {{ video }}
+  {% endif %} 
+
+
+</div>

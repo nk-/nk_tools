@@ -1,0 +1,112 @@
+fonts:
+  remote: https://fonts.google.com
+  license:
+    name: SIL Open Font
+    url: https://github.com/google/fonts/blob/master/README.md
+  css:
+    base:
+      '//fonts.googleapis.com/icon?family=Material+Icons': { external: true, minified: false }
+      '//fonts.googleapis.com/css?family=Open+Sans:100,300,400,600,700|Open+Sans:100,100i,300,300i,400,400i,500,500i,600,600i,700,700i&display=swap&subset=latin-ext': { external: true, minified: false }
+      '//fonts.googleapis.com/css?family=Open+Sans+Condensed:100,300,400,600,700|Open+Sans:100,100i,300,300i,400,400i,500,500i,600,600i,700,700i&display=swap&subset=latin-ext': { external: true, minified: false }
+      css/nk_tools.fonts.css: {}
+
+animate.css:
+  remote: http://daneden.github.io/animate.css
+  version: 3.7.2
+  license:
+    name: MIT
+    url: https://github.com/daneden/animate.css/blob/master/LICENSE
+    gpl-compatible: true
+  css:
+    base:
+      //cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css: { type: external, minified: true }
+
+flexboxgrid:
+  remote: http://flexboxgrid.com
+  version: 6.3.1
+  license:
+    name: MIT
+    url: https://github.com/kristoferjoseph/flexboxgrid/blob/master/LICENSE
+  css:
+    base:
+      //cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css: { type: external, minified: true }
+
+nk_tools_factory:
+  version: VERSION
+  js:
+    js/nk_tools.factory.js: {}
+  css:
+    base: 
+      css/nk_tools.layout.css: {}
+      # Our custom icons and background sets
+      css/nk_tools.graphics.css: {}
+    component:
+      css/nk_tools.forms.css: {}
+      
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce
+
+fixed_banner:
+  version: VERSION
+  js:
+    js/nk_tools.fixed_banner.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce
+
+async_vew:
+  version: VERSION
+  js: 
+    js/nk_tools.async_view.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/jquery.form
+    - core/drupal.ajax
+    - core/views.ajax
+    - core/drupalSettings
+
+# default:
+#   css:
+#     base:
+#       # The main layout first
+#       css/layout.css: {}
+#       # Now styles for common dom elements
+#       css/elements.css: {}
+#       # Just place some animations here, if any
+#       css/animations.css: {}
+#     layout:
+#       # Our custom icons and background sets
+#       css/graphics.css: {}
+#     component:
+#       css/forms.css: {}
+#       css/fonts.css: {}
+
+# flexboxgrid:
+#   version: VERSION
+#   js:
+#     js/nk_tools.flexboxgrid.js: {}
+#   dependencies:
+#     - core/jquery.once
+#     - core/drupalSettings
+#     - core/drupal.debounce
+
+# 
+# collapsible_widget:
+#   version: VERSION
+#   js:
+#     js/nk_tools.collapsible.js: {}
+# 
+
+# node_edit:
+#   version: VERSION
+#   js:
+#     js/nk_tools.node_edit.js: {}
+#   dependencies:
+#     - core/jquery
+#     - core/jquery.once
+#     - core/drupal
+#     - core/drupalSettings
+# 

@@ -1,0 +1,7 @@
+name: Nk tools Corresponding Reference (beta)
+type: module
+description: 'Custom field widget and formatter for entityreference two ways handling.'
+package: 'Nk tools'
+core: 8.x
+dependencies:
+  - nk_tools:nk_tools

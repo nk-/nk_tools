@@ -1,0 +1,13 @@
+# To reset values/schema on confirguration pages, after changes here import it as a Simple configuration item in Configuration Synchronization interface
+layout:
+  desktop_only_class: 'desktop-only'
+  mobile_only_class: 'mobile-only'
+  hidden_class: 'hidden'
+  animate_class: 'animated'
+  page_title: null
+  trim_text:
+    trim_max_length: 160
+    trim_options:
+      word_boundary: false
+      ellipsis: false
+      html: false

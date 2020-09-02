@@ -1,0 +1,5 @@
+entity.nk_tools_swiper.add_form:
+  route_name: 'entity.nk_tools_swiper.add_form'
+  title: 'Add Swiper'
+  appears_on:
+    - entity.nk_tools_swiper.collection

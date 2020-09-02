@@ -1,0 +1,296 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\Core\Entity\ContentEntityType;
+
+use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_theme().
+ */
+function nk_tools_search_theme() {
+
+  return [
+    
+    'nk_tools_search_input' => [
+      'render element' => 'element',
+      'variables' => [
+        'attributes' => [],
+        'config' => []
+       ],
+    ],
+
+    // This seems to not be used at all, to check
+    'nk_tools_search_collapsible_icon' => [
+      'variables' => [
+        'attributes' => [],
+        'items' => [],
+       ]
+    ],
+
+    // These are very much Facets specific
+    'nk_tools_search_facets_dates_result_item' => [
+      'variables' => [
+        'facet' => NULL,
+        'raw_value' => '',
+        'value' => '',
+        'show_count' => FALSE,
+        'count' => NULL,
+        'is_active' => FALSE,
+      ],
+    ],
+    'nk_tools_search_facets_dates_item_list' => [ 
+      'variables' => [
+        'facet' => NULL,
+        'items' => [],
+        'title' => '',
+        'list_type' => 'ul',
+        'wrapper_attributes' => [],
+        'attributes' => [],
+        'empty' => NULL,
+        'context' => [],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function nk_tools_search_theme_suggestions_nk_tools_search_input(array $variables) {
+  
+  $suggestions = [];
+
+  // Search widget binded to a View, as exposed filter  
+  if (isset($variables['config']) && !empty($variables['config'])) {
+    $query_key = NULL;
+    $route = \Drupal::service('current_route_match');
+
+    $route_view_id = $route->getParameters()->has('view_id') ? $route->getParameter('view_id') : NULL;
+    $route_display_id = $route->getParameters()->has('display_id') ? $route->getParameter('display_id') : NULL;
+    
+    $view_id = isset($variables['config']['view_id']) && !empty($variables['config']['view_id']) ? $variables['config']['view_id'] : NULL;
+    $display_id = isset($variables['config']['display_id']) && !empty($variables['config']['display_id']) ? $variables['config']['display_id'] : NULL;
+
+    // Suggestions for View related search input
+    if ($view_id && $display_id && $route_view_id && $route_display_id) {
+      if ($view_id == $route_view_id && $display_id == $route_display_id) {
+        $query_key = isset($variables['config']['view_filter']) && !empty($variables['config']['view_filter']) ? $variables['config']['view_filter'] : 'search_api_fulltext';
+        $suggestions[] = 'nk_tools_search_input__' . $view_id;
+        $suggestions[] = 'nk_tools_search_input__' . $view_id . '__' . $display_id;
+        if (isset($variables['config']) && !empty($variables['config'])) {
+          $suggestions[] = 'nk_tools_search_input__' . $variables['config']['type'];
+          $suggestions[] = 'nk_tools_search_input__' . $variables['config']['type'] . '__' . $view_id;
+          $suggestions[] = 'nk_tools_search_input__' . $variables['config']['type'] . '__' . $view_id. '__' . $display_id;
+        }
+      }
+    }
+
+    // Suggestions for inline search input
+    $inline = isset($variables['config']['inline']) && isset($variables['config']['inline_target']) && !empty($variables['config']['inline_target']) ? $variables['config']['inline_target'] : NULL;
+    if ($inline) {
+      $suggestions[] = 'nk_tools_search_input__inline';
+      $suggestions[] = 'nk_tools_search_input__inline_' . str_replace('-', '_', $variables['config']['inline_target']);
+    }
+  }
+
+  return $suggestions;  
+
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function nk_tools_search_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  $excerpt_component = $display->getComponent('search_api_excerpt');
+  if ($excerpt_component !== NULL) {
+    if ($view_mode == 'search_result') {
+      
+      $route = \Drupal::service('current_route_match');
+      $query = \Drupal::request()->query->all(); 
+     
+      //?query=Digital&f[0]=type:issue_updates
+      if (isset($query['f'])) {
+       $query['f'][] = 'type:' . $entity->getType();
+      }
+      else {
+        $query['f'][0] = 'type:' . $entity->getType();
+      }
+
+      $options = [
+        'query' => $query,
+        'attributes' => [
+          'rel' => 'nofollow',
+          //'data-count' => '526',
+          'data-drupal-facet-item-id' => 'type-' . $entity->getType(), 
+          'data-drupal-facet-item-value' => $entity->getType(),
+          //'data-drupal-link-query' => '{"f":[type:' . $entity->getType() . ']}', //,&quot;query&quot;:&quot;Digital&quot;}",
+          //'data-drupal-link-system-path' => 'search',
+          'class' => [
+            'nk-tools-collapsible-facet-link'
+          ]
+        ]
+      ];
+
+
+      $current_url = Url::fromRoute($route->getRouteName(), [], $options);
+      
+      //$build['#attached']['library'][] = 'facets/drupal.facets.link-widget';
+      //$build['#attributes']['class'][] = 'js-facets-links';
+
+      $bundle_label = NodeType::load($entity->getType())->label();
+      $entity->bundle_label = ['#markup' => $bundle_label]; //Link::fromTextAndUrl($bundle_label, $current_url);
+      $build['content']['#bundle_label'] = ['#markup' => $bundle_label];
+
+      if (isset($build['field_country_reference']) && !empty($build['field_country_reference'])) {
+        $entity->country_label =  isset($build['field_country_reference'][0]) && isset($build['field_country_reference'][0]['#title']) ? $build['field_country_reference'][0]['#title'] : NULL;
+      }
+    }
+  } 
+}
+
+
+function nk_tools_search_preprocess_links(&$variables) {
+  if (!empty($variables['links'])) {
+    foreach ($variables['links'] as $key => &$link) {
+      if (isset($link['link']) && isset($link['link']['#url']) && $link['link']['#url'] instanceof Url) {
+        $storage = $link['attributes']->storage();
+        if (isset($storage['data-drupal-link-system-path']) && $storage['data-drupal-link-system-path']->value() == 'search') {
+          $link['attributes']->addClass(['facet-item']);
+          $link['count'] = $link['attributes']['data-count'];
+        }    
+      }
+    }
+  }
+}
+
+/*
+function nk_tools_search_preprocess_facets_result_item(&$variables) {  
+  if ($variables['facet']) {
+    switch ($variables['facet']->id()) {
+      case 'issue':
+        if (isset($variables['value']) && $variables['value'] > 0) {
+          $node = Node::load($variables['value']);
+          if ($node instanceof Node) {
+            $variables['value'] = $node->getTitle(); 
+          }
+        }
+      break;
+      // case 'dates':
+      // break;
+    }
+  }
+}
+*/
+
+function _template_preprocess_nk_tools_search_input(&$variables) {
+  
+  $nk_tools_config = \Drupal::config('nk_tools.settings');
+  $nk_tools_widgets = $nk_tools_config->get('widgets');
+
+  $type = isset($variables['config']) && isset($variables['config']['type']) ? $variables['config']['type'] : 'single';
+
+  // First assign this unique class, essential for toggle in JS
+  $variables['attributes']['class'][] = 'diplo-search-input';
+  $variables['attributes']['class'][] = 'diplo-search-input';
+  
+  $attached = [
+    'nk_tools_search' => []
+  ];
+  
+  $attached['nk_tools_search'][$type] = [
+    'target' => $type == 'single' ? 'input.diplo-search-input' : NULL,
+    'layout' => $nk_tools_config->get('layout'),
+    'widgets' => $nk_tools_widgets,
+    'config' => isset($variables['config']) ? $variables['config'] : [] 
+  ];
+
+  // Collapse / hide input field. Note "collapsed" setting may come from a block
+/*
+  if (isset($variables['config']['collapsed']) && $variables['config']['collapsed'] > 0 && !empty($nk_tools_config->get('layout')['hidden_class'])) { 
+    $variables['attributes']['class'][] = $nk_tools_config->get('layout')['hidden_class'];
+  }
+*/
+
+  // Set icon
+  if (isset($variables['config']) && isset($variables['config']['type']) && $variables['config']['type'] == 'single') {
+    $variables['config']['icon'] = isset($variables['config']['icon']) ? $variables['config']['icon'] : $nk_tools_config->get('widgets')['search']['icon']; 
+  }
+  else {
+    $variables['config']['icon'] = NULL;
+  }
+
+  // Type attribute for input, important in case of some plugin
+  $variables['attributes']['type'] = isset($variables['config']['input_type']) && !empty($variables['config']['input_type']) ? $variables['config']['input_type'] : 'search';
+
+  if (isset($variables['view']) && isset($variables['view']['view_id']) && !empty($variables['view']['view_id'])) {
+    $view_id = $variables['view']['view_id'];
+  }
+  else {
+    $view_id = isset($nk_tools_widgets['search']['view_container']['view_id']) && !empty($nk_tools_widgets['search']['view_container']['view_id']) ? $nk_tools_widgets['search']['view_container']['view_id'] : NULL;
+  }
+
+  if (isset($variables['view']) && isset($variables['view']['display_id']) && !empty($variables['view']['display_id'])) {
+    $display_id =  $variables['view']['display_id'];
+  }
+  else {
+    $display_id = isset($nk_tools_widgets['search']['view_container']['display']['display_id']) && !empty($nk_tools_widgets['search']['view_container']['display']['display_id']) ? $nk_tools_widgets['search']['view_container']['display']['display_id'] : NULL;
+  }
+
+  if ($view_id && $display_id) {
+      
+    if (isset($variables['view']['view_filter']) && !empty($variables['view']['view_filter'])) { 
+      $query_key = $variables['view']['view_filter'];
+    }
+    else {
+      $query_key = isset($nk_tools_widgets['search']['view_container']['view_filter']) && !empty($nk_tools_widgets['search']['view_container']['view_filter']) ? $nk_tools_widgets['search']['view_container']['view_filter'] : 'search_api_fulltext'; 
+    }
+
+    // The other few attributes
+    $variables['attributes']['placeholder'] = isset($variables['config']['placeholder']) && !empty($variables['config']['placeholder']) ? $variables['config']['placeholder'] : NULL;
+    $variables['attributes']['data-drupal-selector'] = 'edit-' . $query_key;
+    // ID attribute
+    $variables['attributes']['id'] = 'edit-' . $query_key;
+
+    $view_route = 'view.' . $view_id .'.' . $display_id; 
+    $view_path = Url::fromRoute($view_route);
+    if ($view_path) {
+      $attached['nk_tools_search'][$type]['view_path'] = $view_path->toString(); 
+    }
+    
+    // A special support form search_api_autocomplete contrib module
+    if (isset($variables['config']['search_api_autocomplete'])) {
+      $variables['attributes']['data-search-api-autocomplete-search'] = $view_id;
+      $variables['attributes']['data-autocomplete-path'] = '/search_api_autocomplete/' . $view_id . '?display=' . $display_id .'&filter=' . $query_key;
+    } 
+  }
+
+  // A menu with variant
+  /*
+  if (!empty($nk_tools_config->get('widgets')['search']['menu'])) {  
+    // Set this flag important for classes choice in the twig template
+    $variables['config']['is_menu'] = TRUE;
+    
+    // Hardcode this for now, does not make much sense to have search input in menu expanded initi
+    $variables['config']['collapsed'] = TRUE; 
+
+    // Set some extra classes to this special element
+    $variables['attributes']['class'][] = 'search-menu';
+    if (!empty($nk_tools_config->get('widgets')['search']['menu_item'])) { 
+      $variables['attributes']['class'][] = 'menu--' . str_replace(':', '', $nk_tools_config->get('widgets')['search']['menu_item']);  
+    }
+  }
+  */
+ 
+  $variables['nk_tools_layout'] = $nk_tools_config->get('layout');
+  //ksm($attached);
+
+  
+  $variables['#attached']['drupalSettings']['nk_tools'] = $attached;
+ // $variables['#attached']['library'][] = 'nk_tools/search_widget';
+
+}

@@ -1,0 +1,62 @@
+{%
+  set parent_classes = [
+    'pl-16',
+    'pr-16',
+    'row',
+    'between-xs',
+  ]
+%}
+
+{% 
+  set column_classes = [
+    config.class,
+    'pl-0',
+    'pt-24',
+    'pb-24', 
+    'mr-16',
+    'col-xs-12',
+    'col-sm-12',
+
+  ]
+%}
+
+{% if config.columns == 2 %}
+  {% set column_classes = column_classes|merge(['col-md-5', 'col-lg-5']) %}  
+{% elseif config.colums == 3 %} 
+  {% set column_classes = column_classes|merge(['col-md-4', 'col-lg-4']) %}
+{% elseif config.colums == 4 %} 
+  {% set column_classes = column_classes|merge(['col-md-3', 'col-lg-3']) %}
+{% elseif config.colums == 5 %}
+  {% set column_classes = column_classes|merge(['col-md-2', 'col-lg-2']) %}
+{% elseif config.colums == 6 %}  
+  {% set column_classes = column_classes|merge(['col-md-1', 'col-lg-1']) %}
+{% endif %}
+
+{% if config.icon %}
+  {% set column_classes = column_classes|merge(['row', 'between-xs', 'middle-xs']) %}
+  {% set icon_type = '.' in config.icon ? 'class' : 'icon' %}
+  {% set icon_attribute = icon_type == 'class' ? config.icon|trim('.') : config.icon %}
+{% endif %}
+
+<div {{ attributes.addClass(parent_classes) }}>
+  {% for item in rows %}
+    <div {{ create_attribute({'class': column_classes}) }}>
+     {% if config.icon %}
+
+       {% if icon_type == 'icon' %}
+         <i class="col-xs-1 fs-32 material-icons">{{ icon_attribute }}</i>
+         <div class="col-xs-11 pl-0 pr-8">{{ item|render }}</div>
+       {% else  %}
+
+         <div class="col-xs-1 no-p link-highlights link-24 {{ icon_attribute }}"><a href="#"> </a></div>
+         <div class="col-xs-11 pl-8 pr-8">
+           {{ item|render }}
+         </div>
+
+       {% endif %}
+     {% else %}
+       {{ item|render }}
+     {% endif %}
+    </div>
+  {% endfor %}
+</div>

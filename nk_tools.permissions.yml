@@ -1,0 +1,4 @@
+administer nk_tools:
+  title: 'Administer Nk tools'
+access cache clear:
+  title: 'Access and run cache clear'

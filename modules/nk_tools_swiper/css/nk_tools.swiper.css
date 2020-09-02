@@ -1,0 +1,49 @@
+.swiper-container {
+  max-width: 100%;
+  margin: 0 auto;
+  width: auto;
+}
+
+.swiper-container-vertical > .swiper-pagination-progressbar.right {
+  right: 0;
+  left: inherit;
+}
+
+.swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+  background: rgba(0, 197, 156, 0.75) !important;
+}
+
+.swiper-slide img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  object-fit:cover!important;
+}
+
+.swiper-caption {
+  position: absolute;
+  bottom: 0;
+  background: rgba(1, 1, 1, 0.60);
+  min-width: 100%;
+  padding: 0.75rem;
+  margin-left: 1px;
+  font-size: 1rem;
+  color:#ffffff;
+}
+
+.swiper-links {
+  position: fixed;
+  top: 0;
+  background-color: #fff;
+  width: 10%;
+  left: 0;
+  z-index: 32;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.swiper-links .swiper-links-wrapper {
+  position: relative;
+  top: 64px;
+  background-color: #fff;
+}

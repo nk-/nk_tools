@@ -1,0 +1,6 @@
+nk_tools_cer.entity_autocomplete:
+  path: '/corresponding_entity_reference_autocomplete/{field_name}/{target_type}/{selection_handler}/{selection_settings_key}'
+  defaults:
+    _controller: '\Drupal\nk_tools_cer\Controller\CorrespondingEntityAutocompleteController::handleAutocomplete'
+  requirements:
+    _access: 'TRUE'

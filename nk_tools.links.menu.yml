@@ -1,0 +1,32 @@
+# nk_tools.signin:
+#   #weight: 10
+#   menu_name: account
+#   class: Drupal\nk_tools\Plugin\Menu\NkToolsSignInLogoutMenuLink
+#   description: 'Sign In menu item'
+# 
+# nk_tools.signup:
+#   #weight: 10
+#   menu_name: account
+#   class: Drupal\nk_tools\Plugin\Menu\NkToolsSignUpMenuLink
+#   description: 'Sign Up menu item'
+
+nk_tools.config_overview:
+  title: Nk Tools
+  parent: system.admin_structure
+  description: 'Various configurations for Nk tools module.'
+  route_name: nk_tools.config_overview
+
+nk_tools.settings:
+  title: 'Main settings'
+  parent: nk_tools.config_overview
+  description: 'Set of main configurations for this platform/theme'
+  route_name: nk_tools.settings
+  weight: -20
+nk_tools.cache_clear:
+  title: 'Cache clear'
+  route_name: nk_tools.cache_clear
+  menu_name: admin
+  parent: system.admin
+  class: \Drupal\nk_tools\Plugin\Menu\DestinationMenuLink
+  weight: 0
+

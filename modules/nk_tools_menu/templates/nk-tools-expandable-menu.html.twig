@@ -1,0 +1,49 @@
+{% import '@nk_tools/macros.twig' as nkMacros %}
+
+{%
+  set menu_tree_classes = [
+    icon ? nk_tools.hidden_class,
+    'sliding-items',
+    'animated',
+    'faster',
+    config.toggle_attributes['data-target-in'],
+    'shadow-3',
+    'top-72',
+    'left-0',
+    'w-320',
+    'row',
+    'top-xs',
+    'start-xs',
+    'fixed',
+    'h-100',
+    'text-align-left',
+    'bg-light-grey',
+    'pl-16',
+    'pr-16',
+    'pt-16',
+    'pb-16'
+  ]
+%}
+{% set menu_tree_attributes = create_attribute({'id': target_id}).addClass(menu_tree_classes) %}
+
+{% set toggle_attributes = create_attribute({'role': 'burger'}) %}
+{%
+  set toggle_attributes_add = {
+    'data-target': target_id,
+    'data-sliding': config.toggle_attributes['data-sliding'],
+    'data-target-in': config.toggle_attributes['data-target-in'],
+    'data-target-out': config.toggle_attributes['data-target-out'],
+    'data-icon-back': config.toggle_attributes['data-icon-back']
+  }
+%}
+
+{% if icon %}
+  <a {{ toggle_attributes.addClass('grey', 'pointer', 'z-index-1') }} {{ nk_tools.setMultipleAttributes(toggle_attributes, toggle_attributes_add) }}> 
+    <i class="material-icons icon-back fs-24 {{ nk_tools.hidden_class }}">{{ close_icon }}</i>
+    <i class="material-icons toggle-icon fs-24">{{ icon }}</i>
+  </a>
+{% endif %}
+
+<nav {{ menu_tree_attributes }}>
+  {{ menu_tree }}
+</nav>

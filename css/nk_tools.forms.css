@@ -1,0 +1,966 @@
+
+.form-item {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.form-item .form-item {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.form-item.label-hidden label {
+  display: none;
+}
+.form-item label, .form-item .description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+}
+.form-item label.option, .form-item.focused label.option {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.form-item label .form-required {
+  color: #f44336;
+}
+
+.form-item.focused label {
+  color: #00b0ff;
+}
+
+.form-item .description {
+  margin: 8px 0;
+}
+.form-item input, .form-item textarea, .form-item select {
+  border: 0;
+  margin: 0;
+  background: none;
+  outline: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 16px;
+}
+
+.form-item input[type="text"], .form-item input[type="email"], .form-item input[type="password"], 
+.form-item input[type="search"], .form-item input[type="tel"], .form-item textarea, .form-item select,
+.facets-dropdown {
+  width: 100%;
+  max-width: 220px;  /* 460px; */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 8px 0;
+  color: rgba(112, 112, 112, 1);
+}
+
+.form-item input[type="text"]:focus,
+.form-item input[type="text"].error:focus,
+.form-item input[type="email"]:focus,
+.form-item input[type="email"].error:focus,
+.form-item input[type="password"]:focus,
+.form-item input[type="password"].error:focus,
+.form-item input[type="search"]:focus,
+.form-item input[type="search"].error:focus,
+.form-item input[type="tel"]:focus,
+.form-item input[type="tel"].error:focus,
+.form-item textarea:focus,
+.form-item textarea.error:focus,
+.form-item select:focus,
+.form-item select.error:focus {
+  border-bottom: 2px solid #00b0ff;
+  padding-bottom: 7px;
+}
+
+.form-item input[type="text"].error,
+.form-item input[type="email"].error,
+.form-item input[type="password"].error,
+.form-item input[type="search"].error,
+.form-item input[type="tel"].error,
+.form-item textarea.error,
+.form-item select.error {
+  border-bottom: 2px solid #f44336;
+  padding: 8px 0 7px;
+}
+
+/* Placeholder */
+.form-item input[type="text"]::-webkit-input-placeholder,
+.form-item input[type="email"]::-webkit-input-placeholder,
+.form-item input[type="password"]::-webkit-input-placeholder,
+.form-item input[type="search"]::-webkit-input-placeholder,
+.form-item input[type="tel"]::-webkit-input-placeholder,
+.form-item textarea::-webkit-input-placeholder,
+.form-item select::-webkit-input-placeholder,
+.form-item input[type="text"]:-ms-input-placeholder,
+.form-item input[type="email"]:-ms-input-placeholder,
+.form-item input[type="password"]:-ms-input-placeholder,
+.form-item input[type="search"]:-ms-input-placeholder,
+.form-item input[type="tel"]:-ms-input-placeholder,
+.form-item textarea:-ms-input-placeholder,
+.form-item select:-ms-input-placeholder {
+  color: rgba(112, 112, 112, 1);
+  
+}
+
+.form-item input[type="radio"],
+.form-item input[type="checkbox"] { 
+  display: inline-block;
+  color: rgba(0, 0, 0, 0.54);
+  float: left;
+  margin-top: 6px;
+  margin-right: 12px;
+}
+
+.form-item input[type="checkbox"]:before {
+  content: 'check_box_outline_blank';
+  margin-top: -7px;
+}
+
+.form-item input[type="checkbox"]:checked:before {
+  content: 'check_box';
+  color: #00b0ff;
+}
+
+.form-item input[type="radio"]:before {
+  content: 'radio_button_unchecked';
+  margin-top: -7px;
+}
+
+.form-item input[type="radio"]:checked:before {
+  content: 'radio_button_checked';
+  color: #00b0ff;
+}
+
+
+.form-item input.radios-tab {
+  display: block;
+  float: none;
+  clear: both;
+  margin: 0;
+}
+.form-item input.radios-tab:before,
+.form-item input.radios-tab:checked:before {
+  content: "";
+  margin: 0;
+}
+
+
+.form-item.form-type-file label {
+  display: block;
+}
+
+.form-item input[type="file"] {
+  margin: 8px 0;
+}
+
+.form-item textarea {
+  resize: none;
+}
+
+.form-item .grippie {
+  display: none;
+}
+
+.form-item.form-type-select {
+  overflow: hidden;
+}
+
+.form-item.form-type-select label {
+  display: block;
+}
+
+.form-item select {
+  min-width: 280px;
+  width: 100%;
+  height: 36px;
+  border-top: 1px solid rgba(0,0,0,0.12);
+}
+
+.form-item.form-type-select:after {
+  content: 'arrow_drop_down';
+  margin-left: -24px;
+  color: rgba(0, 0, 0, 0.54);
+  z-index: 0;
+  position: relative;
+}
+
+form.form-inline,
+.form-inline form {
+  display: flex;
+  align-items: baseline;
+}
+
+.form-inline .messages-wrapper {
+  position: absolute;
+  bottom: 1%;
+  right: 34%;
+  z-index: 1;
+}
+
+.relative form.form-inline,
+.relative .form-inline form {
+  bottom: 12px;
+  position: relative;
+}
+
+
+form.form-inline > *,
+.form-inline form > * {
+  padding: 0 8px 0 16px;
+  margin: 0;
+}
+ 
+form.form-inline > p,
+.form-inline form > p,
+form.form-inline > .container-inline,
+.form-inline form .container-inline {
+  padding: 0;
+}
+
+.form-item label,
+.form-item .description,
+form summary {
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.54) !important;
+}
+
+
+input {
+  max-width: 100%;
+  background: none;
+  font-size: 1rem;
+}
+
+.form-item input[type="password"],
+.form-item input[type="search"] {
+  border: none;
+}
+
+.form-item input[type="text"],
+.form-item input[type="email"],
+.form-item input.sibling {
+  background-color: transparent;
+  padding-left: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  max-width: 280px;
+  min-width: 190px;
+  width: 100%;
+  height: 36px;
+  border-top: 1px solid rgba(0,0,0,0.12);
+}
+
+.green-border .form-item .form-email,
+.green-border .form-item .form-text,
+.green-border .form-item .form-email:focus,
+.green-border .form-item .form-text:focus {
+  border: 1px solid rgba(0, 135, 154, 1);
+  padding: 4px 6px;
+  line-height: 1.75;
+  border-radius: 4px;
+  position: relative;
+  top: 2px;
+} 
+
+/*
+  Some on views exposed forms
+*/
+.views-exposed-form form,
+form.views-exposed-form { 
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
+form.views-exposed-form > .form-actions {
+  margin-right: 0;
+}
+
+.views-exposed-form form .form-actions input[type=submit],
+form.views-exposed-form .form-actions input[type=submit] {
+  margin-left: 0;  
+  min-width: 180px;
+  max-width: 220px;
+}
+
+
+/* Buttons */
+.btn-group {
+  margin: 8px 0;
+}
+
+.btn, .pager .pager-item > a, .pager .pager-item > span, input[type="submit"] {
+  display: inline-block;
+  height: 24px;
+  min-width: 88px;
+  margin: 8px 8px 8px 0;
+  padding: 8px 16px;
+  text-align: center;
+  border-radius: 2px;
+  cursor: pointer;
+  outline: 0;
+  background: none;
+  border: 0;
+/*   font-family: "Roboto", sans-serif; */
+  font-size: 14px;
+  vertical-align: middle;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: background-color .2s, box-shadow .2s;
+  max-width: 86%;
+}
+
+.btn.bg-orange {
+  background-color: rgb(224, 130, 25);
+}
+
+.btn.bg-green {
+  background-color: rgb(38, 135, 71);
+}
+
+.btn:hover, .pager .pager-item > a:hover, .pager .pager-item > span:hover, .btn:focus, .pager .pager-item > a:focus, .pager .pager-item > span:focus, input[type="submit"]:hover, input[type="submit"]:focus   {
+  background: rgba(153, 153, 153, 0.2);
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.87);
+}
+  
+.btn:active, .pager .pager-item > a:active, .pager .pager-item > span:active, input[type="submit"]:active {
+  background: rgba(153, 153, 153, 0.4);
+}
+
+.btn-colored, .btn-colored:hover, .btn-colored:focus,
+.btn.btn-colored,
+.pager .pager-item > a.btn-colored,
+.pager .pager-item > span.btn-colored, .btn.btn-colored:hover, .pager .pager-item > a.btn-colored:hover, .pager .pager-item > span.btn-colored:hover, .btn.btn-colored:focus, .pager .pager-item > a.btn-colored:focus, .pager .pager-item > span.btn-colored:focus {
+  color: #546e7a;
+}
+
+.btn-accent, .pager .pager-item > a, .pager .pager-item > span, .btn-accent:hover, .pager .pager-item > a:hover, .pager .pager-item > span:hover, .btn-accent:focus, .pager .pager-item > a:focus, .pager .pager-item > span:focus,
+.btn.btn-accent,
+.pager .pager-item > a,
+.pager .pager-item > span, .btn.btn-accent:hover, .pager .pager-item > a:hover, .pager .pager-item > span:hover, .btn.btn-accent:focus, .pager .pager-item > a:focus, .pager .pager-item > span:focus {
+  color: #00b0ff;
+}
+
+.btn-raised.btn-colored, .btn.btn-raised.btn-colored, .pager .pager-item > a.btn-raised.btn-colored, .pager .pager-item > span.btn-raised.btn-colored {
+  background: #607d8b;
+  color: #FFF;
+}
+
+.btn-raised.btn-grey, .btn.btn-raised.btn-grey, .pager .pager-item > a.btn-raised.btn-grey, .pager .pager-item > span.btn-raised.btn-grey {
+  background: rgba(227, 225, 225, 1);
+  color: rgba(65, 65, 65, 1);
+}
+.btn-raised.btn-grey:hover a,
+.btn.btn-raised.btn-grey:hover a {
+  opacity: 0.68;
+}
+
+.btn-raised.btn-orange, .btn.btn-raised.btn-orange, .pager .pager-item > a.btn-raised.btn-orange, .pager .pager-item > span.btn-raised.btn-orange {
+  background: rgba(255, 170, 0, 1);
+  color: #FFF;
+}
+
+.btn-raised.btn-active,
+.btn-raised.btn-orange.btn-active,
+.btn-raised.btn-grey.btn-active {
+  background-color: rgba(112, 112, 112, 1); /* #546e7a; */
+  color: rgba(242, 242, 242, 1);
+}
+
+
+.btn-raised.btn-accent, .pager .pager-item > a.btn-raised, .pager .pager-item > span.btn-raised, .btn.btn-raised.btn-accent, .pager .pager-item > a.btn-raised, .pager .pager-item > span.btn-raised {
+  background: #00b0ff;
+  color: rgba(255, 255, 255, 0.85); /* rgba(0, 0, 0, 0.87); */
+ }
+
+.btn-raised.btn-colored .rippleAnimate, .btn-raised.btn-accent .rippleAnimate, .pager .pager-item > a.btn-raised .rippleAnimate, .pager .pager-item > span.btn-raised .rippleAnimate, .btn.btn-raised.btn-colored .rippleAnimate, .pager .pager-item > a.btn-raised.btn-colored .rippleAnimate, .pager .pager-item > span.btn-raised.btn-colored .rippleAnimate, .btn.btn-raised.btn-accent .rippleAnimate, .pager .pager-item > a.btn-raised .rippleAnimate, .pager .pager-item > span.btn-raised .rippleAnimate {
+  background-color: rgba(255, 255, 255, 0.3); }
+
+.btn-raised.btn-colored:hover, .btn-raised.btn-colored:focus, .btn.btn-raised.btn-colored:hover, .pager .pager-item > a.btn-raised.btn-colored:hover, .pager .pager-item > span.btn-raised.btn-colored:hover, .btn.btn-raised.btn-colored:focus, .pager .pager-item > a.btn-raised.btn-colored:focus, .pager .pager-item > span.btn-raised.btn-colored:focus {
+  background: #546e7a;
+  color: #FFF; }
+
+.btn-raised.btn-colored:active, .btn.btn-raised.btn-colored:active, .pager .pager-item > a.btn-raised.btn-colored:active, .pager .pager-item > span.btn-raised.btn-colored:active {
+  background: #455a64; }
+
+.btn-raised.btn-accent:hover, .pager .pager-item > a.btn-raised:hover, .pager .pager-item > span.btn-raised:hover, .btn-raised.btn-accent:focus, .pager .pager-item > a.btn-raised:focus, .pager .pager-item > span.btn-raised:focus, .btn.btn-raised.btn-accent:hover, .pager .pager-item > a.btn-raised:hover, .pager .pager-item > span.btn-raised:hover, .btn.btn-raised.btn-accent:focus, .pager .pager-item > a.btn-raised:focus, .pager .pager-item > span.btn-raised:focus {
+  background: #0aa2ff;
+  color: rgba(0, 0, 0, 0.87); }
+
+.btn-raised.btn-accent:active, .pager .pager-item > a.btn-raised:active, .pager .pager-item > span.btn-raised:active, .btn.btn-raised.btn-accent:active, .pager .pager-item > a.btn-raised:active, .pager .pager-item > span.btn-raised:active {
+  background: #0091ea; }
+
+
+
+.btn.icon-left:before, .pager .pager-item > a.icon-left:before, .pager .pager-item > span.icon-left:before, .btn.icon-right:after, .pager .pager-item > a.icon-right:after, .pager .pager-item > span.icon-right:after,
+.btn .material-icons,
+.pager .pager-item > a .material-icons,
+.pager .pager-item > span .material-icons,
+.btn .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .btn li:not(:last-child):after,
+.pager .pager-item > a .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .pager .pager-item > a li:not(:last-child):after,
+.pager .pager-item > span .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .pager .pager-item > span li:not(:last-child):after,
+.btn .info:before,
+.pager .pager-item > a .info:before,
+.pager .pager-item > span .info:before,
+.btn .important:before,
+.pager .pager-item > a .important:before,
+.pager .pager-item > span .important:before,
+.btn .messages-status:before,
+.pager .pager-item > a .messages-status:before,
+.pager .pager-item > span .messages-status:before,
+.btn .messages-warning:before,
+.pager .pager-item > a .messages-warning:before,
+.pager .pager-item > span .messages-warning:before,
+.btn .messages-error:before,
+.pager .pager-item > a .messages-error:before,
+.pager .pager-item > span .messages-error:before,
+.btn .form-item input[type="checkbox"]:before,
+.form-item .btn input[type="checkbox"]:before,
+.pager .pager-item > a .form-item input[type="checkbox"]:before,
+.form-item .pager .pager-item > a input[type="checkbox"]:before,
+.pager .pager-item > span .form-item input[type="checkbox"]:before,
+.form-item .pager .pager-item > span input[type="checkbox"]:before,
+.btn .form-item input[type="radio"]:before,
+.form-item .btn input[type="radio"]:before,
+.pager .pager-item > a .form-item input[type="radio"]:before,
+.form-item .pager .pager-item > a input[type="radio"]:before,
+.pager .pager-item > span .form-item input[type="radio"]:before,
+.form-item .pager .pager-item > span input[type="radio"]:before,
+.btn .form-item.form-type-select:after,
+.pager .pager-item > a .form-item.form-type-select:after,
+.pager .pager-item > span .form-item.form-type-select:after,
+.btn .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .btn a:before,
+.pager .pager-item > a .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .pager .pager-item > a a:before,
+.pager .pager-item > span .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .pager .pager-item > span a:before,
+.btn .sidebar .menu .collapsed > a:after,
+.sidebar .menu .btn .collapsed > a:after,
+.pager .pager-item > a .sidebar .menu .collapsed > a:after,
+.sidebar .menu .pager .pager-item > a .collapsed > a:after,
+.pager .pager-item > span .sidebar .menu .collapsed > a:after,
+.sidebar .menu .pager .pager-item > span .collapsed > a:after,
+.btn .sidebar .menu .expanded > a:after,
+.sidebar .menu .btn .expanded > a:after,
+.pager .pager-item > a .sidebar .menu .expanded > a:after,
+.sidebar .menu .pager .pager-item > a .expanded > a:after,
+.pager .pager-item > span .sidebar .menu .expanded > a:after,
+.sidebar .menu .pager .pager-item > span .expanded > a:after,
+.btn .collapsible-toggle:before,
+.pager .pager-item > a .collapsible-toggle:before,
+.pager .pager-item > span .collapsible-toggle:before,
+.btn .pager .pager-item.item-first > a:before,
+.pager .btn .pager-item.item-first > a:before,
+.pager .pager-item > a .pager-item.item-first > a:before,
+.pager .pager-item > span .pager-item.item-first > a:before,
+.btn .pager .pager-item.item-first > span:before,
+.pager .btn .pager-item.item-first > span:before,
+.pager .pager-item > a .pager-item.item-first > span:before,
+.pager .pager-item > span .pager-item.item-first > span:before,
+.btn .pager .pager-item.item-previous > a:before,
+.pager .btn .pager-item.item-previous > a:before,
+.pager .pager-item > a .pager-item.item-previous > a:before,
+.pager .pager-item > span .pager-item.item-previous > a:before,
+.btn .pager .pager-item.item-previous > span:before,
+.pager .btn .pager-item.item-previous > span:before,
+.pager .pager-item > a .pager-item.item-previous > span:before,
+.pager .pager-item > span .pager-item.item-previous > span:before,
+.btn .pager .pager-item.item-ellipsis > a:before,
+.pager .btn .pager-item.item-ellipsis > a:before,
+.pager .pager-item > a .pager-item.item-ellipsis > a:before,
+.pager .pager-item > span .pager-item.item-ellipsis > a:before,
+.btn .pager .pager-item.item-ellipsis > span:before,
+.pager .btn .pager-item.item-ellipsis > span:before,
+.pager .pager-item > a .pager-item.item-ellipsis > span:before,
+.pager .pager-item > span .pager-item.item-ellipsis > span:before,
+.btn .pager .pager-item.item-next > a:before,
+.pager .btn .pager-item.item-next > a:before,
+.pager .pager-item > a .pager-item.item-next > a:before,
+.pager .pager-item > span .pager-item.item-next > a:before,
+.btn .pager .pager-item.item-next > span:before,
+.pager .btn .pager-item.item-next > span:before,
+.pager .pager-item > a .pager-item.item-next > span:before,
+.pager .pager-item > span .pager-item.item-next > span:before,
+.btn .pager .pager-item.item-last > a:before,
+.pager .btn .pager-item.item-last > a:before,
+.pager .pager-item > a .pager-item.item-last > a:before,
+.pager .pager-item > span .pager-item.item-last > a:before,
+.btn .pager .pager-item.item-last > span:before,
+.pager .btn .pager-item.item-last > span:before,
+.pager .pager-item > a .pager-item.item-last > span:before,
+.pager .pager-item > span .pager-item.item-last > span:before {
+  margin-top: -2px;
+  margin-bottom: -2px; }
+
+.btn.services-icon-left:before, .pager .pager-item > a.services-icon-left:before, .pager .pager-item > span.services-icon-left:before, .btn.services-icon-right:after, .pager .pager-item > a.services-icon-right:after, .pager .pager-item > span.services-icon-right:after, .btn .services-icons, .pager .pager-item > a .services-icons, .pager .pager-item > span .services-icons,
+.btn.filetypes-icon-left:before,
+.pager .pager-item > a.filetypes-icon-left:before,
+.pager .pager-item > span.filetypes-icon-left:before, .btn.filetypes-icon-right:after, .pager .pager-item > a.filetypes-icon-right:after, .pager .pager-item > span.filetypes-icon-right:after, .btn .filetypes-icons, .pager .pager-item > a .filetypes-icons, .pager .pager-item > span .filetypes-icons {
+  margin-top: -2px;
+  margin-bottom: -1px; }
+
+.btn.icon-left:before, .pager .pager-item > a.icon-left:before, .pager .pager-item > span.icon-left:before,
+.btn .material-icons,
+.pager .pager-item > a .material-icons,
+.pager .pager-item > span .material-icons,
+.btn .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .btn li:not(:last-child):after,
+.pager .pager-item > a .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .pager .pager-item > a li:not(:last-child):after,
+.pager .pager-item > span .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .pager .pager-item > span li:not(:last-child):after,
+.btn .info:before,
+.pager .pager-item > a .info:before,
+.pager .pager-item > span .info:before,
+.btn .important:before,
+.pager .pager-item > a .important:before,
+.pager .pager-item > span .important:before,
+.btn .messages-status:before,
+.pager .pager-item > a .messages-status:before,
+.pager .pager-item > span .messages-status:before,
+.btn .messages-warning:before,
+.pager .pager-item > a .messages-warning:before,
+.pager .pager-item > span .messages-warning:before,
+.btn .messages-error:before,
+.pager .pager-item > a .messages-error:before,
+.pager .pager-item > span .messages-error:before,
+.btn .form-item input[type="checkbox"]:before,
+.form-item .btn input[type="checkbox"]:before,
+.pager .pager-item > a .form-item input[type="checkbox"]:before,
+.form-item .pager .pager-item > a input[type="checkbox"]:before,
+.pager .pager-item > span .form-item input[type="checkbox"]:before,
+.form-item .pager .pager-item > span input[type="checkbox"]:before,
+.btn .form-item input[type="radio"]:before,
+.form-item .btn input[type="radio"]:before,
+.pager .pager-item > a .form-item input[type="radio"]:before,
+.form-item .pager .pager-item > a input[type="radio"]:before,
+.pager .pager-item > span .form-item input[type="radio"]:before,
+.form-item .pager .pager-item > span input[type="radio"]:before,
+.btn .form-item.form-type-select:after,
+.pager .pager-item > a .form-item.form-type-select:after,
+.pager .pager-item > span .form-item.form-type-select:after,
+.btn .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .btn a:before,
+.pager .pager-item > a .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .pager .pager-item > a a:before,
+.pager .pager-item > span .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .pager .pager-item > span a:before,
+.btn .sidebar .menu .collapsed > a:after,
+.sidebar .menu .btn .collapsed > a:after,
+.pager .pager-item > a .sidebar .menu .collapsed > a:after,
+.sidebar .menu .pager .pager-item > a .collapsed > a:after,
+.pager .pager-item > span .sidebar .menu .collapsed > a:after,
+.sidebar .menu .pager .pager-item > span .collapsed > a:after,
+.btn .sidebar .menu .expanded > a:after,
+.sidebar .menu .btn .expanded > a:after,
+.pager .pager-item > a .sidebar .menu .expanded > a:after,
+.sidebar .menu .pager .pager-item > a .expanded > a:after,
+.pager .pager-item > span .sidebar .menu .expanded > a:after,
+.sidebar .menu .pager .pager-item > span .expanded > a:after,
+.btn .collapsible-toggle:before,
+.pager .pager-item > a .collapsible-toggle:before,
+.pager .pager-item > span .collapsible-toggle:before,
+.btn .pager .pager-item.item-first > a:before,
+.pager .btn .pager-item.item-first > a:before,
+.pager .pager-item > a .pager-item.item-first > a:before,
+.pager .pager-item > span .pager-item.item-first > a:before,
+.btn .pager .pager-item.item-first > span:before,
+.pager .btn .pager-item.item-first > span:before,
+.pager .pager-item > a .pager-item.item-first > span:before,
+.pager .pager-item > span .pager-item.item-first > span:before,
+.btn .pager .pager-item.item-previous > a:before,
+.pager .btn .pager-item.item-previous > a:before,
+.pager .pager-item > a .pager-item.item-previous > a:before,
+.pager .pager-item > span .pager-item.item-previous > a:before,
+.btn .pager .pager-item.item-previous > span:before,
+.pager .btn .pager-item.item-previous > span:before,
+.pager .pager-item > a .pager-item.item-previous > span:before,
+.pager .pager-item > span .pager-item.item-previous > span:before,
+.btn .pager .pager-item.item-ellipsis > a:before,
+.pager .btn .pager-item.item-ellipsis > a:before,
+.pager .pager-item > a .pager-item.item-ellipsis > a:before,
+.pager .pager-item > span .pager-item.item-ellipsis > a:before,
+.btn .pager .pager-item.item-ellipsis > span:before,
+.pager .btn .pager-item.item-ellipsis > span:before,
+.pager .pager-item > a .pager-item.item-ellipsis > span:before,
+.pager .pager-item > span .pager-item.item-ellipsis > span:before,
+.btn .pager .pager-item.item-next > a:before,
+.pager .btn .pager-item.item-next > a:before,
+.pager .pager-item > a .pager-item.item-next > a:before,
+.pager .pager-item > span .pager-item.item-next > a:before,
+.btn .pager .pager-item.item-next > span:before,
+.pager .btn .pager-item.item-next > span:before,
+.pager .pager-item > a .pager-item.item-next > span:before,
+.pager .pager-item > span .pager-item.item-next > span:before,
+.btn .pager .pager-item.item-last > a:before,
+.pager .btn .pager-item.item-last > a:before,
+.pager .pager-item > a .pager-item.item-last > a:before,
+.pager .pager-item > span .pager-item.item-last > a:before,
+.btn .pager .pager-item.item-last > span:before,
+.pager .btn .pager-item.item-last > span:before,
+.pager .pager-item > a .pager-item.item-last > span:before,
+.pager .pager-item > span .pager-item.item-last > span:before, .btn.services-icon-left:before, .pager .pager-item > a.services-icon-left:before, .pager .pager-item > span.services-icon-left:before, .btn .services-icons, .pager .pager-item > a .services-icons, .pager .pager-item > span .services-icons,
+.btn.filetypes-icon-left:before,
+.pager .pager-item > a.filetypes-icon-left:before,
+.pager .pager-item > span.filetypes-icon-left:before, .btn .filetypes-icons, .pager .pager-item > a .filetypes-icons, .pager .pager-item > span .filetypes-icons {
+  margin-left: -2px; }
+
+.btn.icon-right:after, .pager .pager-item > a.icon-right:after, .pager .pager-item > span.icon-right:after,
+.btn .material-icons,
+.pager .pager-item > a .material-icons,
+.pager .pager-item > span .material-icons,
+.btn .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .btn li:not(:last-child):after,
+.pager .pager-item > a .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .pager .pager-item > a li:not(:last-child):after,
+.pager .pager-item > span .breadcrumb ol li:not(:last-child):after,
+.breadcrumb ol .pager .pager-item > span li:not(:last-child):after,
+.btn .info:before,
+.pager .pager-item > a .info:before,
+.pager .pager-item > span .info:before,
+.btn .important:before,
+.pager .pager-item > a .important:before,
+.pager .pager-item > span .important:before,
+.btn .messages-status:before,
+.pager .pager-item > a .messages-status:before,
+.pager .pager-item > span .messages-status:before,
+.btn .messages-warning:before,
+.pager .pager-item > a .messages-warning:before,
+.pager .pager-item > span .messages-warning:before,
+.btn .messages-error:before,
+.pager .pager-item > a .messages-error:before,
+.pager .pager-item > span .messages-error:before,
+.btn .form-item input[type="checkbox"]:before,
+.form-item .btn input[type="checkbox"]:before,
+.pager .pager-item > a .form-item input[type="checkbox"]:before,
+.form-item .pager .pager-item > a input[type="checkbox"]:before,
+.pager .pager-item > span .form-item input[type="checkbox"]:before,
+.form-item .pager .pager-item > span input[type="checkbox"]:before,
+.btn .form-item input[type="radio"]:before,
+.form-item .btn input[type="radio"]:before,
+.pager .pager-item > a .form-item input[type="radio"]:before,
+.form-item .pager .pager-item > a input[type="radio"]:before,
+.pager .pager-item > span .form-item input[type="radio"]:before,
+.form-item .pager .pager-item > span input[type="radio"]:before,
+.btn .form-item.form-type-select:after,
+.pager .pager-item > a .form-item.form-type-select:after,
+.pager .pager-item > span .form-item.form-type-select:after,
+.btn .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .btn a:before,
+.pager .pager-item > a .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .pager .pager-item > a a:before,
+.pager .pager-item > span .navbar-account-menu .menu a:before,
+.navbar-account-menu .menu .pager .pager-item > span a:before,
+.btn .sidebar .menu .collapsed > a:after,
+.sidebar .menu .btn .collapsed > a:after,
+.pager .pager-item > a .sidebar .menu .collapsed > a:after,
+.sidebar .menu .pager .pager-item > a .collapsed > a:after,
+.pager .pager-item > span .sidebar .menu .collapsed > a:after,
+.sidebar .menu .pager .pager-item > span .collapsed > a:after,
+.btn .sidebar .menu .expanded > a:after,
+.sidebar .menu .btn .expanded > a:after,
+.pager .pager-item > a .sidebar .menu .expanded > a:after,
+.sidebar .menu .pager .pager-item > a .expanded > a:after,
+.pager .pager-item > span .sidebar .menu .expanded > a:after,
+.sidebar .menu .pager .pager-item > span .expanded > a:after,
+.btn .collapsible-toggle:before,
+.pager .pager-item > a .collapsible-toggle:before,
+.pager .pager-item > span .collapsible-toggle:before,
+.btn .pager .pager-item.item-first > a:before,
+.pager .btn .pager-item.item-first > a:before,
+.pager .pager-item > a .pager-item.item-first > a:before,
+.pager .pager-item > span .pager-item.item-first > a:before,
+.btn .pager .pager-item.item-first > span:before,
+.pager .btn .pager-item.item-first > span:before,
+.pager .pager-item > a .pager-item.item-first > span:before,
+.pager .pager-item > span .pager-item.item-first > span:before,
+.btn .pager .pager-item.item-previous > a:before,
+.pager .btn .pager-item.item-previous > a:before,
+.pager .pager-item > a .pager-item.item-previous > a:before,
+.pager .pager-item > span .pager-item.item-previous > a:before,
+.btn .pager .pager-item.item-previous > span:before,
+.pager .btn .pager-item.item-previous > span:before,
+.pager .pager-item > a .pager-item.item-previous > span:before,
+.pager .pager-item > span .pager-item.item-previous > span:before,
+.btn .pager .pager-item.item-ellipsis > a:before,
+.pager .btn .pager-item.item-ellipsis > a:before,
+.pager .pager-item > a .pager-item.item-ellipsis > a:before,
+.pager .pager-item > span .pager-item.item-ellipsis > a:before,
+.btn .pager .pager-item.item-ellipsis > span:before,
+.pager .btn .pager-item.item-ellipsis > span:before,
+.pager .pager-item > a .pager-item.item-ellipsis > span:before,
+.pager .pager-item > span .pager-item.item-ellipsis > span:before,
+.btn .pager .pager-item.item-next > a:before,
+.pager .btn .pager-item.item-next > a:before,
+.pager .pager-item > a .pager-item.item-next > a:before,
+.pager .pager-item > span .pager-item.item-next > a:before,
+.btn .pager .pager-item.item-next > span:before,
+.pager .btn .pager-item.item-next > span:before,
+.pager .pager-item > a .pager-item.item-next > span:before,
+.pager .pager-item > span .pager-item.item-next > span:before,
+.btn .pager .pager-item.item-last > a:before,
+.pager .btn .pager-item.item-last > a:before,
+.pager .pager-item > a .pager-item.item-last > a:before,
+.pager .pager-item > span .pager-item.item-last > a:before,
+.btn .pager .pager-item.item-last > span:before,
+.pager .btn .pager-item.item-last > span:before,
+.pager .pager-item > a .pager-item.item-last > span:before,
+.pager .pager-item > span .pager-item.item-last > span:before, .btn.services-icon-right:after, .pager .pager-item > a.services-icon-right:after, .pager .pager-item > span.services-icon-right:after, .btn .services-icons, .pager .pager-item > a .services-icons, .pager .pager-item > span .services-icons, .btn.filetypes-icon-right:after, .pager .pager-item > a.filetypes-icon-right:after, .pager .pager-item > span.filetypes-icon-right:after, .btn .filetypes-icons, .pager .pager-item > a .filetypes-icons, .pager .pager-item > span .filetypes-icons {
+  margin-right: -2px; }
+
+.btn.icon-right > span, .pager .pager-item > a.icon-right > span, .pager .pager-item > span.icon-right > span, .btn.services-icon-right > span, .pager .pager-item > a.services-icon-right > span, .pager .pager-item > span.services-icon-right > span, .btn.filetypes-icon-right > span, .pager .pager-item > a.filetypes-icon-right > span, .pager .pager-item > span.filetypes-icon-right > span {
+  float: left; }
+
+.btn-disabled, .pager .pager-item.item-ellipsis > a, .pager .pager-item.item-ellipsis > span, .pager .pager-item.item-current > a, .pager .pager-item.item-current > span, .pager .pager-item.item-first > span, .pager .pager-item.item-previous > span, .pager .pager-item.item-next > span, .pager .pager-item.item-last > span {
+  color: rgba(0, 0, 0, 0.26);
+  cursor: default;
+  pointer-events: none; }
+  .btn-disabled:hover, .pager .pager-item.item-ellipsis > a:hover, .pager .pager-item.item-ellipsis > span:hover, .pager .pager-item.item-current > a:hover, .pager .pager-item.item-current > span:hover, .pager .pager-item.item-first > span:hover, .pager .pager-item.item-previous > span:hover, .pager .pager-item.item-next > span:hover, .pager .pager-item.item-last > span:hover, .btn-disabled:focus, .pager .pager-item.item-ellipsis > a:focus, .pager .pager-item.item-ellipsis > span:focus, .pager .pager-item.item-current > a:focus, .pager .pager-item.item-current > span:focus, .pager .pager-item.item-first > span:focus, .pager .pager-item.item-previous > span:focus, .pager .pager-item.item-next > span:focus, .pager .pager-item.item-last > span:focus, .btn-disabled:active, .pager .pager-item.item-ellipsis > a:active, .pager .pager-item.item-ellipsis > span:active, .pager .pager-item.item-current > a:active, .pager .pager-item.item-current > span:active, .pager .pager-item.item-first > span:active, .pager .pager-item.item-previous > span:active, .pager .pager-item.item-next > span:active, .pager .pager-item.item-last > span:active {
+    background: none;
+    color: rgba(0, 0, 0, 0.26);
+}
+
+/* Pager */
+.pager .pager-items {
+  padding: 0;
+  margin: 16px 0;
+  text-align: center;
+  list-style: none; }
+
+.pager .pager-item {
+  display: inline-block; }
+  .pager .pager-item > a, .pager .pager-item > span {
+    margin: 8px 2px;
+    min-width: 48px; }
+
+.pager .pager-item.item-current > a, .pager .pager-item.item-current > span {
+  color: #546e7a; }
+
+.pager .pager-item.item-first > a, .pager .pager-item.item-first > span {
+  padding: 6px 12px; }
+  .pager .pager-item.item-first > a:before, .pager .pager-item.item-first > span:before {
+    content: "first_page"; }
+  .pager .pager-item.item-first > a span, .pager .pager-item.item-first > span span {
+    display: none; }
+
+.pager .pager-item.item-previous > a, .pager .pager-item.item-previous > span {
+  padding: 6px 12px; }
+  .pager .pager-item.item-previous > a:before, .pager .pager-item.item-previous > span:before {
+    content: "chevron_left"; }
+  .pager .pager-item.item-previous > a span, .pager .pager-item.item-previous > span span {
+    display: none; }
+
+.pager .pager-item.item-ellipsis > a, .pager .pager-item.item-ellipsis > span {
+  padding: 6px 12px; }
+  .pager .pager-item.item-ellipsis > a:before, .pager .pager-item.item-ellipsis > span:before {
+    content: "more_horiz"; }
+  .pager .pager-item.item-ellipsis > a span, .pager .pager-item.item-ellipsis > span span {
+    display: none; }
+
+.pager .pager-item.item-next > a, .pager .pager-item.item-next > span {
+  padding: 6px 12px; }
+  .pager .pager-item.item-next > a:before, .pager .pager-item.item-next > span:before {
+    content: "chevron_right"; }
+  .pager .pager-item.item-next > a span, .pager .pager-item.item-next > span span {
+    display: none; }
+
+.pager .pager-item.item-last > a, .pager .pager-item.item-last > span {
+  padding: 6px 12px; }
+  .pager .pager-item.item-last > a:before, .pager .pager-item.item-last > span:before {
+    content: "last_page"; }
+  .pager .pager-item.item-last > a span, .pager .pager-item.item-last > span span {
+    display: none;
+}
+
+
+.is-icon-search-wrapper .diplo-search-input {
+  position: relative
+}
+.is-icon-search-wrapper,
+.is-icon-search-wrapper .toggle-search {
+   position: relative;
+   right: 0;
+}
+
+.inline-radios::before,
+.form-item input[type="radio"].inline-radios::before,
+.form-item input[type="checkbox"].inline-checkboxes::before {
+  margin: 0 8px;
+}
+
+.form-item input[type="radio"].dark-blue,
+.form-item input[type="checkbox"].dark-blue {
+  color: rgba(0, 51, 102, 1);
+}
+
+.form-item input[type="radio"].dark-blue:checked::before,
+.form-item input[type="checkbox"].dark-blue:checked::before {
+  color: rgba(0, 51, 102, 1);
+}
+
+
+/* Messages - TODO, make vanishing messages */
+.messages-wrapper,
+.messages {
+  padding: 16px;
+}
+
+.messages-status {
+  background: #e8f5e9;
+}
+.messages-status:before {
+  content: "check_circle";
+  color: #388e3c;
+}
+.messages-status a {
+  color: #2e7d32;
+}
+.messages-status a:hover {
+  color: #2a722e;
+}
+.messages-status a:active {
+  color: #266729;
+}
+
+.messages-warning {
+  background: #fffde7;
+}
+.messages-warning:before {
+  color: #fbc02d;
+}
+.messages-warning a {
+  color: #f57f17;
+}
+.messages-warning a:hover {
+  color: #f2770a;
+}
+.messages-warning a:active {
+  color: #e4700a;
+}
+
+.messages-error {
+  background: #ffebee;
+}
+.messages-error:before {
+  content: "warning";
+  color: #d32f2f;
+}
+.messages-error a {
+  color: #b71c1c;
+}
+.messages-error a:hover {
+  color: #aa1a1a;
+}
+.messages-error a:active {
+  color: #9c1818;
+}
+
+.messages > .visually-hidden:first-child + * {
+  margin-top: 0 !important;
+}
+
+ul.messages-list {
+  padding-left: 24px;
+}
+
+
+/* Hardcoded Webform stuff */
+.webform-submission-form .form-item input[type="text"],
+.webform-submission-form .form-item input[type="email"],
+.webform-submission-form .form-item input[type="tel"],
+.webform-submission-form .form-item input[type="password"],
+.webform-submission-form .form-item input[type="search"],
+.webform-submission-form .form-item select {
+   border: none;
+}
+
+.webform-submission-form legend {
+  padding: 8px 8px 8px 16px;
+  background: rgba(0, 51, 102, 1);
+  color: #fff;
+  width: 91.667%;
+  margin: 0;
+  background-color: rgba(0, 51, 102, 1);
+  box-shadow: 14px 11px 16px -9px rgba(0,0,0,0.44); 
+  border-bottom: 4px solid rgba(242, 142, 0, 1);
+}
+
+.webform-submission-form .form-actions input {
+  background-color: rgb(38, 135, 71);
+}
+
+@media only screen and (min-width: 1280px) {
+  
+  aside .form-item input[type="text"],
+  aside .form-item input[type="email"],
+  aside .form-item input[type="password"],
+  aside .form-item input[type="search"],
+  aside .form-item input[type="tel"],
+  aside .form-item textarea,
+  aside .form-item select,
+  aside .facets-dropdown {
+    max-width: 200px;
+    margin-right: 16px;
+  }
+
+}
+
+
+@media only screen and (min-width: 1112px) {
+  .is-icon-search-wrapper .diplo-search-input {
+    position: absolute;
+    right: 36px;
+    min-width: 190px;
+    max-width: 260px; 
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+   .form-item input[type="text"],
+  .form-item input[type="email"],
+  .form-item input[type="password"],
+  .form-item input[type="search"],
+  .form-item input[type="tel"],
+  .form-item textarea,
+  .form-item select,
+  .facets-dropdown,
+  aside .form-item input[type="text"],
+  aside .form-item input[type="email"],
+  aside .form-item input[type="password"],
+  aside .form-item input[type="search"],
+  aside .form-item input[type="tel"],
+  aside .form-item textarea,
+  aside .form-item select,
+  aside .facets-dropdown {
+    max-width: 190px;
+    margin-right: 8px;
+  }
+}
+
+
+@media only screen and (max-width: 414px) {
+
+  .views-exposed-form form .form-actions input[type=submit],
+  form.views-exposed-form .form-actions input[type=submit] {
+    min-width: 88px;
+    margin-left: -12px;
+  }
+
+  .form-item select {
+    min-width: 88px;
+  }
+
+  .btn, .pager .pager-item > a, .pager .pager-item > span, input[type="submit"] {
+    height: 34px;
+  }
+
+
+}

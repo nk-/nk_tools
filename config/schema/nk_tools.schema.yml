@@ -1,0 +1,41 @@
+nk_tools.settings:
+  type: config_object
+  label: 'Nk tools Settings'
+  mapping:
+    layout:
+      type: mapping
+      label: 'Layout and HTML/CSS related settings'
+      mapping:
+        desktop_only_class:
+          type: label
+          label: 'A CSS class for elements visible only on desktop screen size'
+        mobile_only_class:
+          type: label
+          label: 'A CSS class for elements visible only on mobile or very small screen size, width'
+        hidden_class:
+          type: label
+          label: 'A CSS class for elements that are hidden, initially or permanently'
+        animate_class:
+          type: label
+          label: 'A main CSS class for animations' 
+
+        trim_text:
+         type: mapping
+         label: 'Trim string settings'
+         mapping:
+           trim_max_length:
+             type: integer
+             label: 'Maximum length of the string being trimmed' 
+           trim_options:
+             type: mapping
+             label: 'Additional trim options'
+             mapping:
+               word_boundary:
+                 type: boolean
+                 label: 'Word boundary'
+               ellipsis:
+                 type: boolean
+                 lbel: 'Add ellipsis at the end'
+               html:
+                 type: boolean
+                 label: 'Consider html/markup'

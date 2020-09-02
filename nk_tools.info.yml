@@ -1,0 +1,13 @@
+name: Nk tools
+type: module
+description: 'Provides configuration entity and frames for various UI components/formatters.'
+package: 'Nk tools'
+core: 8.x
+dependencies:
+  - drupal:views
+configure: nk_tools.settings
+# libraries:
+#   - nk_tools/fonts
+#   - nk_tools/animate.css
+#   - nk_tools/flexboxgrid
+#   - nk_tools/nk_tools_factory

@@ -1,0 +1,9 @@
+{# If this file is placed in "rtp_material/tmplates" theme folder - from other file call like: 
+  {% import '@digitalwatch/macros.twig' as dwMacros %}
+#}
+
+{% macro setMultipleAttributes(attributes, add) %}
+  {% for attribute, value in add %}
+    {{ attributes.setAttribute(attribute, value) }}
+  {% endfor %}
+{% endmacro %}

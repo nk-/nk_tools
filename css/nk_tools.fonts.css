@@ -1,0 +1,552 @@
+/*  Font related classes */
+
+/* Font families */
+
+.ff-helvetica-neue {
+  font-family: 'Helvetica Neue', 'Open Sans Condensed', sans-serif;
+}
+
+.ff-helvetica-neue-condensed {
+  font-family: 'Helvetica Neue Condensed', 'Open Sans Condensed', 'Helvetica Neue', 'Open Sans', sans-serif;
+}
+
+.ff-open-sans {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.ff-open-sans-condensed {
+  font-family: 'Open Sans Condensed', 'Open Sans', sans-serif;
+}
+
+.ff-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+.ff-fauna-one {
+  font-family: 'Fauna One', serif;
+}
+
+.ff-monserrat {
+  font-family: 'Monserrat', serif;
+}
+
+.ff-monserrat-500 {
+  font-family: 'Montserrat+Medium', 'Montserrat', serif;
+}
+
+.ff-monserrat-600 {
+  font-family: 'Montserrat+SemiBold', 'Montserrat', serif;
+}
+
+.ff-heebo {
+  font-family: 'Heebo', serif;
+}
+
+.ff-heebo-500 {
+  font-family: 'Heebo+Medium', 'Heebo', serif;
+}
+
+.ff-heebo-600 {
+  font-family: 'Heebo+SemiBold', 'Heebo', serif;
+}
+
+.ff-verdana {
+  font-family: Verdana, sans-serif;
+}
+
+
+/* Font sizes */
+
+.fs-default {
+  font-size: 1rem !important;
+}
+
+.fs-085 {
+  font-size: 0.85em;
+}
+
+.fs-72 {
+  font-size: 72%;
+}
+
+.fs-80 {
+  font-size: 80%;
+}
+
+.fs-82 {
+  font-size: 82%;
+}
+
+.fs-84 {
+  font-size: 84%;
+}
+
+.fs-94 {
+  font-size: 94%;
+}
+
+.fs-1-1,
+.fs-1-1 h1,
+.fs-1-1 h2,
+.fs-1-1 h3,
+.fs-1-1 h4 {
+  font-size: 1.1rem;
+}
+
+.fs-1-25,
+.fs-1-25 h1,
+.fs-1-25 h2,
+.fs-1-25 h3,
+.fs-1-25 h4 {
+  font-size: 1.25rem;
+}
+
+.fs-1-5,
+.fs-1-5 h1,
+.fs-1-5 h2,
+.fs-1-5 h3,
+.fs-1-5 h4 {
+  font-size: 1.5rem;
+}
+
+
+.fs-1-85,
+.fs-1-85 h1,
+.fs-1-85 h2,
+.fs-1-85 h3,
+.fs-1-85 h4 {
+  font-size: 1.85rem;
+}
+
+.fs-2,
+.fs-2 h1,
+.fs-2 h2,
+.fs-2 h3,
+.fs-2 h4 {
+  font-size: 2rem;
+}
+
+.fs-12 {
+  font-size: 12px;
+}
+
+.fs-14 {
+  font-size: 14px;
+}
+
+.fs-18 {
+  font-size: 18px;
+}
+
+.fs-24,
+.fs-24.icon-left,
+.fs-24.icon-right,
+.fs-24-before::before {
+  font-size: 24px !important;
+}
+
+.fs-24.icon-left,
+.fs-24-before.icon-left::before {
+  margin-right: 3px;
+}
+
+.fs-24.icon-right,
+.fs-24-before.icon-right::before {
+  margin-left: 0;
+}
+
+.fs-32,
+.fs-32 h1,
+.fs-32 h2,
+.fs-32 h3,
+.fs-32 h4,
+.fs-32.icon-left,
+.fs-32.icon-right,
+.fs-32-before::before {
+  font-size: 32px !important;
+}
+
+.fs-32.icon-left,
+.fs-32-before.icon-left::before {
+  margin-right: 4px;
+}
+
+.fs-32.icon-right,
+.fs-32-before.icon-right::before {
+  margin-left: 0;
+}
+ 
+.fs-48 {
+  font-size: 48px !important;
+}
+.fs-76 {
+  font-size: 76px !important;
+}
+
+.fs-86 {
+  font-size: 86px !important;
+}
+
+/* Font weights */
+
+.fw-300 {
+  font-weight: 300 !important;
+}
+
+.fw-400,
+.fw-400 a { 
+  font-weight: 400 !important;
+}
+
+.fw-500 {
+  font-weight: 500;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+/* Letter spacing */
+
+.ls-1-5 {
+  letter-spacing: 1.5px;
+}
+
+.ls-2 {
+  letter-spacing: 2px;
+}
+
+/* Line heights */
+
+.lh-1 {
+  line-height: 1;
+}
+
+.lh-1-2 {
+  line-height: 1.2;
+}
+
+.lh-1-4 {
+  line-height: 1.4;
+}
+
+.lh-1-7 {
+  line-height: 1.7;
+}
+
+.lh-1-8 {
+  line-height: 1.8;
+}
+
+.lh-2 {
+  line-height: 2;
+}
+
+.lh-2-4 {
+  line-height: 2.4;
+}
+
+.lh-3 {
+  line-height: 3;
+}
+
+.lh-5 {
+  line-height: 5;
+}
+
+/* Font colors */
+
+.color-default {
+  color: rgba(0, 0, 0, 0.72) !important;
+}
+
+.text-default-color {
+  color: rgba(112, 112, 112, 1);
+}
+
+.color-white, 
+.text-white,
+.text-light,
+.color-white a,
+.text-white a {
+  color: rgba(255, 255, 255, 1) !important; 
+}
+
+.text-white-light,
+.text-white-ligh > *,
+a.text-white-light {
+  color: rgba(250, 250, 250, 0.75) !important;
+}
+
+.text-light.text-disabled {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.text-primary, a.text-primary, a.text-primary:hover, a.text-primary:focus {
+  color: rgba(84, 110, 122, 1);
+}
+
+.text-accent, a.text-accent, a.text-accent:hover, a.text-accent:focus {
+  color: rgba(0, 176, 255, 1);
+}
+
+.light-blue {
+  color: rgba(53, 157, 223, 1);
+}
+
+.blue,
+.color-blue,
+.blue-icon::before,
+i.blue-icon {
+  color: rgba(0, 176, 255, 0.85);
+}
+
+.blue-icon {
+  color: inherit;
+}
+
+.dark-blue,
+.dark-blue a,
+a.darkblue {
+  color: rgba(0, 51, 102, 0.85); 
+}
+
+.text-black,
+.text-black a {
+  color: rgba(0, 0, 0, 1) !important
+}
+
+.text-green,
+.text green a {
+  color: rgba(0, 135, 154, 1);
+}
+
+.color-orange,
+.color-orange a,
+a.color-orange {
+  color: rgba(255, 170, 0, 1) !important; 
+}
+
+.active,
+a.active,
+a.is-active,
+a.active-trail,
+.active a,
+.active-trail a,
+.form-item input.active,
+.active > a {
+  color: rgba(255, 170, 0, 1);
+}
+
+.grey,
+a.grey,
+.grey a,
+.grey-icon::before {
+  color: rgba(117, 117, 117, 0.85); /* rgba(186, 186, 186, 1); */
+}
+
+.grey.active,
+.grey.active-trail,
+.grey a.active,
+.grey a.is-active,
+.grey a.active-trail,
+.grey.active a,
+.grey.active-trail a,
+a.grey.active,
+a.grey.active-trail,
+a.grey.is-active,
+.grey:hover,
+.grey a:hover,
+a.grey:hover,
+.grey-icon.active::before {
+  color: color: rgba(0, 170, 255, 1) !important; /* color: rgba(255, 170, 0, 1); */
+}
+
+.grey-darker,
+.grey-darker a,
+a.grey-darker,
+.grey-darker-icon::before {
+  color: rgba(117, 117, 117, 1);
+}
+
+.grey-darker:hover,
+.grey-darker a:hover,
+a.grey-darker:hover {
+  color: #111;
+}
+
+.text-dark,
+.text-dark a,
+a.text-dark,
+.icon-dark::before {
+  color: rgba(112, 112, 112, 1);
+}
+
+.text-dark.active,
+.text-dark.active-trail,
+.text-dark a.active,
+.text-dark a.is_active,
+.text-dark a.active-trail,
+.text-dark.active a,
+.text-dark.active-trail a,
+a.text-dark.active,
+a.text-dark.is_active,
+a.text-dark.active-trail,
+/* .text-dark:hover, */
+.text-dark a:hover,
+a.text-dark:hover,
+.icon-dark.active::before {
+  color: rgba(255, 170, 0, 1);
+}
+
+.text-secondary {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.text-disabled {
+  color: rgba(0, 0, 0, 0.26);
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.text-align-left {
+  text-align: left;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.text-align-justify {
+  text-align: justify;
+}
+
+.text-shadow-1 {
+  text-shadow: #ccc 1px 1px; 
+}
+
+.text-shadow-2 {
+  text-shadow: #ccc 2px 2px;
+}
+
+/* Some media queries on fonts classes */
+@media only screen and (max-width: 414px) {
+
+  .fs-default {
+    font-size: 0.75rem !important;
+  }
+
+  .fs-1-1,
+  .fs-1-1 h1,
+  .fs-1-1 h2,
+  .fs-1-1 h3,
+  .fs-1-1 h4 {
+    font-size: 0.95rem;
+  }
+
+ .fs-1-25,
+ .fs-1-25 h1,
+ .fs-1-25 h2,
+ .fs-1-25 h3,
+ .fs-1-25 h4 {
+   font-size: 1rem;
+ }
+
+ .fs-1-5,
+ .fs-1-5 h1,
+ .fs-1-5 h2,
+ .fs-1-5 h3,
+ .fs-1-5 h4 {
+   font-size: 1.25rem;
+ }
+
+ .fs-1-85,
+  .fs-1-85 h1,
+  .fs-1-85 h2,
+  .fs-1-85 h3,
+  .fs-1-85 h4,
+  .fs-2,
+  .fs-2 h1,
+  .fs-2 h2,
+  .fs-2 h3,
+  .fs-2 h4 {
+     font-size: 1.25rem !important;
+  }
+
+  .fs-76 {
+    font-size: 52px !important;
+  }
+}
+
+@media only screen and (min-width: 415px) and (max-width: 768px) {
+  
+  .fs-1-1,
+  .fs-1-1 h1,
+  .fs-1-1 h2,
+  .fs-1-1 h3,
+  .fs-1-1 h4 {
+    font-size: 1rem;
+  }
+
+  .fs-1-25,
+  .fs-1-25 h1,
+  .fs-1-25 h2,
+  .fs-1-25 h3,
+  .fs-1-25 h4 {
+    font-size: 1.15rem;
+  }
+
+  .fs-1-5,
+  .fs-1-5 h1,
+  .fs-1-5 h2,
+  .fs-1-5 h3,
+  .fs-1-5 h4 {
+    font-size: 1.35rem;
+  }
+
+
+  .fs-1-85,
+  .fs-1-85 h1,
+  .fs-1-85 h2,
+  .fs-1-85 h3,
+  .fs-1-85 h4,
+  .fs-2,
+  .fs-2 h1,
+  .fs-2 h2,
+  .fs-2 h3,
+  .fs-2 h4 {
+    font-size: 1.75rem !important;   
+  }
+}
+
+
+@media only screen and (min-width: 769px) and (max-width: 1112px) {
+
+  .fs-1-1,
+  .fs-1-1 h1,
+  .fs-1-1 h2,
+  .fs-1-1 h3,
+  .fs-1-1 h4 {
+    font-size: 1.05rem;
+  }
+
+  .fs-1-85,
+  .fs-1-85 h1,
+  .fs-1-85 h2,
+  .fs-1-85 h3,
+  .fs-1-85 h4,
+  .fs-2,
+  .fs-2 h1,
+  .fs-2 h2,
+  .fs-2 h3,
+  .fs-2 h4 {
+    font-size: 1.425rem !important;   
+  }
+
+}
