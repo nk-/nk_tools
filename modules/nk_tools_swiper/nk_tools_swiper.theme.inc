@@ -34,9 +34,9 @@ function template_preprocess_swiper(&$variables) {
     $settings = $variables['swiper']['settings'];
     $items = &$variables['swiper']['items'];
   }
-  
+
   $config = isset($settings['swiper_options']) ? $settings['swiper_options'] : $settings;
-  
+
   // Take care of Swiper navigation, unset other properties if main flag (checkbox) is on
   $navigation = $config['navigation']['navigation_enabled'];
   if (!$navigation) {
@@ -48,7 +48,7 @@ function template_preprocess_swiper(&$variables) {
   if (!$pagination) {
     unset($config['pagination']);
   }
-   
+
   $settings['attributes'] = isset($config['attributes']) && !empty($config['attributes']) ? $config['attributes'] : $settings['attributes'];
   $settings['image_style'] = isset($settings['image_style']) && !empty($settings['image_style']) ? $settings['image_style'] : NULL;
 
@@ -59,7 +59,7 @@ function template_preprocess_swiper(&$variables) {
   if (isset($settings['attributes']) && is_array($settings['attributes'])) {
     $attributes = NestedArray::mergeDeep($attributes, $settings['attributes']);
   }
-  
+
   // Add the swiper class to be namespaced.
   $attributes['class'] = [];
   $attributes['class'][] = 'swiper-container';
@@ -83,9 +83,9 @@ function template_preprocess_swiper(&$variables) {
     '#items' => $items,
     '#settings' => $config,
   ];
-  
+
   $variables['options'] = $config;
-  
+
   if ($navigation) {
     $variables['options']['navigation_classes'] = [
       'prev' => ltrim($config['navigation']['prevEl'], '.'), 

@@ -74,7 +74,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
     // Set some essential values into $form_state storage
     $referenced_entities = $items->referencedEntities();
-   
+
     $entity_type = $this->fieldDefinition->getSettings()['target_type'];
     $field_name = $this->fieldDefinition->getName();
 
@@ -96,7 +96,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
     ];
 
     $valid = static::validFields($field_name, $entity_type, $selection_settings);
-    
+
     $reference_params = [
       'selection_settings' => $selection_settings,
       'entity_type' => $entity_type, // aka node, or view or user etc.
@@ -114,23 +114,23 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
     $form_state->set('reference_params', $reference_params); 
 
     $elements = parent::form($items, $form, $form_state, $get_delta);
-    
+
     //$form['#submit'][] = [static::class, 'validate'];
     return $elements;
   }
- 
+
 
   /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-   
+
    $element = parent::settingsForm($form, $form_state);
    $settings = $this->getSettings();
 
    $content_types_references = !empty($settings['corresponding_content_types']) ? $this->getContentTypes($settings['corresponding_content_types']) : NULL;
    $field_references = !empty($settings['corresponding_other']) ? $this->getFieldEntities($settings['corresponding_other']) : NULL;
-   
+
    $element['corresponding_type'] = [
      '#tree' => FALSE,
      '#title' => t('Corresponding type'),
@@ -197,14 +197,14 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
    ];
 
    return $element;
-   
+
   }
 
   /**
    * {@inheritdoc}
    */
   public function settingsSummary() {
-   
+
     $summary = parent::settingsSummary();
     $settings = $this->getSettings();
 
@@ -268,7 +268,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
     $corresponding_type = $this->getCorrespondingType();
 
     if ($trigger && isset($trigger['#executes_submit_callback']) && $trigger['#executes_submit_callback'] == TRUE) {
-    
+
       $corresponding_entities = [];
 
 /*
@@ -301,18 +301,18 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
         foreach ($values as $delta => $value) {
           if (isset($value['target_id']) && !empty($value['target_id'])) {
           //if (!in_array($value['target_id'], array_values($reference_params['target_ids']))) {
-            
+
             $entityTypeManager = \Drupal::service('entity_type.manager');
             $storage = $entityTypeManager->getStorage($reference_params['entity_type']);
             $corresponding_entity = $storage->load($value['target_id']);
             //ksm($corresponding_entity->getTitle() . ' (' . $value['target_id'] .')');
             //ksm($reference_params['corresponding_field_names']);
             //ksm($reference_params['reverse_matches']);
-           
+
             //ksm(array_keys($reference_params['reverse_matches']));
 
             if (!empty($reference_params['reverse_matches'])) {
-              
+
               foreach ($reference_params['reverse_matches'] as $id => $corresponding) {
                 //foreach ($corresponding as $bundle => $id) {
                 //ksm($corresponding); 
@@ -324,7 +324,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
                     'field' => $corresponding_entity->get($corresponding['field_name']),
                   ];
                 }
-                
+
               }
             }
             else {
@@ -348,7 +348,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
                //ksm($reference_params['reverse_matches']);
              }
           }
-            
+
          // }
         }
       }
@@ -372,12 +372,12 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
               $target_ids[$id] = []; 
 
               $count = count($field_values[$id]) - 1; // It is -1 because field item list for multiple values always adds additional empty field instance 
-              
+
               foreach ($field_values[$id] as $index => $field_value) {
                 if (isset($field_value['target_id']) && !empty($field_value['target_id'])) {
 
-                 
-    
+
+
                   if ($field_value['target_id'] != $reference_params['entity']->id() && !isset($target_ids[$id][$reference_params['entity']->id()])) {
                     $target_ids[$id][$reference_params['entity']->id()] = ['target_id' => $reference_params['entity']->id(), 'delta' => $count]; 
                   } 
@@ -398,16 +398,16 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
                 }
               }
             }
-            
+
             // Target entity does not have any values for this field yet 
             else {
               $target_ids[$reference_params['entity']->id()] = ['target_id' => $reference_params['entity']->id() , 'delta' => 0];
             }   
-      
+
             // It is safe to assume that this very enitty now can be programmatically saved at its destination reference entity
             if (isset($target_ids[$id])) { // && in_array($reference_params['entity']->id(), array_keys($field_values))) {
               //ksm($target_ids);
-              
+
               //
               $sorted_value = array_values($target_ids[$id]);
               usort($sorted_value, function($a, $b) {
@@ -418,10 +418,10 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
               //ksm($id);
               //ksm($sorted_value);
               if (!$dev) {
-               
+
                 $entity['field']->setValue($sorted_value);
                 $entity['entity']->save();
-              
+
               }
 
             }
@@ -434,19 +434,19 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
     return $values;
   }
- 
 
-  
+
+
 
   /**
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {   
-  
+
     //$element['#submit'] = [[static::class, 'submit']];
     //$element['#process'][] = [static::class, 'processParent'];
     $settings = $this->getSettings();
-   
+
     $widget = parent::formElement($items, $delta, $element, $form, $form_state);   
     $widget['target_id']['#selection_settings'] += [
       'corresponding_type' => $settings['corresponding_type'],
@@ -454,17 +454,17 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
       'corresponding_self' => $settings['corresponding_self'],
       'corresponding_other' => $settings['corresponding_other'],  
     ];
-   
+
     // Store the selection settings in the key/value store and pass a hashed key in the route parameters.
     $selection_settings = isset($widget['target_id']['#selection_settings']) ? $widget['target_id']['#selection_settings'] : [];
     $data = serialize($selection_settings) . $widget['target_id']['#target_type'] . $widget['target_id']['#selection_handler'];
     $selection_settings_key = Crypt::hmacBase64($data, Settings::getHashSalt());
 
     $widget['#element_validate'] = [[static::class, 'validate']];
-    
+
 
     $widget['target_id']['#process'][] = [static::class, 'processAutocomplete'];
-    
+
     $reference_params = $form_state->get('reference_params');
 
     $widget['target_id']['#autocomplete_route_name'] = 'nk_tools_cer.entity_autocomplete';
@@ -475,8 +475,8 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
       'selection_handler' => $widget['target_id']['#selection_handler'],
       'selection_settings_key' => $selection_settings_key,
     ];
-  
-       
+
+
 /*
     $widget['corresponding'] = [
       '#type' => 'hidden',
@@ -509,8 +509,8 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
                   $destination_title = '';
              $widget['messages']['#markup'] =  t('This is <strong>pre-populated value</strong>, destination entity <em>@destination_title</em> has reference to this entity.', ['@destination_title' => $destination_title]);
                   $widget['corresponding']['#value'] =  $reference_params['entity_type'] . '.' . $corresponding['bundle'] . '.' . $corresponding['field_name']; 
-                     
-    
+
+
               }
               else {
                 $widget['messages']['#markup'] =  t('This is a <strong>default value</strong> for this field on this entity. It was previously saved');
@@ -520,7 +520,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
        else {
          $widget['messages']['#markup'] =  t('This is a <strong>default value</strong> for this field on this entity. It was previously saved');
        }
-       
+
      }
      else {
        $widget['messages']['#markup'] =  t('This is a <strong>default value</strong> for this field on this entity. It was previously saved');
@@ -546,11 +546,11 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
   /*
   public static function processCorresponding(&$element, FormStateInterface $form_state, &$complete_form) {
- 
+
     $reference_params = $form_state->get('reference_params');
     if (!empty($reference_params['reverse_matches'])) {
 
-      
+
       //$reverse_matches = static::processReverseMatches($reference_params['reverse_matches'], $form_state);
 
       if (!empty($reference_params['reverse_matches'])) {
@@ -570,17 +570,17 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
      //  $element['#checked'] = TRUE;
     //   $element['#default_value'] =  1;
      }
-    
+
     }
 
-    
+
     return $element;
-  
+
   }
   */
 
   public static function processAutocomplete(&$element, FormStateInterface $form_state, &$complete_form) {
-   
+
     $url = NULL;
     $access = FALSE;
 
@@ -608,11 +608,11 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
     // Display information (#description) about value's origin, either it is #default_Value for this entity or somes as pre-populated match, other entity having this one in its reference field
     $reference_params = $form_state->get(['reference_params']);
-  
+
     if (!empty($reference_params['reverse_matches'])) {
       foreach ($reference_params['reverse_matches'] as $id => $corresponding) {
         //if (!in_array($id, $reference_params['target_ids'])) {
-          
+
           // Element's default value array can be consfusing, associates on initial default values
           // Yet, this process callback comes after multiple items were created, or say for each item created
           // @see $itmes->appandItem() in formMultipleElements
@@ -636,7 +636,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
               $element['#description'] =  t('This is a <strong>default value</strong> for this field on this entity. It was previously saved');
             }
           }
-         
+
         /*
         }
         // Note, this means we are on node that does not have references yet in its field
@@ -654,7 +654,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
         */
       }
       //$form_state->set(['reference_params', 'corresponding_field_names'], $corresponding_field_names);
-    
+
     // No reverse matches, set default information to field instances       
     }
     else {
@@ -662,14 +662,14 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
         $element['#description'] =  t('This is a <strong>default value</strong> for this field on this entity. It was previously saved');
       }
     }
-       
+
      //}
      //else {
      //  if ($element['#default_value']) {
      //    $element['#description'] =  t('This is a <strong>default value</strong> for this field on this entity. It was previously saved');
      //  }
      //} 
-   
+
      //$element['#element_validate'] = [[static::class, 'validate']];
      return $element;
 
@@ -677,9 +677,9 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
 /*
   public static function processReverseMatches(&$element, FormStateInterface $form_state) {
-    
+
     $reverse_matches = [];
-      
+
     $reference_params = $form_state->get('reference_params');
     if (!empty($reference_params['reverse_matches'])) {
       foreach ($reference_params['reverse_matches'] as $corresponding_field_name => $corresponding_bundles) { //$reverse_matches[$corresponding_field_name][$bundle][$id] = $id;
@@ -696,13 +696,13 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
     return $reverse_matches;
   }
 */
-  
+
   public function getCorrespondingType() {
-  
+
     $settings = $this->getSettings();
-      
+
     $corresponding_type = NULL;
-      
+
     if ($settings['corresponding_type'] == 'fields') {
       if ($settings['corresponding_self']) {
        $corresponding_type = 'corresponding_self';
@@ -757,7 +757,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
 
   protected function queryMatches(FieldItemListInterface $items, $entity_type, $field_name, $selection_settings, array $target_ids = [], $delta = 0) { 
- 
+
     $entity = $items->getEntity();
     //ksm($items->getValue());
 
@@ -765,15 +765,15 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
     $reverse_matches = [];
 
     if (!empty($valid)) {
-      
+
       $corresponding_type = $this->getCorrespondingType();
-     
+
       foreach ($valid as $corresponding_field_name => $bundles) {
-        
+
         //$reverse_matches[$corresponding_field_name] = [];
- 
+
         foreach($bundles as $bundle) {
-          
+
           //$reverse_matches[$corresponding_field_name][$bundle] = [];
 
           $target_entity_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
@@ -813,7 +813,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
    // }
     }
 
-    
+
     //ksm(array_unique($reverse_matches));
     return $reverse_matches; //$reverse_matches;
   }
@@ -828,7 +828,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
    * - table display and drag-n-drop value reordering
    */
   protected function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
-    
+
     $field_name = $this->fieldDefinition->getName();
     $add_more = is_array($form_state->getTriggeringElement()) && $form_state->getTriggeringElement()['#executes_submit_callback'] ? TRUE : FALSE;
 
@@ -868,7 +868,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
     $elements = [];
 
     for ($delta = 0; $delta <= $max; $delta++) {
-      
+
       if (!isset($items[$delta])) {
         if (!empty($reference_params['reverse_matches'])) { //  && isset($reverse_matches[$delta])) {
           if (!$add_more) {
@@ -881,7 +881,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
           //$items->appendItem();
           //}
         }
-        
+
         // Add a new empty item if it doesn't exist yet at this delta.
         //else {
           //$items->appendItem();
@@ -903,7 +903,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
       /*
       if (!isset($items[$delta]) && !$trigger) {
         if (!empty($reverse_matches)  && isset($reverse_matches[$delta])) {
-           
+
            foreach ($reverse_matches as $d => $reverse_match) {
               foreach (array_values($reverse_match) as $inject) {
                 $reverse_matches_values[$delta] = $inject;               
@@ -927,7 +927,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
              // $fs = static::getWidgetState($parents, $field_name, $form_state);
               //$fs['items_count'] = (int)$fs['items_count'] + 1;
               //static::setWidgetState($parents, $field_name, $form_state, $field_state);
- 
+
             }
           }
           $items->appendItem();
@@ -1022,34 +1022,34 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
    * Validate the field.
    */
   public static function validate(array &$element, FormStateInterface $form_state) {
-  
+
     if (isset($element['#value']) && !empty($element['#value'])) { 
- 
+
       $target_id = EntityAutocomplete::extractEntityIdFromAutocompleteInput($element['#value']);
       if ($target_id && isset($element['#target_type']) && !empty($element['#target_type'])) {
-  
+
         $reference_params = $form_state->get('reference_params');
         //$field_state = static::getWidgetState($element['#parents'], $reference_params['field_name'], $form_state);
-      
+
         $entityTypeManager = \Drupal::service('entity_type.manager');
         $storage = $entityTypeManager->getStorage($element['#target_type']);
         $corresponding_entity = $storage->load($target_id);
-        
+
         if ($corresponding_entity instanceof EntityInterface) {
           $corresponding_entity_label = $corresponding_entity->label(); 
           $corresponding_entity_type = $corresponding_entity->getType();
           $corresponding_entity_type_label = $entityTypeManager->getStorage('node_type')->load($corresponding_entity_type)->label();
-           
+
           $corresponding_fields = static::validFields($reference_params['field_name'], $reference_params['entity_type'], $reference_params['selection_settings']);
-         
+
           if (!empty($corresponding_fields)) {
-         
+
             $constraint = new ValidCorrespondingReference();
 
 
             foreach ($corresponding_fields as $corresponding_field_name => $corresponding_field) {
               foreach (array_keys($corresponding_field) as $corresponding_bundle) {
-              
+
                 if ($corresponding_entity_type == $corresponding_bundle && !$corresponding_entity->hasField($corresponding_field_name)) {
 
                   $target_field = $element['#target_type'] .'.' . $corresponding_bundle .'.' . $corresponding_field_name;
@@ -1060,7 +1060,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
                     '@type' =>  $corresponding_entity_type,
                     '@type_label' => $corresponding_entity_type_label . ' (' . $corresponding_entity_type .')' 
                   ]);
-                   
+
                   //\Drupal::logger('ErrorMsg')->notice('<pre>' . print_r($error_message, 1) . '<pre>');
                   //$field_state['items_count']
                   //$errorElement = NestedArray:getValue('#array_parents')
@@ -1076,7 +1076,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
       }
 
     }
-  
+
   }
 
   public static function submit(array &$form, FormStateInterface $form_state) {
@@ -1131,20 +1131,20 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
       $correspondingEntity->save();
     }
 */
-  
+
   }
 
   public function queryCorresponding($entity_type, $field_name, $id = NULL, array $target_types = [] ) {
     // Query with entity_type.manager (The way to go)
     $query = \Drupal::service('entity_type.manager')->getStorage($entity_type);
-   
+
    // $this->entityTypeManager->getStorage('node');
     $query_result = $query->getQuery()->condition('status', 1);
-   
+
     if ($id) {
       $query_result->condition($field_name, $id);
     }
-    
+
     if (!empty($target_types)) {
       $query_result->condition('type', $target_types, 'IN');
     }
@@ -1196,9 +1196,9 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
   public static function submitInput(&$form, FormStateInterface $form_state) {
     $form_state->setRebuild(TRUE);
   }
- 
+
   public static function ajaxInput(&$form, FormStateInterface $form_state) {
-    
+
      //$form_state->setRebuild();
      $field_name = $form_state->get('field_name');
 
@@ -1231,7 +1231,7 @@ class CorrespondingEntityReferenceAutocomplete extends EntityReferenceAutocomple
 
   }
   */
-    
+
    /**
    * Submission handler for the "Add another item" button.
    */

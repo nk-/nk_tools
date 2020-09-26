@@ -117,7 +117,6 @@ class CorrespondingEntityReference extends EntityReferenceItem {
      //ksm($this->defaultStorageSettings());
   }
   */
-
   public function correspondingReferences($entity_type, $entity, $field_name, $delta, $view_data = NULL, array $target_types = []) {
     $values = NULL;
     if ($entity->get($field_name) instanceof EntityReferenceFieldItemList) { // This field has some values

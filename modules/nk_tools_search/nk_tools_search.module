@@ -188,7 +188,7 @@ function nk_tools_search_preprocess_facets_result_item(&$variables) {
 */
 
 function _template_preprocess_nk_tools_search_input(&$variables) {
-  
+
   $nk_tools_config = \Drupal::config('nk_tools.settings');
   $nk_tools_widgets = $nk_tools_config->get('widgets');
 
@@ -197,11 +197,11 @@ function _template_preprocess_nk_tools_search_input(&$variables) {
   // First assign this unique class, essential for toggle in JS
   $variables['attributes']['class'][] = 'diplo-search-input';
   $variables['attributes']['class'][] = 'diplo-search-input';
-  
+
   $attached = [
     'nk_tools_search' => []
   ];
-  
+
   $attached['nk_tools_search'][$type] = [
     'target' => $type == 'single' ? 'input.diplo-search-input' : NULL,
     'layout' => $nk_tools_config->get('layout'),
@@ -242,7 +242,7 @@ function _template_preprocess_nk_tools_search_input(&$variables) {
   }
 
   if ($view_id && $display_id) {
-      
+
     if (isset($variables['view']['view_filter']) && !empty($variables['view']['view_filter'])) { 
       $query_key = $variables['view']['view_filter'];
     }
@@ -261,7 +261,7 @@ function _template_preprocess_nk_tools_search_input(&$variables) {
     if ($view_path) {
       $attached['nk_tools_search'][$type]['view_path'] = $view_path->toString(); 
     }
-    
+
     // A special support form search_api_autocomplete contrib module
     if (isset($variables['config']['search_api_autocomplete'])) {
       $variables['attributes']['data-search-api-autocomplete-search'] = $view_id;
@@ -274,7 +274,7 @@ function _template_preprocess_nk_tools_search_input(&$variables) {
   if (!empty($nk_tools_config->get('widgets')['search']['menu'])) {  
     // Set this flag important for classes choice in the twig template
     $variables['config']['is_menu'] = TRUE;
-    
+
     // Hardcode this for now, does not make much sense to have search input in menu expanded initi
     $variables['config']['collapsed'] = TRUE; 
 
@@ -285,11 +285,11 @@ function _template_preprocess_nk_tools_search_input(&$variables) {
     }
   }
   */
- 
+
   $variables['nk_tools_layout'] = $nk_tools_config->get('layout');
   //ksm($attached);
 
-  
+
   $variables['#attached']['drupalSettings']['nk_tools'] = $attached;
  // $variables['#attached']['library'][] = 'nk_tools/search_widget';
 

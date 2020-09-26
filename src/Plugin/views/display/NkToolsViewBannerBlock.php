@@ -35,7 +35,7 @@ class NkToolsViewBannerBlock extends Block {
     $options['block_hide_mobile'] = ['default' => FALSE];
     $options['block_banner_image'] = ['default' => TRUE];
     $options['block_category'] = ['default' => $this->t('Nk tools (Views)')];
-    
+
     $options['allow'] = [
       'contains' => [
         //'items_per_page' => ['default' => 'items_per_page'],
@@ -80,7 +80,7 @@ class NkToolsViewBannerBlock extends Block {
       return $element;
     }
   }
- 
+
 
   /**
    * Provide the summary for page options in the views UI.
@@ -97,7 +97,7 @@ class NkToolsViewBannerBlock extends Block {
       'title' => $this->t('Do not display on mobile'),
       'value' => $this->getOption('block_hide_mobile') ? $this->t('Yes') : $this->t('No'),
     ];
-  
+
     $options['block_banner_image'] = [
       'category' => 'block',
       'title' => $this->t('Set Banner Image'),
@@ -121,7 +121,7 @@ class NkToolsViewBannerBlock extends Block {
     parent::buildOptionsForm($form, $form_state);
 
     switch ($form_state->get('section')) {
-      
+
       case 'block_hide_mobile':
         $form['#title'] .= $this->t('Do not display on mobile settings');
 
@@ -159,7 +159,7 @@ class NkToolsViewBannerBlock extends Block {
             '#description' => $this->t('Set dynamic banner image via uploadable field on block.'),
             '#default_value' => $this->getOption('block_banner_image'),
         ];
- 
+
        break; 
 
 
@@ -275,17 +275,17 @@ class NkToolsViewBannerBlock extends Block {
    * @see \Drupal\views\Plugin\Block\ViewsBlock::blockSubmit()
    */
   public function blockSubmit(ViewsBlock $block, $form, FormStateInterface $form_state) {
-    
+
     parent::blockSubmit($block, $form, $form_state);
 
     $block_hide_mobile = $form_state->getValue(['override', 'block_hide_mobile']);
     $block_banner_image = $form_state->getValue(['override', 'block_banner_image']);
-    
+
     if ($block_hide_mobile > -1) {
       $block->setConfigurationValue('block_hide_mobile', $block_hide_mobile);
     }
     $form_state->unsetValue(['override', 'block_hide_mobile']);
-  
+
     $block->setConfigurationValue('block_banner_image', $block_banner_image);
 
   }

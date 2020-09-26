@@ -176,10 +176,10 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
   public function build() {
 
     //$items = $this->buildItems($tree, $tree_access_cacheability, $tree_link_cacheability);
-    
+
    // $diplo_config = \Drupal::config('diplo_formatters.settings');
     $config = $this->getConfiguration();  
- 
+
     $menu_name = $this->getDerivativeId();
     if ($this->configuration['expand_all_items']) {
       $parameters = new MenuTreeParameters();
@@ -226,9 +226,9 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
       ['callable' => 'menu.default_tree_manipulators:checkAccess'],
       ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
     ];
-    
-    
-    
+
+
+
     $menu_attributes = [
       'role' => 'expandable-menu',
       'class' => [
@@ -262,7 +262,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
         $fonts[0],
       ]
     ];
- 
+
     if (isset($config['sliding']) && $config['sliding']) {
       $toggle_attributes['data-sliding'] = 1;
     }
@@ -275,7 +275,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
     if (isset($config['back_icon']) && !empty($config['back_icon'])) {
       $toggle_attributes['data-icon-back'] = $config['back_icon'];
     }
-   
+
     if (isset($config['toggle_icon']) && !empty($config['toggle_icon'])) {
       $toggle_attributes['data-icon'] = $config['toggle_icon'];
     }
@@ -288,7 +288,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
         'col-xs-12'
       ]
     ];
-   
+
     $tree_attributes = [
       'fonts' => $fonts,
       'menu_name' => $menu_name,
@@ -298,9 +298,9 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
       'pane_wrapper' => $pane_wrapper
     ];
 
-    
+
     //$diplo_factory = \Drupal::service('diplo_formatters.main_service');
-    
+
     $build_menu_tree = []; //$diplo_factory->renderCollapsibleMenu($menu_name, 3, NULL, $tree_attributes);
     //$build_menu_tree['#toggle_attributes'] = new Attribute($toggle_attributes); 
     //$build_menu_tree['#pane_wrapper_attributes'] = new Attribute($pane_wrapper);
@@ -311,14 +311,14 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
     $items = $build_tree['#items'];
 
     if (!empty($items)) {
-    
+
       $menu_level = 0;
       $build_menu_tree = $this->renderMenuItems($menu_name, $items, $menu_level, $tree_attributes);
 
       $build_menu_tree['#toggle_attributes'] = new Attribute($toggle_attributes); 
       $build_menu_tree['#pane_wrapper_attributes'] = new Attribute($pane_wrapper);
     }
-      
+
     $build = [
       '#theme' => 'nk_tools_expandable_menu',
       '#config' => [
@@ -337,7 +337,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
         ],
       ],
     ];
-    
+
     return $build;
     //$this->menuTree->build($tree);
   
@@ -418,9 +418,9 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
 
        }
         else {
-       
+
           $fields[$collapsible_key] = $this->getLinkExtraFields($menu_link['original_link'], ['highlighted', 'icon']); 
-          
+
 
           $link_attributes = isset($attributes['links']) && !empty($attributes['links']) ? $attributes['links'] : ['class' => []];
           $link_attributes['class'][] = 'fw-400'; 
@@ -430,7 +430,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
             $link_attributes['class'][] = $menu_level == 0 ? $attributes['fonts'][0] : $attributes['fonts'][2];
           }
 
-          
+
 
           //$uri = Url::fromRoute($menu_link['original_link']->getRouteName(), $menu_link['original_link']->getRouteParameters());
           // $menu_link['url']->setOption('attributes', $link_attributes);
@@ -441,7 +441,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
             'label' => $menu_link['title'],
             'link_attributes' => [], //$link_attributes
           ];
-                    
+
           if (isset($fields[$collapsible_key]['highlighted']) && !empty($fields[$collapsible_key]['highlighted'])) {
             //ksm($fields[$collapsible_key]);
             $build_menu_tree['#items'][$collapsible_key]['highlighted'] = $fields[$collapsible_key]['highlighted'];
@@ -449,7 +449,7 @@ class NkToolsExpandableMenu extends SystemMenuBlock {
 
           $build_menu_tree['#items'][$collapsible_key]['#toggle_attributes'] = new Attribute($link_attributes); 
           $build_menu_tree['#items'][$collapsible_key]['#pane_wrapper_attributes'] = new Attribute($pane_wrapper);
-          
+
           //$build_menu_tree['#items'][$collapsible_key]['is_link'] = TRUE;
           //$build_menu_tree['#items'][$collapsible_key]['content'] = $links;
           //$build_menu_tree['#items'][$collapsible_key]['content']['#toggle_attributes'] = new Attribute($toggle_attributes);

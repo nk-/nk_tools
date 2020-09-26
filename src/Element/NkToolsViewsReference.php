@@ -72,7 +72,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function getInfo() {
-    
+
     $class = get_class($this);
     $info = parent::getInfo();
 
@@ -87,9 +87,9 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
 
 
   public static function processViewsReference(&$element, FormStateInterface $form_state, &$complete_form) {
- 
+
     $trigger = $form_state->getTriggeringElement();
- 
+
     $keys = array_filter($element['#parents'], function($var) {
       if (is_int($var)) {
         return $var;
@@ -132,7 +132,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
       //'#suffix' => '</div>'
     ];
 
-   
+
     /*
     $element['remove_view'] = [
       '#type' => 'submit',
@@ -157,7 +157,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
   }
 
   public static function getViewDisplays(&$element, FormStateInterface $form_state, $delta = 0) {
-    
+
     $values = $form_state->getValues();
 
     if (isset($element['#default_value']['view_id']) && !empty($element['#default_value']['view_id'])) {
@@ -166,10 +166,10 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
     else {
       $view = NULL;
     }
-    
+
     $trigger = $form_state->getTriggeringElement();
     //if ($trigger && $trigger['#type'] == 'entity_autocomplete') {
- 
+
     if ($view) { 
       # if ($view_ref && isset($view_ref['view_id']) && !empty($view_ref['view_id'])) {
       //preg_match('/\((.*?)\)/', $view_ref['view_id'], $view_id);
@@ -189,12 +189,12 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
 
       // Essential
       $element['view_id']['#default_value'] = $view;
-       
+
       $view_data = $view->toArray(); 
       foreach ($view_data['display'] as $display_id => $display) {
         $display_options[$display_id] = $display['display_title'];
       }
-        
+
       $default_display_id = isset($element['#default_value']['display']['display_id']) && !empty($element['#default_value']['display']['display_id']) ? $element['#default_value']['display']['display_id'] : NULL;    
 
       $element['display']['display_id'] = [
@@ -225,7 +225,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
         '#description' => t('Value of View argument (contextual filter) you may want to use here, for instance within twig template, some hook or so. Leave blank for default functionality.'),
         '#default_value' => isset($element['#default_value']['display']['argument']) && !empty($element['#default_value']['display']['argument']) ? $element['#default_value']['display']['argument'] : NULL,
       ];  
-    
+
       $element['display']['filter'] = [
         '#type' => 'textfield',
         '#title'  => t('View\'s exposed Filter identifier'),
@@ -251,13 +251,13 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
   public static function removeAjax(&$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
     $num_views = $form_state->get('num_views');
-   
+
     if ($trigger && strpos($trigger['#name'], 'op-') !== FALSE) {
       $index = (int) str_replace('op-', '', $trigger['#name']);
       $parents = array_slice($trigger['#parents'], 0, -2);
       $parent = NestedArray::getValue($form, $parents);
-      
-      
+
+
       $unset = $parents;
       $unset[] = $index;
       //$form_state->unsetValue($unset);
@@ -267,7 +267,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
     else {
       return [];
     }
-   
+
   }
 
   /**
@@ -276,22 +276,22 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
    * Decrements the max counter and causes a form rebuild.
    */
   public static function removeSubmit(array &$form, FormStateInterface $form_state) {
-    
+
      $num_views = $form_state->get('num_views') - 1;
-      
-    
+
+
     //$values = $form_state->getValues();
-   
-    
+
+
     $trigger = $form_state->getTriggeringElement();
-    
+
     if ($trigger && strpos($trigger['#name'], 'op-') !== FALSE) {
-      
+
       //$form_state->set('num_views', $num_views); 
 
       $index = (int) str_replace('op-', '', $trigger['#name']);
       $parents = array_slice($trigger['#parents'], 0, -2);
- 
+
       $unset = $parents;
       $unset[] = $index; 
       $form_state->unsetValue($unset);
@@ -299,7 +299,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
       $form_state->setRebuild(TRUE);
 
     }
-   
+
   }
 
   public static function addDisplays(array &$form, FormStateInterface $form_state) {
@@ -333,7 +333,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
         $element['#has_garbage_value'] = TRUE;
       }
       return $value;
-  
+
     }
   }
 */

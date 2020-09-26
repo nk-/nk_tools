@@ -291,14 +291,14 @@ class NkToolsSwiperForm extends EntityForm {
     $status = $entity->save();
     
     if ($status) {
-      drupal_set_message($this->t('%label saved.', array(
+      $this->messenger()->addStatus($this->t('%label saved.', array(
          '%label' => $entity->label(),
       )));
     }
     else {
-      drupal_set_message($this->t('Error: %label was not saved.', array(
+      $this->messenger()->addError($this->t('Error: %label was not saved.', array(
         '%label' => $entity->label(),
-      )), 'error');
+      )));
     }
 
     

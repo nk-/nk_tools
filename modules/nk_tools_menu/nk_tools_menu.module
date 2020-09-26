@@ -73,7 +73,7 @@ function nk_tools_menu_theme_suggestions_menu_alter(array &$suggestions, array $
  * Implements hook_preprocess_menu().
  */
 function nk_tools_menu_preprocess_menu(&$variables, $hook) { 
-  
+
   /*
   $nk_tools_config = \Drupal::config('nk_tools.settings');
   //$variables['diplo_layout'] = $diplo_config->get('layout');
@@ -84,7 +84,7 @@ function nk_tools_menu_preprocess_menu(&$variables, $hook) {
 
   $search_menu_uuid = NULL;
   if (is_array($widgets) && isset($widgets['use_search']) && isset($widgets['search']['menu']) && !empty($widgets['search']['menu'])) {
-    
+
     $search_menu_uuid = $widgets['search']['menu_uuid'];
     // Take care of search_inpu as a menu_link case
     $search_input_load = isset($widgets['search']['menu_uuid']) && !empty($widgets['search']['menu_uuid']) ? $menu_link_storage->loadByProperties(['uuid' => $widgets['search']['menu_uuid']]) : NULL;
@@ -95,11 +95,11 @@ function nk_tools_menu_preprocess_menu(&$variables, $hook) {
       $icon = $search_input->hasField('icon') && !empty($search_input->get('icon')->getValue()) ? $search_input->get('icon')->getValue()[0]['value'] : 'search'; 
       $variables['items'][$search_input_menu_key]['is_expanded'] = TRUE;
       $variables['items'][$search_input_menu_key]['is_icon'] = $icon;
-        
+
       $view_id = isset($widgets['search']['view_container']['view_id']) && !empty($widgets['search']['view_container']['view_id']) ? $widgets['search']['view_container']['view_id'] : NULL;
       $display_id = isset($widgets['search']['view_container']['display']['display_id']) && !empty($widgets['search']['view_container']['display']['display_id']) ? $widgets['search']['view_container']['display']['display_id'] : NULL;
       $view_filter = isset($widgets['search']['view_container']['view_filter']) && !empty($widgets['search']['view_container']['view_filter']) ? $widgets['search']['view_container']['view_filter'] : 'search_api_fulltext';
-      
+
       // Support for search_api_autocomplete module   
       $params = [
         '#config' => [],

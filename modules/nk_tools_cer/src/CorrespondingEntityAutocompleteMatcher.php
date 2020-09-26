@@ -38,7 +38,7 @@ class CorrespondingEntityAutocompleteMatcher extends EntityAutocompleteMatcher {
         foreach ($values as $entity_id => $label) {
 
           $entity = \Drupal::entityTypeManager()->getStorage($target_type)->load($entity_id);
-          $entity = \Drupal::entityManager()->getTranslationFromContext($entity);
+          $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity);
           $type = !empty($entity->type->entity) ? $entity->type->entity->label() : $entity->bundle();
           $status = '';
           if ($entity->getEntityType()->id() == 'node') {

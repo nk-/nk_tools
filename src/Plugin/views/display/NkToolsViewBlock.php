@@ -27,7 +27,7 @@ use Drupal\views\Plugin\views\display\Block;
  * @see \Drupal\views\Plugin\Derivative\ViewsBlock
  */
 class NkToolsViewBlock extends Block {
-  
+
   /**
    * {@inheritdoc}
    */
@@ -40,7 +40,7 @@ class NkToolsViewBlock extends Block {
     $options['block_additional_class'] = ['default' => NULL];
     //$options['block_label'] = ['default' => ['format' => 'basic_html', 'value' => NULL]];
     $options['block_category'] = ['default' => $this->t('Nk tools (Views)')];
-    
+
     $options['allow'] = [
       'contains' => [
         'items_per_page' => ['default' => 'items_per_page'],
@@ -52,7 +52,7 @@ class NkToolsViewBlock extends Block {
         //'block_label' => ['default' => ['format' => 'basic_html', 'value' => NULL]],
       ],
     ];
-   
+
     return $options;
   }
 
@@ -166,7 +166,7 @@ class NkToolsViewBlock extends Block {
     parent::buildOptionsForm($form, $form_state);
 
     switch ($form_state->get('section')) {
-      
+
       case 'block_hide_mobile':
         $form['block_hide_mobile'] = [
           '#title' => $this->t('Do not display on mobile'),
@@ -195,7 +195,7 @@ class NkToolsViewBlock extends Block {
           '#attributes' => ['id' => 'collapsible-pane-use'], 
         ];
       break;
- 
+
       case 'block_collapsible_item':
         $form['block_collapsible_item'] = [
           '#type' => 'textfield',
@@ -299,7 +299,7 @@ class NkToolsViewBlock extends Block {
     $allow_settings = array_filter($this->getOption('allow'));
 
     $block_configuration = $block->getConfiguration();
-   
+
     /*
     $form['label']['#type'] = 'text_format';
     $form['label']['#base_type'] = 'textfield';
@@ -307,7 +307,7 @@ class NkToolsViewBlock extends Block {
     $form['label']['#default_value'] =  isset($block_configuration['label']) && isset($block_configuration['label']['value']) && !empty($block_configuration['label']['value']) ? $block_configuration['label']['value'] : $this->view->getTitle();
     $form['label']['#value'] = $form['label']['#default_value'];
     */
-    
+
     foreach ($allow_settings as $type => $enabled) {
       if (empty($enabled)) {
         continue;
@@ -327,7 +327,7 @@ class NkToolsViewBlock extends Block {
             '#default_value' => $block_configuration['items_per_page'],
           ];
         break;
-        
+
 
         case 'block_hide_mobile':
           $form['override']['block_hide_mobile'] = [
@@ -347,7 +347,7 @@ class NkToolsViewBlock extends Block {
             '#default_value' =>  $block_configuration['block_hide_init'],
           ];
         break;
- 
+
         case 'block_collapsible':
           $form['override']['block_collapsible'] = [
             '#type' => 'checkbox',
@@ -357,7 +357,7 @@ class NkToolsViewBlock extends Block {
             '#attributes' => ['id' => 'collapsible-pane-use'],
           ];
         break;
- 
+
         case 'block_collapsible_item':
           $form['override']['block_collapsible_item'] = [
             '#type' => 'textfield',
@@ -382,7 +382,7 @@ class NkToolsViewBlock extends Block {
             '#format' => isset($block_configuration['block_label']['format']) ? $block_configuration['block_label']['format'] : 'basic_html',
             '#default_value' => isset($block_configuration['block_label']['value']) ? $block_configuration['block_label']['value'] : '',  
           ];
- 
+
         break;
         */
 
@@ -397,7 +397,7 @@ class NkToolsViewBlock extends Block {
       }
     }
 
-    
+
 
     return $form;
   }
@@ -447,8 +447,8 @@ class NkToolsViewBlock extends Block {
    */
   /*
   public function blockSubmit(ViewsBlock $block, $form, FormStateInterface $form_state) {
-    
-   
+
+
     $values = $form_state->getValues();
     if (isset($values['override'])) {
       foreach ($values['override'] as $key => $property) {
@@ -459,7 +459,7 @@ class NkToolsViewBlock extends Block {
     parent::blockSubmit($block, $form, $form_state);
   }
   */
-  
+
   /**
    * Allows to change the display settings right before executing the block.
    *
@@ -469,7 +469,7 @@ class NkToolsViewBlock extends Block {
   /*
   public function preBlockBuild(ViewsBlock $block) {
     parent::preBlockBuild($block);
-    
+
     $config = $block->getConfiguration();
     if ($config['block_hide_mobile'] !== 'none') {
       $this->view->setItemsPerPage($config['items_per_page']);

@@ -70,7 +70,7 @@ class NkToolsBase {
    * @var \Drupal\Core\Routing\RouteMatchInterface
    */
   protected $routeMatch;
-  
+
   /**
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
@@ -112,9 +112,9 @@ class NkToolsBase {
 
 
   public static function trimMarkup(string $markup, array $trim_params = []) {
-    
+
     $nk_tools_config = \Drupal::config('nk_tools.settings');
-  
+
     $default_params = $nk_tools_config->get('layout')['trim_text']['trim_options'];
     $default_params['max_length'] = $nk_tools_config->get('layout')['trim_text']['trim_max_length'];
 
@@ -139,54 +139,53 @@ class NkToolsBase {
    * 
    * @return array|object array of entity values or raw entity object
    */
-/*
-  public function getEntity($entity_type, array $params = []) {
-  
-    // if (!$this->entity) {
+  /*
+    public function getEntity($entity_type, array $params = []) {
 
-      switch ($entity_type) {
- 
-        case 'node':
-          $entity = $this->getNode($params);
-        break;
-  
-        case 'block': 
-          $render = isset($params['render']) ? $params['render'] : TRUE;
-          $empty = $render ? '' : [];
-          $block_type = isset($params['type']) ? $params['type'] : 'content';
-          $config = isset($params['config']) ? $params['config'] : [];
-          $entity = isset($params['id']) ? self::getBlock($params['id'], $block_type, $config, $render) : $empty; 
-        break;
+      // if (!$this->entity) {
 
-        case 'view':
-          $arguments = isset($params['args']) ? $params['args'] : [];
-          $viewId = isset($params['id']) ? $params['id'] : NULL;
-          $displayId = isset($params['display_id']) ? $params['display_id'] : 'default';
-          // For the moment this function always returns rendered markup
-          $entity = $viewId ? self::View($viewId, $displayId, $arguments) : ''; 
-        break;
- 
-      }
-    //}
+        switch ($entity_type) {
 
-    return $entity;
-  }
-*/
-  
+          case 'node':
+            $entity = $this->getNode($params);
+          break;
+
+          case 'block': 
+            $render = isset($params['render']) ? $params['render'] : TRUE;
+            $empty = $render ? '' : [];
+            $block_type = isset($params['type']) ? $params['type'] : 'content';
+            $config = isset($params['config']) ? $params['config'] : [];
+            $entity = isset($params['id']) ? self::getBlock($params['id'], $block_type, $config, $render) : $empty; 
+          break;
+
+          case 'view':
+            $arguments = isset($params['args']) ? $params['args'] : [];
+            $viewId = isset($params['id']) ? $params['id'] : NULL;
+            $displayId = isset($params['display_id']) ? $params['display_id'] : 'default';
+            // For the moment this function always returns rendered markup
+            $entity = $viewId ? self::View($viewId, $displayId, $arguments) : ''; 
+          break;
+
+        }
+      //}
+
+      return $entity;
+    }
+  */
   /**
    * Load node entity
    *
    * @param array $params array of node specific params like ID, bundle etc.
-   * 
+   *
    * @return array|object array of node values or raw node object
    */
   public function getNode($params) {
-    
+
     // We can load node either by NID or via route
     $node = isset($params['id']) ? $this->entityTypeManager->getStorage('node')->load($params['id']) : $this->routeMatch->getParameter('node');
-    
+
     if (isset($params['validate'])) {
-    
+
       // Validate for node/nid type of page 
       if (!$node instanceof NodeInterface) {
         $caller = isset($params['caller']) ? ['@caller' => Markup::create('<em>' . $params['caller'] .'</em>')] : ['@caller' => 'Entity'];
@@ -230,10 +229,10 @@ class NkToolsBase {
    * @return string|json rendered view markup or json array
    */
   public function getView($viewId, $displayId, array $arguments = [], $render = NULL, $json = NULL, array &$data = []) {
-  
+
     $result = NULL;
     $view = Views::getView($viewId);
-    
+
     if (is_object($view)) {
 
       $view->setDisplay($displayId);
@@ -277,11 +276,11 @@ class NkToolsBase {
     $block = NULL;
 
     switch ($block_type) {
-      
+
       case 'content':
         $block_entity = BlockContent::load($blockId);
         if ($block_entity) {
-          $block = $render ? \Drupal::entityManager()->getViewBuilder('block_content')->view($block_entity) : $block_entity;
+          $block = $render ? \Drupal::service('entity_type.manager')->getViewBuilder('block_content')->view($block_entity) : $block_entity;
         }
       break;
 
@@ -309,7 +308,7 @@ class NkToolsBase {
           }
           else {
             $block = $render ? $block_entity->build() : $block_entity;
-           
+
           }
         }
       break;
@@ -318,16 +317,16 @@ class NkToolsBase {
         $block_entity = isset($config['block_content']) ? BlockContent::load($blockId) : Block::load($blockId);
 
         if ($block_entity) {
-        
+
           if (isset($config['block_content'])) {
             $block = $render ? \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block_entity) : $block_entity;
           }
           else {
-            $block = $render ? \Drupal::entityManager()->getViewBuilder('block')->view($block_entity) : $block_entity;
+            $block = $render ? \Drupal::service('entity_type.manager')->getViewBuilder('block')->view($block_entity) : $block_entity;
           }
         }
       break; 
-      
+
       case 'default':
         $block_entity = \Drupal::entityTypeManager()->getStorage('block')->load($blockId);
         if (!empty($block_entity)) {
@@ -336,23 +335,23 @@ class NkToolsBase {
       break; 
 
     }
-   
+
     return $block;
-    
+
   }
- 
+
   public static function provideViewDisplays($form_element) {
     return $form_element;
   }
 
-  
+
   public function renderViewFilter($view_id, $display_id, $render = FALSE, array &$data = []) {
-  
+
     $view = Views::getView($view_id);
     $view->setDisplay($display_id);
     $view->initHandlers();
     $form_state = new FormState();
-    
+
     $values = [
       'view' => $view,
       'display' => $view->display_handler->display,
@@ -365,7 +364,7 @@ class NkToolsBase {
     ]; 
 
     $form_state->setFormState($values);
-    
+
     $form = \Drupal::formBuilder()->buildForm('Drupal\views\Form\ViewsExposedForm', $form_state);   
     //$form['#attributes']['data-dom-id'] = $view->dom_id;
     // We do not want submit button visible here, but we want it operational (JS/Ajax)
@@ -375,7 +374,7 @@ class NkToolsBase {
 
   // This can be called in hook_views_pre_view() for instance
   public static function processViewArguments(ViewExecutable $view, $display_id, array $args = [], array $filters, array &$context = []) {
- 
+
     foreach ($filters as $bundle => $filter) {
       foreach ($filter as $form_name => $data) {
         if ($view->id() == $data['view_id'] && $display_id == $data['display_id']) {
@@ -383,17 +382,17 @@ class NkToolsBase {
           $path = \Drupal::request()->getPathInfo();
           $path_array = explode('/', $path);
           array_shift($path_array);
-            
+
 
           if (count($path_array) > 1 && !empty($args)) {
             $url_string = trim(urldecode($path_array[1]));
-          
+
             if (strpos($url_string, ',') !== FALSE || strpos($url_string, '+') !== FALSE) {
-            
+
               $divider = strpos($url_string, ',') !== FALSE ? ',' : '+';
               $type = explode($divider, $url_string);
               $view_title = $view->getTitle();
-              
+
               // This is comma separated entity IDs 
               if (!empty($type) && is_numeric($type[0])) {
                 $args =  $url_string;
@@ -407,13 +406,13 @@ class NkToolsBase {
                     $context['title_array'][] = $result->title; 
                   } 
                 }
-                
+
                 //if (isset($context['title_array']) && !empty($context['title_array'])) {
                 //  $view_title .= Markup::create(' <span class="fs-1-25 view-argument subtitle">' . implode(', ', $context['title_array']) . '</span>');
                 //  $view->setTitle($view_title);
                 //} 
               }
-              
+
               // These are comma separated entity title (strings)
               else {
                 if (!empty($type)) {
@@ -434,12 +433,12 @@ class NkToolsBase {
                   }
                 }
               }
-  
+
            }
-           
+
            // A single value (argument without comma separated values)
            else {
-             
+
              if (!empty($url_string)) {
 
                // Argument can be either entity id or title string
@@ -466,13 +465,13 @@ class NkToolsBase {
             $args = 'all';
             //$context['title_array'] = [$view->getTitle()];
           }
-      
+
           return $args; 
         }
       }
     }
   } 
-  
+
   public function getMenu(string $menu_name, int $depth = 1, string $sort = 'ASC') {
     $menu_tree = \Drupal::service('menu.link_tree');
     $parameters = new MenuTreeParameters();
@@ -504,7 +503,7 @@ class NkToolsBase {
 
   /*
   public static function renderCollapsibleMenu(string $menu_name, int $depth = 1, $tree = NULL, array $attributes = [], string $sort = 'ASC') {
-  
+
     //$menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
     //$nk_tools_factory = \Drupal::service('nk_tools.main_service'); 
 
@@ -525,13 +524,13 @@ class NkToolsBase {
       foreach ($menu_tree as $menu_link_key => $menu_link) {
 
         $collapsible_key = Html::getUniqueId($menu_link_key);
-      
+
         //$metadata = $menu_link->link->getMetaData();
         //$entity = is_array($metadata) && isset($metadata['entity_id']) && !empty($metadata['entity_id']) ? $menu_link_storage->load($metadata['entity_id']) : NULL;
         //$extra_fields = self::getLinkExtraFields($entity, ['highlighted', 'icon']); 
        // $extra_fields = self::getLinkExtraFields($menu_link->link, ['highlighted', 'icon']); 
         $get_parent_link_label = self::linkLabel($menu_link);
-        
+
         $build_menu_tree['#items'][$collapsible_key] = [
           'target' => 'pane-' . $collapsible_key,
           'label' => $get_parent_link_label['label'],
@@ -554,10 +553,10 @@ class NkToolsBase {
 
         $menu_level = 0;
         if ($menu_link->hasChildren && $menu_level < $depth) {
-         
+
           // ASC is a default sorting as the menu tree shows up in interface, smaller delta first
           self::sortMenuLinks($menu_link->subtree, $sort);
-          
+
           $build_menu_tree['#items'][$collapsible_key]['content'] = [
             '#theme' => 'nk_tools_collapsible_pane',
             '#hook' => 'menu_' . $menu_name,
@@ -568,12 +567,12 @@ class NkToolsBase {
           foreach ($menu_link->subtree as $item_key => $item) {
             $key = Html::getUniqueId($item_key);
             $sublinks[$key] = $links;
-            
-            
+
+
             //$extra_fields[$key] = self::getLinkExtraFields($item->link, ['highlighted', 'icon']); 
- 
+
             $sublinks[$key]['#attributes']['class'][] = 'no-p';
-            
+
             //if (isset($extra_fields[$key]['highlighted'])) {
               //$sublinks[$key]['#attributes']['class'][] = $extra_fields[$key]['highlighted'];
               //ksm($key);
@@ -590,15 +589,15 @@ class NkToolsBase {
               'class' => $get_link_label['class'],
               'content' => $sublinks[$key]
             ];
-     
+
             $toggle_attributes = isset($attributes['toggle']) ? $attributes['toggle'] : [];
-            
+
             // Reset classes here
             $toggle_attributes['class'] = [];
-            
-           
+
+
             if ($item->hasChildren) {
-              
+
               // Some default small padding
               $toggle_attributes['class'][] = 'pr-4';
               $toggle_attributes['class'][] = 'pl-4';
@@ -606,7 +605,7 @@ class NkToolsBase {
               if ($get_link_label['class']) {
                 $toggle_attributes['class'][] = $get_link_label['class'];
               }
-  
+
               if (isset($attributes['fonts']) && isset($attributes['fonts'][1])) { // Second level of menu, same for font-sizes (going down)
                 $toggle_attributes['class'][] = $attributes['fonts'][1];
               } 
@@ -615,7 +614,7 @@ class NkToolsBase {
               }
 
               $build_menu_tree['#items'][$collapsible_key]['content']['#toggle_attributes'] = new Attribute($toggle_attributes); 
- 
+
               $pane_wrapper = isset($attributes['pane_wrapper']) ? $attributes['pane_wrapper'] : ['class' => ['pane-wrapper']];
               $build_menu_tree['#items'][$collapsible_key]['content']['#pane_wrapper_attributes'] = new Attribute($pane_wrapper); 
             }
@@ -689,7 +688,7 @@ class NkToolsBase {
     ];
   }
 
- 
+
   public static function getLinkExtraFields($menu_link_content, array $fields) {
     $values = [];
     $metadata = $menu_link_content->getMetaData();
@@ -705,7 +704,7 @@ class NkToolsBase {
     return $values;
   }
 */
-  
+
 
 
   public function getEntityFields(string $entity_type, string $bundle, bool $options = FALSE, string $field_name = '') {
@@ -784,7 +783,7 @@ class NkToolsBase {
           $file_title = $node->get($field_name)->first()->get('title')->getValue();
           $file_alt = $node->get($field_name)->first()->get('alt')->getValue();
         }
- 
+
         $image_style_storage = $this->entityTypeManager->getStorage('image_style');  
         $image_style = isset($config['field_banner_image_style']) && !empty($config['field_banner_image_style']) ? $image_style_storage->load($config['field_banner_image_style']) : NULL;  
 
@@ -825,7 +824,7 @@ class NkToolsBase {
                   $file_title = $paragraph->get($paragraph_fields['source'])->first()->get('title')->getValue();
                   $file_alt = $paragraph->get($paragraph_fields['source'])->first()->get('alt')->getValue();
                   $image_style = $paragraph->hasField($paragraph_fields['image_style']) ? $image_style_storage->load($paragraph->get($paragraph_fields['image_style'])->getValue()[0]['target_id']) : NULL; 
- 
+
                   $file = $file_storage->load($banner_reference);
                   return [
                     'block_content' => $block_content,
@@ -853,7 +852,7 @@ class NkToolsBase {
     $route = \Drupal::service('current_route_match');
     $add_class = NULL;
     if ($type == 'node') {
-        
+
       $banner = $this->nodeBanners($subfields, $build);
       $prev_element = isset($build['field_fixed_element_selector']) && !empty($build['field_fixed_element_selector']) ? $build['field_fixed_element_selector'] : NULL;
       $css_bg = isset($build['field_css_background']) && $build['field_css_background'] ? $build['field_css_background'] : NULL;
@@ -881,11 +880,11 @@ class NkToolsBase {
       $selector = !empty($build) && isset($build['#block']) ? '#' . str_replace('_', '-', $build['#block']->getRegion()) : '#before-main';
       $top_offset = $block_content && $block_content->hasField('field_top_offset') && !empty($block_content->get('field_top_offset')->getValue()) ? $block_content->get('field_top_offset')->getValue()[0]['value'] : 0;
       //$image_style = isset($banner['file_data']['image_style']) && !empty($banner['file_data']['image_style']) ? $banner['file_data']['image_style'] : NULL;
-      
+
       /*
         // $svg = $block_content && $block_content->hasField('field_svg_source') && !empty($block_content->get('field_svg_source')->getValue()) ? $block_content->get('field_svg_source')->getValue()[0]['value'] : NULL;
         $svg = isset($banner['file_data']['mimetype']) && !empty($banner['file_data']['mimetype']) && strpos($banner['file_data']['mimetype'], 'svg') !== FALSE ? TRUE : NULL;
-    
+
         if ($svg) {
           $svg_data = file_get_contents($banner['url']); //DRUPAL_ROOT . '/' . $path);
           $crawler = new Crawler($svg_data);
@@ -948,14 +947,14 @@ class NkToolsBase {
             //$crawler->attr('width'); //$crawler->filter('svg')->attr('width');
             // $height = $crawler->attr('height'); //$crawler->filter('svg')->attr('height');
             $height = !empty($crawler->filter('svg')->extract('height')) ? $crawler->filter('svg')->extract('height')[0] : NULL;
-           
+
             if ($width && $height) {
               //list($x, $y, $width, $height) = explode(' ', $svg_properties);
                $build['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$id]['ratio'] = $width / $height;
                $build['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$id]['width'] = $width;
                $build['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$id]['height'] = $height;
             }
-            
+
           } 
         }
         $build['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$id]['svg'] = $svg;
@@ -983,12 +982,12 @@ class NkToolsBase {
       }
 
       $bg_class = isset($banner['file_data']['alt']) && !empty($banner['file_data']['alt']) ? strtolower(str_replace(' ' , '-', $banner['file_data']['alt'])) : strtolower(str_replace(' ' , '-', $banner['file_data']['title']));
-      
+
       $build['#attributes']['class'][] = $bg_class;
       if ($add_class) {
         $build['#attributes']['class'][] = $add_class;
       }
- 
+
       if ($css_bg) {
         $build['#configuration']['bg_image'] = $banner['url'];
         // Set CSS background attributes to our file
@@ -1000,7 +999,7 @@ class NkToolsBase {
       $build['#attached']['library'][] = 'nk_tools/fixed_banner';
 
     }
-    
+
     //ksm($build['#attached']);
     return $build;
 
@@ -1014,7 +1013,7 @@ class NkToolsBase {
     // Make sure cache does not interfere, this may not be necessary eventually
     $variables['#cache']['contexts'][] = 'url.path';
     $variables['#cache']['contexts'][] = 'url.query_args';
-   
+
 /*
     // Check current path and if it's a View get its machine name from route
     $view_banner = NULL;
@@ -1037,7 +1036,7 @@ class NkToolsBase {
     if (isset($route_array[1]) && !empty($route_array[1]) && isset($variables['content']) && !empty($variables['content']) && isset($variables['content']['field_banners'])) {
 
       $config = [];
-      
+
       foreach (Element::children($variables['content']) as $field_id) {
         $config[$field_id] = [];
         if (is_object($variables['content'][$field_id]['#items']) && !empty($variables['content'][$field_id]['#items']->getValue())) {
@@ -1051,7 +1050,7 @@ class NkToolsBase {
       }
 
       $selector = $config['field_fixed_element_selector']['value']; // $variables['content']['field_fixed_element_selector']['#items']->getValue()[0]['value'];
-     
+
       $variables['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$selector] = []; 
 
       if (isset($config['field_banners']) && !empty($config['field_banners'][0])) {
@@ -1059,13 +1058,13 @@ class NkToolsBase {
         $banner_variables = [];
 
         foreach ($config['field_banners'] as $delta => $banner_image) {
-          
+
           $file = File::load($banner_image['target_id']);     
           $view = isset($config['field_views_reference']) && !empty($config['field_views_reference'][$delta]) ? $config['field_views_reference'][$delta]['target_id'] : NULL;
           $view_display = $view && !empty($config['field_views_reference'][$delta]['display_id']) ? $config['field_views_reference'][$delta]['display_id'] : NULL;
-        
+
           if ($file && !empty($route_array[2]) && $view_display == $route_array[2]) {
-          
+
             $image_style = $front_page ? NULL : $variables['content']['field_banners'][$delta]['#image_style'];
             $banner_variables[$delta] = self::setBanner($file->getFileUri(), $image_style); 
 
@@ -1079,13 +1078,13 @@ class NkToolsBase {
             $variables['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$selector]['config'] = $config;
 
             $variables['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$selector]['block'] = '#block-' . str_replace('_', '-', $variables['elements']['#id']);
-            
+
             // Set URL for CSS background-image (if opted so on block config)
             if (isset($variables['content']['field_css_background']['#items']) && !empty($variables['content']['field_css_background']['#items']->getValue())) {
               $variables['bg_image'] = isset($banner_variables[$delta]['style_data']) && !empty($banner_variables[$delta]['style_data']) ? $banner_variables[$delta]['style_data']['url'] : '';
               $variables['#attached']['drupalSettings']['nk_tools']['fixed_banners'][$selector]['css_bg'] = isset($config['field_css_background']['value']) && $config['field_css_background']['value'] > 0 ? TRUE : FALSE;
             }
-    
+
             $variables['content']['field_banners'][0]['#item_attributes']['height'] = 'auto';  
             $variables['content']['field_banners'][0]['#item_attributes']['width'] = '100%';
 
@@ -1100,7 +1099,7 @@ class NkToolsBase {
           else {
             unset($variables['content']['field_banners'][$delta]);
           }
-        
+
         }
       }
 
@@ -1110,18 +1109,18 @@ class NkToolsBase {
   }
 
   public static function setBanner($file_uri, $image_style = NULL) {
- 
+
     $image = \Drupal::service('image.factory')->get($file_uri);
     $banners = [];
 
     if ($image) { 
-      
-      
+
+
       //$banners[$selector] = []; 
-      
+
       if ($image_style) {
         $style = ImageStyle::load($image_style);
-        
+
         foreach ($style->getEffects() as $effect_uuid => $effect) {
           if (!empty($effect->getConfiguration()['data']) && (isset($effect->getConfiguration()['data']['width']) || isset($effect->getConfiguration()['data']['height']))) {  
             $banners['style_data'] = $effect->getConfiguration()['data'];
@@ -1145,18 +1144,18 @@ class NkToolsBase {
 
 
   public function paragraphLinks(NodeInterface $node, array $paragraphs) {
-   
+
     $paragraph = [];
     $quick_links = [];
-      
+
     foreach ($paragraphs as $field_name => $fields) {
-  
+
       if ($node->hasField($field_name) && $node->get($field_name) instanceof EntityReferenceRevisionsFieldItemList) {
-  
+
         $paragraph[$field_name] = $node->get($field_name)->referencedEntities();
-        
+
         if (!empty($paragraph[$field_name])) {
-      
+
           //$display_options = EntityViewDisplay::collectRenderDisplay($node, $build['#view_mode'])->getComponent($field_name);
           //if (!empty($display_options) && isset($display_options['settings']['view_mode'])) {
              //  $build['#node']->swiper_view_mode = $display_options['settings']['view_mode'];
@@ -1176,9 +1175,9 @@ class NkToolsBase {
               ],
             ] 
           ];
-                  
+
           foreach ($paragraph[$field_name] as $index => $p) {
-                 
+
             if ($short_title = $p->get($fields['title'])->value) { 
               $delta = $index + 1;
               $quick_links['#links'][$index]['title'] = Markup::create($short_title);
@@ -1204,25 +1203,25 @@ class NkToolsBase {
   }
 
   public static function quicklinks(&$variables, NodeInterface $node) { 
-    
+
     // Processing for all paragraph fields that are selected for anchor links or swiper links feature
     $quicklinks = self::QUICK_LINKS;
-    
+
     if (!empty(array_keys($quicklinks))) {
 
       if (in_array($node->getType(), array_keys($quicklinks))) { 
-        
+
 
          foreach ($quicklinks as $bundle => $paragraph) {
-          
+
           $paragraphs = [];
-          
+
           foreach ($paragraph as $field_name => $fields) {
 
              $paragraphs[$field_name] = $node->get($field_name)->referencedEntities();
 
               if (!empty($paragraphs[$field_name])) {
-      
+
                 //$display_options = EntityViewDisplay::collectRenderDisplay($node, $build['#view_mode'])->getComponent($field_name);
                 //if (!empty($display_options) && isset($display_options['settings']['view_mode'])) {
                 //  $build['#node']->swiper_view_mode = $display_options['settings']['view_mode'];
@@ -1250,9 +1249,9 @@ class NkToolsBase {
 
                    ] 
                  ];
-                  
+
                  foreach ($paragraphs[$field_name] as $index => $p) {
-                 
+
                     if ($short_title = $p->get($fields['title'])->value) { 
                       $delta = $index + 1;
                       $quick_links['#links'][$index]['title'] = Markup::create($short_title);
@@ -1270,7 +1269,7 @@ class NkToolsBase {
          //$variables['quick_links']['#links'][$index]['title'] = Markup::create($short_title);
                       //$variables['quick_links']['#links'][$index]['link_title'] = Markup::create($short_title);
                     } 
-        
+
                     //if ($body = $p->get($fields['teaser'])->value) {
                     //  $variables['quick_links'][$index]['link_teaser'] = Markup::create($body);
                     //} 
@@ -1279,9 +1278,9 @@ class NkToolsBase {
              }
            }
          }
-  
+
       }
-        
+
       $variables['content'] = $quick_links;
   }
 
@@ -1298,7 +1297,7 @@ class NkToolsBase {
         }
       }
     }
-    
+
     $fields_entity = [];
     if (!empty($fields)) {
       foreach ($fields as $field) {
@@ -1310,7 +1309,7 @@ class NkToolsBase {
 
 
   public function fieldRender(EntityInterface $entity, array $field, $view_mode = NULL, $is_file = NULL) {
-    
+
     if ($entity->getType() == $field['bundle'] && $entity->hasField($field['field_name']) && !empty($entity->get($field['field_name'])->getValue())) {
       //$render_value = [];
       $value_key = 'value';  
@@ -1321,7 +1320,7 @@ class NkToolsBase {
           $value_key = 'target_id';
         }
       }
-  
+
       $render = NULL;
       $render_value = NULL;
 
@@ -1351,18 +1350,18 @@ class NkToolsBase {
     $render_value = [];
 
     $title = NULL;
-    
+
     if ($entity instanceof NodeInterface) {
       $title = $entity->getTitle();
     }
     else if ($entity instanceof ParagraphInterface) {
       $title = $entity->getParentEntity()->getTitle();
     }
-  
+
     foreach($values as $delta => $value) {
-  
+
       $value_key = isset($value['target_id']) ? 'target_id' : 'value';
-    
+
       $params = [
         'alt' => $title,
         'title' => $title,
@@ -1386,13 +1385,13 @@ class NkToolsBase {
 
 
   public function renderFileField($entity_type, $entity, string $fieldname, array $params = [], array $fids = [], bool $image = FALSE) {
-  
+
     $rendered = [];
     $ids = !empty($fids) ? $fids : [];
     if (empty($ids)) {
-      
+
       $files = $entity->get($fieldname)->getValue();
-      
+
       // Use default field's image as a banner or empty array (for file not being an image but not existing)
       if (empty($files)) {
         return $image ? $this->defaultImage($entity_type, $entity, $fieldname, $params) : [];
@@ -1405,7 +1404,7 @@ class NkToolsBase {
         }
       }
     }
-    
+
     $file_storage = $this->entityTypeManager->getStorage('file');
 
     $files_load = $file_storage->loadMultiple($fids);
@@ -1413,7 +1412,7 @@ class NkToolsBase {
 
       $i = 0;
       foreach($files_load as $fid => $file) {
-        
+
         if ($file instanceof File) {
           if ($image) {
             $rendered[$i] = $this->renderImage($file, $params);
@@ -1428,32 +1427,32 @@ class NkToolsBase {
                 'class' => isset($params['class']) ? $params['class'] : [],
               ],
             ];
-            
-            
+
+
             $rendered[$i]['url'] = file_create_url($file->getFileUri());
             $uri = Url::fromUri($file->getFileUri(), $options);
             $rendered[$i]['link'] = Link::fromTextAndUrl(Markup::create($description), $uri);
             $rendered[$i]['description'] = $description;
-            
+
           }
 
         }
 
         $i++;
-      
+
       }
-   
+
     } 
-    
+
     return $rendered; 
-  
+
   }
 
-      
+
   public function renderImage(File $file, array $params = []) {
-  
+
     $image = \Drupal::service('image.factory')->get($file->getFileUri());    
-     
+
     $image_build = [ 
       '#uri' => $file->getFileUri(),
       '#width' => $image->getWidth(),
@@ -1467,7 +1466,7 @@ class NkToolsBase {
 
     $image_style_storage = $this->entityTypeManager->getStorage('image_style');
     $style = !empty($params) && isset($params['url']) && !empty($params['url']) ? $image_style_storage->load($params['image_preset']) : NULL;
-    
+
     if (!empty($params)) {
       if (isset($params['image_preset']) && !empty($params['image_preset'])) {
 
@@ -1499,7 +1498,7 @@ class NkToolsBase {
 
 
   public function defaultImage($entity_type, $entity, $field_name, array $params = []) {
-    
+
     $field_config = FieldConfig::loadByName($entity_type, $entity->getType(), $field_name); //'node', 'actors', 'field_image_banner');
     $file_uuid = $field_config->getSetting('default_image')['uuid'];
     if (!$file_uuid) {
@@ -1510,7 +1509,7 @@ class NkToolsBase {
     if ($file instanceof File) {
       return $this->renderImage($file, $params);
     }
-     
+
   }
 
 
@@ -1556,14 +1555,14 @@ class NkToolsBase {
    $response = new BinaryFileResponse($uri, 200, $headers);
 
    return $response;
- 
+
  }
   */
-  
+
    public function _getReferencedNodes($field_name, $parent_entity, bool $object = FALSE, array $format = [], array $target_ids = []) {
-    
+
     $referenced_entities = [];
-    
+
     // In some situations we have this array ready, like block that has fields target id already
     if (!empty($target_ids)) {
       $referenced_entities =  $target_ids;
@@ -1573,12 +1572,12 @@ class NkToolsBase {
         $referenced_entities[$t] = $parent_entity[$field_name][$t]['target_id'];
       }
     }
- 
+
     if (!empty($referenced_entities)) {
-     
+
       // Return array of Drupal\node\Entity\Node instances
       if ($object) {
-        $objects = \Drupal::entityManager()->getStorage('node')->loadMultiple($referenced_entities);
+        $objects = \Drupal::service('entity_type.manager')->getStorage('node')->loadMultiple($referenced_entities);
         $nodes = [];
         foreach ($objects as $node) {
           $nid = $node->id();
@@ -1586,10 +1585,10 @@ class NkToolsBase {
         }
         return $nodes;
       }
-      
+
       // Light version with direct query to some fields only
       else {
-        
+
         $query = \Drupal::database()->select('node_field_data', 'n');
         $query->addField('n', 'title');
         $query->addField('n', 'nid');
@@ -1599,11 +1598,11 @@ class NkToolsBase {
         if (!empty($results)) {
           $build = [];
           if (!empty($format)) {
-          
+
             switch ($format['format']) {
 
               case 'links': 
-                
+
                 $items = [];
                 $links = [];
                 $links_theme = []; 
@@ -1615,7 +1614,7 @@ class NkToolsBase {
                     $links[] = Link::fromTextAndUrl($title, $uri); //, ['absolute' => TRUE])->toString();
                   }          
                 }
-               
+
                 if (!empty($links)) {
 
                   if (isset($format['attributes'])) {
@@ -1635,9 +1634,9 @@ class NkToolsBase {
                     '#attributes' => $format['attributes'],
                     '#wrapper_attributes' => isset($format['wrapper_attributes']) ? $format['wrapper_attributes'] : [ 'class' => [] ],
                   ]; 
-                    
+
                   return $build; 
-                  
+
                 }
 
               break;
@@ -1646,16 +1645,16 @@ class NkToolsBase {
         }
       }
     }
-    
+
 
   }
 
 
 
    public function getReferencedNodes(EntityInterface $entity, array $field, $view_mode = NULL, array $target_ids = []) {  //$field_name, $parent_entity, bool $object = FALSE, array $format = [], array $target_ids = []) {
-    
+
     $entities = [];
-    
+
     // In some situations we have this array ready, like block that has fields target id already
     if (!empty($target_ids)) {
       $referenced_entities =  $target_ids;
@@ -1669,7 +1668,7 @@ class NkToolsBase {
         }
       }
     }
- 
+
     if (!empty($referenced_entities)) {
 
       $reference_type = $field['entity_reference'];
@@ -1689,11 +1688,11 @@ class NkToolsBase {
     // Query with entity_type.manager (The way to go)
     $query = $this->entityTypeManager->getStorage($entity_type);
     //$query_result = $query->getQuery()->condition('status', NODE_PUBLISHED);
-   
+
     if ($id) {
       $query_result->condition($field_name, $id);
     }
-    
+
     if (!empty($target_types)) {
       $query_result->condition('type', $target_types, 'IN');
     }
@@ -1711,7 +1710,7 @@ class NkToolsBase {
 
 /*
   public static function tabbedBlocks($nid, $viewId, array $tabbed_blocks) {
-    
+
     $blocks['tabbed_blocks'] = [];
 
     foreach ($tabbed_blocks as $key => $tab) {
@@ -1727,11 +1726,11 @@ class NkToolsBase {
     } 
     return $blocks;
   }
-  
+
   public function buildBlockUI($config, $params) {
-    
+
     $elements = NULL;
-    
+
     if (isset($params['nid']) && !empty($params['nid'])) {
       $nid = $params['nid'];
     }
@@ -1739,20 +1738,20 @@ class NkToolsBase {
       $node = $this->getEntity('node', $params);
       $nid = $node['nid'][0]['value'];
     }
-    
-    
+
+
     if ($nid) {
 
       $viewId = $config['block_tabbed_blocks']['view_id'];
 
       $tabbed_blocks = [];
-    
+
       foreach ($config['block_tabbed_blocks'] as $key => $view) {
         if (strpos($key, 'display_') !== FALSE && !empty($view['display_id'])) {
           $tabbed_blocks[$view['display_id']] = $view['label'];
         }
       }
-  
+
       $elements = self::tabbedBlocks($nid, $viewId, $tabbed_blocks);
     }
 
@@ -1764,7 +1763,7 @@ class NkToolsBase {
         'class' => isset($params['class']) ? $params['class'] : [],
       ],
     ];
-   
+
     return $build;
 
   }

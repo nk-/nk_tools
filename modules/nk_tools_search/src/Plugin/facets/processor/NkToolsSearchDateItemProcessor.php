@@ -83,9 +83,9 @@ class NkToolsSearchDateItemProcessor extends DateItemProcessor implements BuildP
 
       if (!empty($raw_value)) {  
 
-       
+
         $timezone = new \DateTimeZone($site_timezone);
- 
+
         if (!is_numeric($raw_value)) { 
 
           if (strpos($raw_value, 'T') !== FALSE) {
@@ -102,7 +102,7 @@ class NkToolsSearchDateItemProcessor extends DateItemProcessor implements BuildP
           $raw_value_date = new \DateTime($string_value,  $timezone);
           $raw_value = $raw_value_date->getTimestamp();         
         }
-        
+
         //$value = \Drupal::service('date.formatter')->format($raw_value, 'custom', DateTimeItemInterface::DATETIME_STORAGE_FORMAT, 'UTC');
 
 
@@ -110,16 +110,16 @@ class NkToolsSearchDateItemProcessor extends DateItemProcessor implements BuildP
         $date_chunks = explode('-', $value);
         array_pop($date_chunks);
         $datestring = implode('-', $date_chunks) . '-01';
-             
-        
+
+
         $date = new \DateTime($datestring,  $timezone);
         if (is_object($date)) {
-        
+
           $year_datestring = $date_chunks[0] .'-01-01';
           $year_date = new \DateTime($datestring,  $timezone);
           if (is_object($year_date)) {
             $month_year_timestamp = $date->getTimestamp(); 
-            
+
           */
            // $date = DrupalDateTime::createFromTimestamp((int)$raw_value, $timezone); // 
            $year_string = \Drupal::service('date.formatter')->format($raw_value, 'custom', 'Y', $site_timezone);
@@ -128,7 +128,7 @@ class NkToolsSearchDateItemProcessor extends DateItemProcessor implements BuildP
            $month_number = \Drupal::service('date.formatter')->format($raw_value, 'custom', 'm', $site_timezone);
            $month_day_string = \Drupal::service('date.formatter')->format($raw_value, 'custom', 'd F', $site_timezone);
            $day_string = \Drupal::service('date.formatter')->format($raw_value, 'custom', 'd', $site_timezone);
-           
+
            $format = \Drupal::service('date.formatter')->format($raw_value, 'custom', $date_format, $site_timezone);
 
            // Essential, set display value to each item in Facets results array  

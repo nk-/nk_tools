@@ -140,9 +140,9 @@ class NkToolsSearchInput extends Search {
       if (isset($views_exposed_form['form'])) {
         $element = $views_exposed_form['form'];
       }
-      
+
       $element_config['#attributes']['data-drupal-selector'] = 'edit-' . $filter;
-         
+
       // Finally a support for search_api_autocomplete required processing
       if (isset($config['autocomplete']) && !empty($config['autocomplete'])) {
         $plugin_id = 'views:' . $view_id;

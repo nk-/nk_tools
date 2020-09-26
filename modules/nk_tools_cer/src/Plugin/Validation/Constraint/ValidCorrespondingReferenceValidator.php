@@ -19,9 +19,9 @@ class ValidCorrespondingReferenceValidator extends ValidReferenceConstraintValid
    * {@inheritdoc}
    */
   public function validate($value, Constraint $constraint) {
- 
+
     parent::validate($value, $constraint);
-    
+
     if (!isset($value) || !isset($value[0])) {
       return;
     }

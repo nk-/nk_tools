@@ -122,7 +122,7 @@ class NkToolsSearchManager implements ContainerInjectionInterface {
                 $timezone = new \DateTimeZone($site_timezone);
                 $date = new \DateTime($datestring,  $timezone);
                 if (is_object($date)) {
-                
+
                   $year_datestring = $date_chunks[0] .'-01-01';
                   //$month_datestring = $datestring;
 

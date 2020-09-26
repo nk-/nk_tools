@@ -55,7 +55,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
    */
   protected $moduleHandler;
 
-  
+
   /**
    * The module handler.
    *
@@ -80,7 +80,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
    *   Messenger interface.
    */
   public function __construct(ConfigFactoryInterface $config_factory, PathValidatorInterface $path_validator, RequestContext $request_context, MenuParentFormSelectorInterface $menu_parent_selector, ModuleHandlerInterface $module_handler, MessengerInterface $messenger) {
-    
+
     parent::__construct($config_factory);
 
     $this->pathValidator = $path_validator;
@@ -146,7 +146,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
     }
 
     $view = $view_id ? View::load($view_id) : NULL;
-   
+
     $form['layout'] = [
       '#type' => 'details',
       '#title' => $this->t('Layout and HTML/CSS'),
@@ -204,7 +204,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
       '#description' => $this->t('And integer value for maximum length of trimmed sting/input'),
       '#default_value' => $config->get('layout')['trim_text']['trim_max_length'], 
      ];
-     
+
     $trim_options = [];
     foreach ($config->get('layout')['trim_text']['trim_options'] as $key => $trim_option) {
       if ($trim_option) {
@@ -223,7 +223,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
       '#description' => $this->t('Additional trimming options. It uses Views\'s <em>\Drupal\views\Plugin\views\field\FieldPluginBase::trimText</em> method.'),
       '#default_value' => $trim_options, //$config->get('layout')['trim_text']['trim_options'], 
     ];
- 
+
     // TODO: Place this into separate form/settings
 
 /*
@@ -317,13 +317,13 @@ class NkToolsMainConfigForm extends ConfigFormBase {
           'message' => t('Verifying entry...'), 
         ],
       ],
-      
+
     ];
-    
+
     // View display select
     $display_options = [];
     $disabled = TRUE;
-    
+
     if ($view instanceof View) {
       $disabled = FALSE;
       $view_data = $view->toArray(); 
@@ -331,14 +331,14 @@ class NkToolsMainConfigForm extends ConfigFormBase {
         $display_options[$display_id] = $display['display_title'];
       }
     }
- 
+
     $form['widgets']['search']['view_container']['display'] = [
       '#type' => 'container',
       '#attributes' => [
         'id' => 'display-id-container',
       ],
     ];
-    
+
     $form['widgets']['search']['view_container']['display']['display_id'] = [
       '#type' => 'select',
       '#title' => $this->t('View display name'),
@@ -355,10 +355,10 @@ class NkToolsMainConfigForm extends ConfigFormBase {
       '#description' => $this->t('A machine name of Fulltext search exposed View filter, aka "Filter identifier" on exposed filter setup'),
       '#default_value' =>  $config->get('widgets')['search']['view_container']['view_filter'],
     ];  
-  
+
      // Inject piece of a config from nk_tools_menu featured submodule   
     if (\Drupal::moduleHandler()->moduleExists('nk_tools_menu')) {
-      
+
       $form['widgets']['search']['menu'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Use as menu item'),
@@ -382,13 +382,13 @@ class NkToolsMainConfigForm extends ConfigFormBase {
       $form['widgets']['search']['menu_item']['#attributes']['class'][] = 'menu-title-select';
       //$form['widgets']['search']['menu_item']['#prefix'] = '<div class="widget-next">';
       //$form['widgets']['search']['menu_item']['#suffix'] = '</div>';
-   
+
       $form['widgets']['search']['menu_item']['#states'] = [ // @see https://www.drupal.org/docs/8/api/form-api/conditional-form-fields
         'visible' => [
           ':input[id=use-menu]' => ['checked' => TRUE],
         ],
       ];
-      
+
       $form['widgets']['search']['menu_uuid'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Menu link uuid'),
@@ -462,12 +462,12 @@ class NkToolsMainConfigForm extends ConfigFormBase {
       // Inject piece of a config from nk_tools_menu featured submodule   
 /*
       if (\Drupal::moduleHandler()->moduleExists('nk_tools_menu')) {
-        
+
         $use_menu = $form_state->getValue('menu');
         $uuid = $form_state->getValue('menu_uuid'); //'bb5355e3-2cc5-4aa8-b30b-747d09959c5a';
         $menu_name = $form_state->getValue('menu_item') ? str_replace(':', '', $form_state->getValue('menu_item')) : NULL;
         $menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
-        
+
         $existing = $menu_link_storage->loadByProperties(['uuid' => $uuid]);
         $menu_link_entity = is_array($existing) ? reset($existing) : NULL;
 
@@ -476,7 +476,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
         $this->config('nk_tools.settings')->set('widgets.search.menu_item', $form_state->getValue('menu_item'));
         $this->config('nk_tools.settings')->set('widgets.search.menu_uuid', $uuid);
         $this->config('nk_tools.settings')->set('widgets.search.menu_path', $menu_fallback_path);
- 
+
         if ($use_menu) {
           if ($menu_name) {
             if ($form_state->getValue('view') && $form_state->getValue('view_id') && !empty($form_state->getValue('view_id')) && $form_state->getValue('display_id') && !empty($form_state->getValue('display_id'))) {
@@ -493,7 +493,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
             else {
               $link = 'internal:' . $menu_fallback_path;
             }
-            
+
             if ($menu_link_entity) {
               $menu_link_entity->delete();
               $status = $this->t('Deleted menu link item which was previously auto-generated for search input.');
@@ -508,7 +508,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
               'menu_name' => $menu_name,
               'weight' => 100,
             ])->save();
-                
+
             if ($saved) {
               $status = $this->t('A menu link item was appended to Menu <em>@menu_name</em>, check it out <a href="@menu_url">here</a>', ['@menu_name' => $menu_name, '@menu_url' => '/admin/structure/menu/manage/' . $menu_name]);
               $this->messenger->addStatus($status);
@@ -523,7 +523,7 @@ class NkToolsMainConfigForm extends ConfigFormBase {
           }
         }
       }
-     
+
 */
       $this->config('nk_tools.settings')->save();
 
