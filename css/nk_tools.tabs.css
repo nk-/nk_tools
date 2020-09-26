@@ -1,0 +1,256 @@
+/**
+ * tab panel widget
+ */
+.tabs-widget {
+  position: relative;  /* containing block for headings (top:0) */
+  background: #999;
+}
+
+/**
+ * because labels come first in source order - we use z-index to move them in front of the headings
+ */
+.tabs-widget > label {
+  position: absolute;
+  z-index: 1;
+}
+
+/**
+ * labels and headings must share same values so grouping declarations in this rule prevents async edits (risk of breakage)
+ * line-height == height -> vertical centering
+ * the width dictates the offset for all headings but the first one: left offset = width * number of previous heading(s)
+ * note that width and offset of label/heading pair can be customized if necessary
+ */
+
+.tabs-widget > label,
+.tabs-widget > h3 {
+  font-size: 1.1em;
+  width: 9em;
+  height: 2em;
+  line-height: 2em;
+}
+
+/**
+ * position:relative is for the markers (the down arrow in tabs)
+ */
+.tabs-widget > h3 {
+  position: relative;
+  margin: 0;
+  text-align: center;
+  background: #999;
+  color: #fff;
+}
+
+.tabs-widget > label {
+  border-right: 1px solid #fff;  
+}
+
+/**
+ * all first level labels and headings after the very first ones 
+ */
+.tabs-widget input,
+.tabs-widget > label ~ label,
+.tabs-widget > h3 ~ h3 {
+  position: absolute;
+  top: 0;
+}
+
+
+/**
+ * We target all the label/heading pairs
+ * we increment the :nth-child() params by 4 as well as the left value (according to "tab" width)
+ */
+
+.tabs-widget label:nth-child(1),
+.tabs-widget h3:nth-child(3) {
+  left: 0em;
+}
+
+.tabs-widget label:nth-child(5),
+.tabs-widget h3:nth-child(7) {
+  left: 9em;
+}
+
+.tabs-widget label:nth-child(9),
+.tabs-widget h3:nth-child(11) {
+  left: 18em;
+}
+
+.tabs-widget label:nth-child(13),
+.tabs-widget h3:nth-child(15) {
+  left: 27em;
+}
+
+.tabs-widget label:nth-child(17),
+.tabs-widget h3:nth-child(19) {
+  left: 36em;
+}
+
+.tabs-widget label:nth-child(21),
+.tabs-widget h3:nth-child(23) {
+  left: 45em;
+}
+
+.tabs-widget label:nth-child(25),
+.tabs-widget h3:nth-child(27) {
+  left: 54em;
+}
+
+.tabs-widget label:nth-child(29),
+.tabs-widget h3:nth-child(31) {
+  left: 63em;
+}
+
+.tabs-widget label:nth-child(33),
+.tabs-widget h3:nth-child(35) {
+  left: 72em;
+}
+
+
+/**
+ * we visually hide all the panels
+ * https://developer.yahoo.com/blogs/ydn/clip-hidden-content-better-accessibility-53456.html
+ */
+.tabs-widget input + h3 + div {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding:0 !important;
+  border:0 !important;
+  height: 1px !important; 
+  width: 1px !important; 
+  overflow: hidden;
+}
+/**
+ * we reveal a panel depending on which control is selected 
+ */
+.tabs-widget input:checked + h3 + div {
+  position: static !important;
+  padding: 1em !important;
+  height: auto !important; 
+  width: auto !important; 
+}
+
+/**
+ * shows a hand cursor only to pointing device users
+ */
+.tabs-widget label:hover {
+  cursor: pointer;
+}
+
+.tabs-widget > div {
+  background: #f0f0f0;
+  padding: 1em;
+}
+
+/**
+ * we hide radio buttons and also remove them from the flow
+ */
+.tabs-widget input[name="tabs"] {
+  opacity: 0;
+  position: absolute;
+}
+
+
+/** 
+ * this is to style the tabs when they get focus (visual cue)
+ */
+
+.tabs-widget input[name="tabs"]:focus + h3 {
+  outline: 1px dotted #000;
+  outline-offset: 10px;
+}
+
+
+/**
+ * reset of the above within the tab panel (for pointing-device users)
+ */
+.tabs-widget:hover h3 {
+  outline: none !important;
+}
+
+/**
+ * visual cue of the selection
+ */
+.tabs-widget input[name="tabs"]:checked + h3 {
+  background: #333;
+}
+
+/**
+ * the marker for tabs (down arrow)
+ */
+.tabs-widget input[name="tabs"]:checked + h3:after {
+  content: '';
+  margin: auto;
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #333;
+}
+
+/**
+ * Make it plain/simple below 45em (stack everything)
+ */
+@media screen and (max-width: 45em) {
+  
+  /* hide unecessary label/control pairs */
+/*
+  .tabs-widget label,
+  .tabs-widget input[name="tabs"] {
+    display: none;
+  }
+*/
+  
+
+ .tabs-widget > input[name="tabs"],
+ .tabs-widget > label {
+    top: 0;
+    width: 100%;
+    height: 4rem;
+    margin: 0;
+    padding: 0;
+ }
+
+  .tabs-widget > label {
+   border-right: none;
+ }
+
+
+ /* reveal all panels */
+  .tabs-widget > input + h3 {
+    display: block !important;
+    position: static !important;
+    padding: 1rem !important;
+    height: 2rem !important; 
+    width: auto !important; 
+    border-bottom: 1px solid #fff;
+  }
+
+/*
+  .tabs-widget > input + h3 + div {
+    display: block !important;
+    position: static !important;
+    padding: 1em !important;
+    height: auto !important; 
+    width: auto !important; 
+  }
+*/
+  
+  /* "unstyle" the heading */
+/*
+  .tabs-widget > h3 {
+    width: auto;
+    position: static !important;
+  }
+*/
+  
+  /* "kill" the marker */
+  .tabs-widget > h3:after {
+    display: none !important;
+  }
+
+}
+

@@ -118,7 +118,20 @@
             if (type !== 'radio' && type !== 'checkbox') {
               e.preventDefault();
             }
-            
+/*
+
+            if ($(this).data('parent-toggle')) {
+              var parentToggle = $('#' + $(this).data('parent-toggle'));
+              console.log(parentToggle); 
+              parentToggle.unbind('click');
+              factory.dataTargetCallback($(this), context, settings);
+              parentToggle.bind('click');
+            }
+            else {
+              factory.dataTargetCallback($(this), context, settings);
+            }
+*/
+
             factory.dataTargetCallback($(this), context, settings);
           }
           //return false; 

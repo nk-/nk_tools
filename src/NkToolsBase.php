@@ -139,6 +139,7 @@ class NkToolsBase {
    * 
    * @return array|object array of entity values or raw entity object
    */
+/*
   public function getEntity($entity_type, array $params = []) {
   
     // if (!$this->entity) {
@@ -146,7 +147,7 @@ class NkToolsBase {
       switch ($entity_type) {
  
         case 'node':
-          $entity = self::getNode($params);
+          $entity = $this->getNode($params);
         break;
   
         case 'block': 
@@ -170,6 +171,7 @@ class NkToolsBase {
 
     return $entity;
   }
+*/
   
   /**
    * Load node entity
@@ -181,37 +183,38 @@ class NkToolsBase {
   public function getNode($params) {
     
     // We can load node either by NID or via route
-    $node = isset($params['id']) ? Node::load($params['id']) : $this->routeMatch->getParameter('node');
+    $node = isset($params['id']) ? $this->entityTypeManager->getStorage('node')->load($params['id']) : $this->routeMatch->getParameter('node');
     
     if (isset($params['validate'])) {
     
       // Validate for node/nid type of page 
       if (!$node instanceof NodeInterface) {
-        $message = t('@caller is listed but is empty because it depends on node object and therefore should be configured so and rendered on node pages only.', ['@caller' => $params['caller']]);
+        $caller = isset($params['caller']) ? ['@caller' => Markup::create('<em>' . $params['caller'] .'</em>')] : ['@caller' => 'Entity'];
+        $message = t('<em>@caller</em> is listed but is empty because it depends on node object and therefore should be configured so and rendered on node pages only.', $caller);
         \Drupal::messenger()->addWarning($message);
         //throw new \UnexpectedValueException("Not a node page");
       }
-    
-      // Validate for node--[type]/nid type of page
-      if (isset($params['bundle']) && $node->bundle() !== $params['bundle']) {
-      
-        $message = t('<em>@caller</em> is listed but is empty because it depends on node object and a specific content type <em>@bundle</em>. Therefore it should be configured so and rendered on such pages only.', [
-          '@caller' => $params['caller'],
-          '@bundle' => $params['bundle']]
-        );
-        \Drupal::messenger()->addWarning($message);
+      else {
+        // Validate for node--[type]/nid type of page
+        if (isset($params['bundle']) && $node->bundle() !== $params['bundle']) {
+          $caller = isset($params['caller']) ? ['@caller' => Markup::create('<em>' . $params['caller'] .'</em>')] : ['@caller' => 'Entity'];
+          $message = t('<em>@caller</em> is listed but is empty because it depends on node object and a specific content type <em>@bundle</em>. Therefore it should be configured so and rendered on such pages only.', [
+            '@caller' => $caller,
+            '@bundle' => $params['bundle']]
+          );
+          \Drupal::messenger()->addWarning($message);
+        }
+        else {
+          // Return either array of node values or raw node object 
+          return isset($params['array']) ? $node->toArray() : $node;
+        }
       }
-
     }
 
     if ($node instanceof NodeInterface) {
       // Return either array of node values or raw node object 
       return isset($params['array']) ? $node->toArray() : $node;
     }
-    else {
-      return FALSE;
-    }
-
   }
 
   /**
@@ -243,6 +246,7 @@ class NkToolsBase {
       // Render the view; It does execute method too
       // @see \Drupal\views\ViewExecutable::render()
       $render_view = $view->render($displayId);
+
 
       if (!empty($view->result)) {
         if ($json && $render) {

@@ -77,13 +77,6 @@ class NkToolsBlockFields extends Details {
       '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['hide_init']) ? $element['#default_value']['hide_init'] : NULL, 
     ];
 
-    $element['icon'] = [
-      '#type' => 'textfield',
-      '#title' => t('Icon'),
-      '#description' => t('Any icon you could use in twig template. Provided are <a href="https://material.io/resources/icons/" target="blank_">material icons </a>, can be any icon name from that set.'),
-      '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['icon']) ? $element['#default_value']['icon'] : NULL,
-    ];
-
     $element['additional_class'] = [
       '#type' => 'textfield',
       '#title' => t('Additional CSS class for this block'),
@@ -108,6 +101,13 @@ class NkToolsBlockFields extends Details {
       '#title' => t('Animation "out"'),
       '#description' => t('A CSS class name, without ".", f.ex. <em>bounceOutDown</em>'),
       '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['animation_out']) ? $element['#default_value']['animation_out'] : NULL,
+    ];
+
+    $element['icon'] = [
+      '#type' => 'textfield',
+      '#title' => t('Icon'),
+      '#description' => t('Any icon you could use in twig template. Provided are <a href="https://material.io/resources/icons/" target="blank_">material icons </a>, can be any icon name from that set.'),
+      '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['icon']) ? $element['#default_value']['icon'] : NULL,
     ];
 
     return $element;

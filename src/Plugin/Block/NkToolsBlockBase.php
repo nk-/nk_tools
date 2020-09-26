@@ -282,19 +282,19 @@ class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterf
 */
 
   protected function getBundle($reference) {
-    $fields = [];
+    $entities = [];
     if (isset($reference) && !empty($reference[0])) { 
-      foreach ($reference as $index => $field) {
-        if (!empty($field) && !empty($field['target_id'])) {
-          $split = explode('.', $field['target_id']);
+      foreach ($reference as $index => $entity) {
+        if (!empty($entity) && !empty($entity['target_id'])) {
+          $split = explode('.', $entity['target_id']);
           if (count($split) > 2) {
             //str_replace('node.issue.', '', $field['target_id']); // : NULL;
-            $fields[] = isset($split[2]) && !empty($split[2]) ? ['entity_type' => $split[0], 'bundle' => $split[1], 'field_name' => $split[2]] : [];
+            $entities[] = isset($split[2]) && !empty($split[2]) ? ['entity_type' => $split[0], 'bundle' => $split[1], 'field_name' => $split[2]] : [];
           }
         }
       }
     }
-    return $fields;
+    return $entities;
   }
 
 

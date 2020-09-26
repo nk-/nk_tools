@@ -68,6 +68,13 @@ async_vew:
     - core/views.ajax
     - core/drupalSettings
 
+tabs:
+  version: VERSION
+  css:
+    component:
+      css/nk_tools.tabs.css: {}
+
+
 # default:
 #   css:
 #     base:

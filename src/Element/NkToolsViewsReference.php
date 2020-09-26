@@ -185,7 +185,7 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
       // View display select
       $display_options = [];
       $has_value = ['filled' => TRUE];
-      $view_input_name = $element['#name'];
+      //$view_input_name = isset($element['#name']) ? $element['#name'];
 
       // Essential
       $element['view_id']['#default_value'] = $view;

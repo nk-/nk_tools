@@ -41,14 +41,15 @@ function nk_tools_theme() {
       ],
     ], 
 
-    'nk_tools_collapsible_tabs' => [
+    'nk_tools_tabs' => [
       'variables' => [
         'items' => [],
         'target' => NULL,
         'list_type' => NULL,
         'context' => [],
         'attributes' => [],
-        'wrapper_attributes' => []
+        'wrapper_attributes' => [],
+        'labels' => [],
       ],
     ],
 
@@ -64,7 +65,8 @@ function nk_tools_theme() {
         'context' => [],
         //'empty' => NULL,
         'attributes' => [],
-        'wrapper_attributes' => []
+        'wrapper_attributes' => [],
+        'labels' => [],
       ],
     ],
 
@@ -72,6 +74,16 @@ function nk_tools_theme() {
       'variables' => [
         'config' => [],
         'dom_id' => NULL,
+        'attributes' => [],
+      ],
+    ],
+
+    // Flexboxgrid for views
+    'nk_tools_flexboxgrid' => [
+      'variables' => [
+        'view' => NULL,
+        'rows' => [],
+        'config' => [],
         'attributes' => [],
       ],
     ],
@@ -144,13 +156,13 @@ function nk_tools_theme_suggestions_block_alter(array &$suggestions, array $vari
 
     if ($variables['elements']['#configuration']['hide_init']) {
       $suggestions[] = 'block__nk_tools_multi_block__hidden';
-      if ($node) {
-        $suggestions[] = 'block__nk_tools_multi_block__hidden__' . $node->getType(); 
+      if ($node instanceof NodeInterface) {
+        $suggestions[] = 'block__nk_tools_multi_block__hidden__' . $node->getType();  
       }
     }
    
     // Our multi block defines fine tuned properties per field/field type so based on that we can have pretty unique twig templates
-    if (isset($variables['elements']['content']['#context']) && !empty($variables['elements']['content']['#context'])) {
+    if ($node instanceof NodeInterface && isset($variables['elements']['content']['#context']) && !empty($variables['elements']['content']['#context'])) {
       foreach ($variables['elements']['content']['#context'] as $key => $context) {
         
         $suggestions[] = 'block__nk_tools_multi_block__' . $context;
@@ -176,7 +188,9 @@ function nk_tools_theme_suggestions_nk_tools_multi_block(array $variables) {
   
   if (isset($variables['config']) && $variables['config']['hide_init']) {
     $suggestions[] = 'nk_tools_multi_block__hidden'; 
-    $suggestions[] = 'nk_tools_multi_block__hidden_' . $variables['node']->getType(); 
+    if ($variables['node'] instanceof NodeInterface) {
+       $suggestions[] = 'nk_tools_multi_block__hidden_' . $variables['node']->getType(); 
+    }
   }
 
   // Our multi block defines fine tuned properties per field/field type so based on that we can have pretty unique twig templates
@@ -184,11 +198,15 @@ function nk_tools_theme_suggestions_nk_tools_multi_block(array $variables) {
     foreach ($variables['context'] as $key => $context) {
 
       $suggestions[] = 'nk_tools_multi_block__' . $context;
-      $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType();
+      if ($variables['node'] instanceof NodeInterface) {
+         $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType();
+      }
 
       if ($variables['elements']['#configuration']['hide_init']) {
         $suggestions[] = 'nk_tools_multi_block__' . $context .'__hidden'; 
-        $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType() .'__hidden';
+        if ($variables['node'] instanceof NodeInterface) {
+          $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType() .'__hidden';
+        }
       }
     }
   }
@@ -208,7 +226,6 @@ function nk_tools_preprocess(&$variables, $hook) {
 
   $admin_route = \Drupal::service('router.admin_context')->isAdminRoute();
   //$current_theme = \Drupal::service('theme.manager')->getActiveTheme();
-  //ksm($current_theme); 
   if (!$admin_route) {
     
     $variables['#attached']['library'][] = 'nk_tools/fonts';
@@ -238,6 +255,14 @@ function template_preprocess_nk_tools_collapsible_pane(&$variables) {
   }
 }
 
+
+/**
+ * Implements template_preprocess_HOOK().
+ */ 
+function template_preprocess_nk_tools_tabs(&$variables) {
+  template_preprocess_nk_tools_multi_block($variables);
+}
+
 /**
  * Implements template_preprocess_HOOK().
  */ 
@@ -245,7 +270,7 @@ function template_preprocess_nk_tools_multi_block(&$variables) {
   
   $variables['wrapper_attributes'] = new Attribute($variables['wrapper_attributes']);
   
-  foreach ($variables['items'] as &$item) {
+  foreach ($variables['items'] as $delta => &$item) {
     $attributes = [];
 
     // If the item value is an array, then it is a render array.
@@ -295,6 +320,7 @@ function template_preprocess_nk_tools_multi_block(&$variables) {
     $item = [
       'value' => $item,
       'attributes' => new Attribute($attributes),
+      'label' => isset($variables['labels']) && isset($variables['labels'][$delta]) ? $variables['labels'][$delta] : NULL
     ];
   }
 }

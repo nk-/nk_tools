@@ -1,0 +1,72 @@
+{#
+/**
+ * @file
+ * Theme override for an item list.
+ *
+ * Available variables:
+ * - items: A list of items. Each item contains:
+ *   - attributes: HTML attributes to be applied to each list item.
+ *   - value: The content of the list element.
+ * - list_title: The title of the list.
+ * - list_type: The tag for list element ("ul" or "ol").
+ * - wrapper_attributes: HTML attributes to be applied to the list wrapper.
+ * - attributes: HTML attributes to be applied to the list.
+ * - empty: A message to display when there are no items. Allowed value is a
+ *   string or render array.
+ * - context: A list of contextual data associated with the list. May contain:
+ *   - list_style: The custom list style.
+ *
+ * @see template_preprocess_nk_tools_tabs()
+ */
+#}
+
+{% if items or empty -%}
+  {%- if items -%}
+
+    {% if context.list_style %}
+      {%- set wrapper_attributes = wrapper_attributes.addClass('tabs-widget--' ~ context.list_style) %}
+    {% endif %}
+      
+    <div {{ create_attribute({'class': 'tabs-widget'}) }}>
+      {%- for item in items -%}
+        <label for="tab-{{ loop.index }}" tabindex="0"></label>
+        <input id="tab-{{ loop.index }}" type="radio" name="tabs" aria-hidden="true" {% if loop.index == 1 %} checked="true" {% endif %}>
+        <h3 class="text-white">{% if item.label %}{{ item.label }}{% else %}Tab {{ loop.index}}{% endif %}</h3>
+        <div class="tab-content">{{ item.value }}</div>
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    {{- empty -}}
+  {%- endif -%}
+{%- endif %}
+
+
+{#
+{% if items or empty -%} 
+  {%- if items -%}
+
+    {% if context.list_style %}
+      {%- set wrapper_attributes = wrapper_attributes.addClass('tabs-widget--' ~ context.list_style) %}
+    {% endif %}
+    
+    <div {{ wrapper_attributes.addClass('tabs-widget') }}>
+      <div class="tabs-wrapper row middle-x around-xs clearfix">
+        {%- for item in items -%}
+          {% set target = item.target ? item.target : 'tab-' ~ loop.index %}
+          <h3 class="text-white bg-dark-blue lh-2 col-xs text-align-center pointer">
+            <label for="tab-{{ loop.index }}" tabindex="0"></label>
+            <input class="pointer" id="tab-{{ loop.index }}-trigger" type="radio" name="tabs" aria-hidden="true" data-target="{{ target }}" {% if loop.index == 1 %} checked="true" {% endif %}>{% if item.label %}{{ item.label }}{% else %}Tab {{ loop.index}}{% endif %}
+          </h3>
+        {%- endfor -%}
+      </div>
+
+      {%- for item in items -%}
+        {% set target = item.target ? item.target : 'tab-' ~ loop.index %}
+        <div id="{{ target }}" data-icon="close" class="{{ nk_tools.hidden_class }} col-xs-12 tab-content">{{ item.value }}</div>
+      {%- endfor -%}
+   </div>
+  {%- else -%}
+    {{- empty -}}
+  {%- endif -%}
+{%- endif %}
+#}
