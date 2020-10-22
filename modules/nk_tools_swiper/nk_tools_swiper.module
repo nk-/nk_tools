@@ -41,6 +41,7 @@ function nk_tools_swiper_theme() {
       'variables' => [
         'items' => [],
         'settings' => [],
+        'video' => NULL,
       ],
       //'file' => 'nk_tools_swiper.theme.inc',
     ],
@@ -52,6 +53,8 @@ function nk_tools_swiper_theme() {
         'settings' => [],
         'loader' => NULL,
         'caption' => '',
+        'background' => NULL,
+        'video' => NULL,
       ],
       //'file' => 'nk_tools_swiper.theme.inc',
     ],
@@ -305,7 +308,9 @@ function template_preprocess_nk_tools_swiper_list_item(&$variables) {
 
   $variables['attributes'] = new Attribute($attributes);
 
-   // Generated thumbnail support.
+ 
+
+    // Generated thumbnail support.
   // @TODO review this piece of code.
   /*
   if ($options->getOption('controlNav') === "thumbnails") {

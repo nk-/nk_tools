@@ -230,6 +230,9 @@ class NkToolsSearchInput extends NkToolsBlockBase {
       '#type' => 'nk_tools_search_input',
       '#default_value' => $config
     ];
+    // Attach that jQuery code too
+    //$search_input_element['#attached']['library'][] = 'nk_tools_search/search_widget'; 
+
     return parent::build() + $search_input_element;
   }
 }

@@ -20,7 +20,40 @@
  */
 #}
 
-<div{{ attributes }}>
+{% if image  %}
+  {%
+    set bg_classes = [
+      'bg-light-grey',
+      'animated',
+      'fadeIn',
+      'fast',
+      'delay-2s',
+      'nk-tools-nodes-banner-block',
+      'z-index--1',
+      'fixed-bg'
+    ]
+  %}
+
+  {% set bg_image = 'background-size: contain; background-image: url(' ~ image ~ ')' %}    
+
+  {% if bg_image and image_color %}
+    {% set bg_image = bg_image ~ '; background-color: ' ~ image_color %}
+  {% endif %}
+
+  {% if bg_image and image_opacity %}
+    {% set bg_image = bg_image ~ '; opacity: ' ~ image_opacity %}
+  {% endif %}
+  
+{% endif %}
+
+
+
+
+
+<div {{ attributes.addClass(bg_classes) }} {% if bg_image %} {{ attributes.setAttribute('style', bg_image) }} {{ attributes.setAttribute('data-header', '#secondary-navigation').setAttribute('data-caption', '#node-banner-caption') }} {% endif %}>
+
+{#   {{ background }} #}
+
 
   {{ item }}
   

@@ -15,5 +15,9 @@
  */
 #}
 <div {{ attributes }}>
-  {{ content }}
+  {% if video %}
+    {{ video }}
+  {% endif %}
+
+   {{ content }}
 </div>

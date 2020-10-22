@@ -3,7 +3,7 @@
  * Init any instances of Swiper on the page.
  */
 
-(function ($, Drupal, drupalSettings, debounce) {
+(function ($, Drupal, drupalSettings, debounce, Swiper) {
 
   'use strict';
 
@@ -19,28 +19,65 @@
     
     options = properties ? $.extend(options, properties) : options;
 
-    return new Swiper(container, options);
+    //$(window).once('swiperLoaded').on('load', function() {
+      //if (Swiper !== undefined && Swiper != null) {
+      //console.log(Swiper);
+      return new Swiper(container, options);
+   // });
+     
   };
 
   Drupal.behaviors.nkToolsSwiper = {
+  
     attach: function(context, settings) {
       var self = this;
-      var nk_tools_swiper_settings = drupalSettings.nk_tools_swiper || null;
+     
+      //$(window).on('load', function() {
+
+      var nk_tools_swiper_settings = settings.nk_tools_swiper || null;
+
+     // console.log(nk_tools_swiper_settings);
+
       if (nk_tools_swiper_settings && $.type(nk_tools_swiper_settings.swipers) !== 'undefined') { 
-        $.each(nk_tools_swiper_settings.swipers, function(id, swiper_settings) {
-          var swiper_id = '#' + id;
-          
-        
+      var nk_tools = settings.nk_tools && settings.nk_tools.layout ? settings.nk_tools.layout : null;
 
-          if ($(swiper_id).length) {
-            $(swiper_id, context).once('swiper').each(function () {
-              if (!swiper_settings.autoplay.delay) {
-                swiper_settings.autoplay = false;
-              }
+    //  console.log(nk_tools);
 
-              Drupal.nk_tools_swiper.swipers[swiper_id] = Drupal.nk_tools_swiper.swiper(swiper_id, swiper_settings); 
-              Drupal.nk_tools_swiper.swipers[swiper_id].init();
-    
+      $.each(nk_tools_swiper_settings.swipers, function(id, swiper_settings) {
+
+        console.log(id);
+
+        var swiper_id = '#' + id;
+        if ($(swiper_id).length) {
+          $(swiper_id, context).once('swiper').each(function() {
+            if (!swiper_settings.autoplay.delay) {
+              swiper_settings.autoplay = false;
+            }
+
+            //var debounceSwiper = debounce(function() {
+              if (Swiper !== null && $.type(Swiper) !== 'undefined') {
+                Drupal.nk_tools_swiper.swipers[swiper_id] = new Swiper(swiper_id, swiper_settings); //Drupal.nk_tools_swiper.swiper(swiper_id, swiper_settings); 
+                //Drupal.nk_tools_swiper.swipers[swiper_id].init();
+
+                 Drupal.nk_tools_swiper.swipers[swiper_id].on('slideChangeTransitionEnd', function(swiper) {
+                   var element = $(swiper.el);
+                   $(element).find('.swiper-slide').each(function(i, slide) {
+                     if (i == swiper.activeIndex) {
+                       $(this).find('.banner-caption').each(function(d, child) {
+                         if (nk_tools && nk_tools.hidden_class && $(child).hasClass(nk_tools.hidden_class)) {
+                          $(child).removeClass(nk_tools.hidden_class);
+                         }
+                       });
+                     }
+                   });
+                 }); 
+               }
+
+           // }, 200);
+              
+            //  debounceSwiper();
+
+              /*
               console.log(Drupal.nk_tools_swiper.swipers[swiper_id]);
 
               var swiper_wrapper = $(swiper_id).find('.swiper-wrapper'); 
@@ -49,16 +86,18 @@
                   $(slide).height(swiper_wrapper.height() - 8);
                 });
               }
+              */
   
               //self.processHeight(swiper_id);
  
+               /*
               $(window).once('windowResized').on('load resize orientationchange', function() { 
                 var debounceResize = debounce(function() {
                   self.processHeight(swiper_id);
                 }, 0);
                 debounceResize();
               });  
-
+              */
 
               // A custom links (anywhere on the page) that trigger swiper slides 
               self.registerTriggers(Drupal.nk_tools_swiper.swipers[swiper_id], $(context).find('.swiper-trigger'), context, settings);       
@@ -66,7 +105,13 @@
              });
           }
         });
-      }
+
+        }
+      
+     // });
+
+
+      
     },
 
     processHeight: function(swiper_id) {
@@ -106,4 +151,4 @@
 
   };
 
-})(jQuery, Drupal, drupalSettings, Drupal.debounce);
+})(jQuery, Drupal, drupalSettings, Drupal.debounce, Swiper);

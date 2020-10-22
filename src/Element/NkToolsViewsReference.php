@@ -160,17 +160,24 @@ class NkToolsViewsReference extends Fieldset implements ContainerFactoryPluginIn
 
     $values = $form_state->getValues();
 
-    if (isset($element['#default_value']['view_id']) && !empty($element['#default_value']['view_id'])) {
-      $view = $element['#view_storage']->load($element['#default_value']['view_id']);
+    $views = isset($values['settings']['block_views']) && isset($values['settings']['block_views']['block_view']) && !empty($values['settings']['block_views']['block_view']) ? $values['settings']['block_views']['block_view'][$delta] : [];
+    $view_id = isset($views['view_id']) && !empty($views['view_id']) ? $views['view_id'] : NULL;
+
+    if (!$view_id && isset($element['#default_value']['view_id']) && !empty($element['#default_value']['view_id'])) {
+      $view_id = $element['#default_value']['view_id']; //$element['#view_storage']->load($element['#default_value']['view_id']);
     }  
-    else {
-      $view = NULL;
-    }
+    //else {
+    //  $view_id = NULL;
+    //}
 
     $trigger = $form_state->getTriggeringElement();
     //if ($trigger && $trigger['#type'] == 'entity_autocomplete') {
+    
+    if ($view_id) { 
+      
+      $view = View::load($view_id);
 
-    if ($view) { 
+
       # if ($view_ref && isset($view_ref['view_id']) && !empty($view_ref['view_id'])) {
       //preg_match('/\((.*?)\)/', $view_ref['view_id'], $view_id);
       //$view_id = $view_id && $view_id[1] ? $view_id[1] : NULL;

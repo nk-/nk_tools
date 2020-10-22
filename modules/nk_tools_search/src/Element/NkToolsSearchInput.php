@@ -6,7 +6,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Element\Search;
 use Drupal\Core\Url;
-
+//use Drupal\Core\Security\TrustedCallbackInterface;
+use Drupal\Core\Render\Element\RenderCallbackInterface;
 use Drupal\Component\Utility\Html;
 
 use Drupal\nk_tools\NkToolsBase;
@@ -33,7 +34,14 @@ use Drupal\nk_tools\NkToolsBase;
  * @FormElement("nk_tools_search_input")
  */
 
-class NkToolsSearchInput extends Search {
+class NkToolsSearchInput extends Search implements RenderCallbackInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['prerenderSearchInput'];
+  }
 
   /**
    * {@inheritdoc}
@@ -51,19 +59,21 @@ class NkToolsSearchInput extends Search {
 
   public static function prerenderSearchInput($element) {
 
-    $keys = array_filter($element['#parents'], function($var) {
-      if (is_int($var)) {
-        return $var;
-      } 
-    });
+    if (isset($element['#parents']) && is_array($element['#parents'])) {
 
-    if (is_array($keys)) {
-      $delta = empty($keys) ? 0 : reset($keys);
-    }
-    else {
-      $delta = 0;
-    }
+      $keys = array_filter($element['#parents'], function($var) {
+        if (is_int($var)) {
+          return $var;
+        } 
+      });
 
+      if (is_array($keys)) {
+        $delta = empty($keys) ? 0 : reset($keys);
+      }
+      else {
+        $delta = 0;
+      }
+    }
     
     $nk_tools_config = \Drupal::service('config.factory')->get('nk_tools.settings')->getRawData();
     

@@ -19,6 +19,10 @@
 
 <div{{ attributes }}>
 
+  {% if options.video %}
+    {{ options.video }}
+  {% endif %}
+
   {# Slides #}
   {{ content.list }}
 

@@ -46,9 +46,11 @@
   background-position: left top;
   background-repeat: no-repeat;
   background-color: transparent;
-  position: static;
+  position: relative;
   width: 100%;
+  height: 440px;
 }
+
 
 /* Layers and positioning */
 
@@ -121,6 +123,11 @@
 .right-0 {
   right: 0; 
 }
+
+.right-1 {
+  right: 1rem;
+}
+
 .right-20 {
   right: 20px;
 }
@@ -521,6 +528,9 @@ aside .bg-fixed.fixed.views-exposed-form form {
 .ml-8 {
   margin-left: 8px !important;
 }
+.ml-12 {
+  margin-left: 12px !important;
+}
 .ml-16 {
   margin-left: 16px !important;
 }
@@ -556,6 +566,9 @@ aside .bg-fixed.fixed.views-exposed-form form {
 }
 .mr-8 {
   margin-right: 8px !important;
+}
+.mr-12 {
+  margin-right: 12px !important;
 }
 .mr-16 {
   margin-right: 16px !important;
@@ -830,6 +843,10 @@ aside .bg-fixed.fixed.views-exposed-form form {
 
 .h-84 {
   height: 84px;
+}
+
+.h-440 {
+  height: 440px;
 }
 
 .mh-8 {

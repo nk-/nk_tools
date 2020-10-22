@@ -63,7 +63,7 @@ function nk_tools_menu_theme() {
 function nk_tools_menu_theme_suggestions_menu_alter(array &$suggestions, array $variables) {
   $current_path = explode('/', Url::fromRoute('<current>')->toString()); 
   array_shift($current_path);
-  if ($variables['menu_name'] == 'main') {
+  if (isset($variables['menu_name']) && $variables['menu_name'] == 'main') {
     $suggestions[] = 'menu__' . $variables['menu_name'] . '__' . $current_path[0];
     $suggestions[] = 'menu__' . $variables['menu_name'] . '__' . implode('_', $current_path);
   }
@@ -130,7 +130,7 @@ function nk_tools_menu_preprocess_menu(&$variables, $hook) {
     if (isset($metadata['entity_id']) && !empty($metadata['entity_id'])) {
       $menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
       $entity = $menu_link_storage->load($metadata['entity_id']);
-      if ($entity->uuid() != $search_menu_uuid) {
+      // if ($entity->uuid() != $search_menu_uuid) {
         if ($entity->hasField('highlighted') && !empty($entity->get('highlighted')->getValue()) && isset($entity->get('highlighted')->getValue()[0]['value']) && !empty($entity->get('highlighted')->getValue()[0]['value'])) {
           $item['attributes']->addClass($entity->get('highlighted')->getValue()[0]['value']);
           $item['highlighted'] = TRUE;
@@ -143,7 +143,7 @@ function nk_tools_menu_preprocess_menu(&$variables, $hook) {
           $item['description'] =  $entity->get('description')->getValue()[0]['value'];
         }
 
-      }
+      //}
     }
   } 
 }

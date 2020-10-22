@@ -201,7 +201,7 @@
         self.setVideo(videoBlock, videoParams);
 
         var parent = bannerSettings.config.banner_fixed_element ? $(bannerSettings.config.banner_fixed_element) : bannerBlock.parent();
-        parent.width(width).height(currentHeight).css({'top': cssTop + 'px'});
+        //parent.width(width).height(currentHeight).css({'top': cssTop + 'px'});
         bannerBlock.width(width).height(currentHeight);
       
       }

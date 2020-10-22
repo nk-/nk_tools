@@ -192,7 +192,7 @@ class NkToolsSwiperViewStyle extends StylePluginBase {
     }
     
     // Add some libraries
-    $output[0]['#attached']['library'][] = 'nk_tools_swiper/swiper';
+    //$output[0]['#attached']['library'][] = 'nk_tools_swiper/swiper';
     $output[0]['#attached']['library'][] = 'nk_tools_swiper/nk_tools_swiper';
 
     return $output;

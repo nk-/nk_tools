@@ -324,3 +324,19 @@ function template_preprocess_nk_tools_multi_block(&$variables) {
     ];
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function nk_tools_form_views_exposed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  
+  $skip = ['filter_elements', 'actions', 'form_token', 'form_build_id', 'form_id'];
+
+  foreach (Element::children($form) as $element_key) {
+    if (!in_array($element_key, $skip) && isset($form[$element_key]['#type'])) {
+      if ($form[$element_key]['#type'] == 'select') {
+        $form[$element_key]['#options']['All'] = 'Filter by ' . str_replace('_', ' ', $element_key);
+      }
+    }
+  }
+}

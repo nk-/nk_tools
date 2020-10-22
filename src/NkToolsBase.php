@@ -24,6 +24,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Menu\MenuLinkTreeElement;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Image\ImageFactory;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
 
 use Drupal\node\NodeInterface;
 use Drupal\node\Entity\Node;
@@ -291,7 +292,6 @@ class NkToolsBase {
        // $block_entities = \Drupal::service('plugin.manager.block')->getInstance(['id' => $blockId]); 
 
         if ($block_entity) {
-
           // Set any necessary context
           // In block plugin definition annotation see something that can be like this: context = { "node" = @ContextDefinition("entity:node", label = @Translation("Node") ) }
           $context_mapping = isset($config['context_mapping']) && !empty($config['context_mapping']) ? $config['context_mapping'] : NULL;        
@@ -300,7 +300,7 @@ class NkToolsBase {
               $block_entity->setContextValue($context_mapping_key, $context_mapping_value);
             }
           }
-
+        
           $access_result = $block_entity->access(\Drupal::currentUser());
 
           if (is_object($access_result) && $access_result->isForbidden() || is_bool($access_result) && !$access_result) {
@@ -308,7 +308,6 @@ class NkToolsBase {
           }
           else {
             $block = $render ? $block_entity->build() : $block_entity;
-
           }
         }
       break;
@@ -705,6 +704,130 @@ class NkToolsBase {
   }
 */
 
+  public function exposedQuery($filter, $bundle, $properties) {
+
+    // Query nodes - should be lighter than loading full o
+    $query = \Drupal::database()->select('node_field_data', 'n');
+    $query->addField('n', 'title');
+    $query->addField('n', 'nid');
+    $query->condition('type', $bundle);
+    if (!isset($properties['unpublished'])) {
+      $query->condition('status', NodeInterface::PUBLISHED);
+    }
+
+    $results = $query->execute()->fetchAll();
+
+    if (!empty($results)) {
+
+      // Start building out the options for our select list
+      $options = [];
+      //$nodes = $storage->loadMultiple($nids);
+ 
+      $arguments = [];
+      // Push titles into select list
+      foreach ($results as $result) {
+        $group_by = $properties['group_by'] == 'title' ? $result->title : $result->nid;
+        $options[$group_by] = $result->title;
+      }
+ 
+      // Sort ascending
+      asort($options);
+
+      // Modify our new form element
+      $filter['#type'] = 'select';
+      $filter['#multiple'] = FALSE;
+ 
+      // Specify the empty option for our select list
+      $filter['#empty_option'] = isset($properties['reset_value']) ? $properties['reset_value'] : '- Any -';
+ 
+      // Add the $options from above to our select list
+      $filter['#options'] = $options;
+
+      unset($filter['#size']);
+ 
+      return $filter;
+    }
+  
+  }
+
+
+  /**
+   * List Views' exposed forms filters that we turn into select list (from textfield)
+   */
+  public function exposedWidgets(array &$form, array $selects) { 
+    
+    //$selects = static::EXPOSED_WIDGETS;
+  
+    foreach ($selects as $bundle => $select) {
+  
+
+      if (in_array($form['#id'], array_keys($select))) {
+
+        // Filter identifier in a View should ideally have the machine name or bundle of items as <select> options
+        $filter = $bundle;
+     
+        // A bit of a "hack" but for good, to secure further name of the views filter input (exposed Filter identifier)
+        $default_elements = ['actions', 'form_id', 'form_build_id'];
+        if (!isset($form[$filter])) {
+          foreach (Element::children($form) as $field_name) {
+            if (!in_array($field_name, $default_elements)) {
+              $filter = $field_name;
+            }
+          } 
+        }
+      
+        $form['#attached']['drupalSettings']['diplo_forms'] = ['filters' => []];
+
+        foreach ($select as $id => $properties) {
+          
+           if ($form['#id'] == $id && isset($form[$filter]) && $elements = $this->exposedQuery($form[$filter], $bundle, $properties)) {
+
+              $form[$filter] = $elements;
+
+              // Hide submit button
+              if ($properties['hide_submit']) {
+                $form['actions']['#attributes']['class'][] = 'visually-hidden';
+              }
+
+              //$form['issue']['#attributes']['onchange'] = 'this.form.submit();';
+              $button = $form['actions']['submit']['#id'];
+
+              $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter] = $properties;
+              $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter]['form_id'] = $id;
+              // $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter]['target_id']
+              $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter]['button'] = $button;
+
+              $path = \Drupal::request()->getPathInfo();
+              $path_array = explode('/', $path);
+              array_shift($path_array);
+
+              $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter]['current_path'] = $path_array[0];
+              if (count($path_array) > 1) {
+                $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter]['argument_title'] = urldecode($path_array[1]);
+                $form['#attached']['drupalSettings']['diplo_forms']['filters'][$filter]['argument'] = array_search(urldecode($path_array[1]), $form[$filter]['#options'], TRUE);
+              }
+      
+              $form['#attached']['library'][] = 'diplo_forms/ajax_callbacks';
+              // \Drupal::logger('Updates')->notice('<pre>' .print_r($form['issue'], 1) .'</pre>');
+              
+              if (isset($properties['baskets'])) {
+                $baskets = $this->exposedQuery($form[$filter], 'baskets', $properties);
+                $form['baskets'] = $baskets;
+              } 
+              
+              //return $form;
+
+           }
+
+        }
+
+        return $form;     
+ 
+     }
+
+    }
+    return FALSE;
+  }
 
 
   public function getEntityFields(string $entity_type, string $bundle, bool $options = FALSE, string $field_name = '') {

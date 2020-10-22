@@ -28,11 +28,8 @@ use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
  *   id = "nk_tools_nodes_banner_block",
  *   admin_label = @Translation("Nodes banner block"),
  *   category = @Translation("Nk tools"),
- *   context = {
- *     "node" = @ContextDefinition(
- *       "entity:node",
- *       label = @Translation("Node")
- *     )
+ *   context_definitions = {
+ *     "node" = @ContextDefinition("entity:node", label = @Translation("Node"))
  *   }
  * )
  */
@@ -263,7 +260,7 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
 
     $config = $this->getConfiguration();    
     $node = $this->getContextValue('node');
-  
+
     if (!$node instanceof NodeInterface) {
       return [];
     }
@@ -279,7 +276,10 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
       $attached = [];
       $caption = [];
     
-      $config['block_id'] = 'block-'. Html::getUniqueId($config['id']);
+      $config['block_id'] = 'block-'. Html::getUniqueId($config['id']); // . '-' . $node->id());
+      //if (!isset($config['block_id']) || (isset($config['block_id']) && empty($config['block_id']))) {
+        //$config['block_id'] = 'block-'. Html::getUniqueId($config['id']);
+      //}
 
       $field_params = [
         //'url' => TRUE,
@@ -366,7 +366,7 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
 
     // Process and render any possible caption here
     $caption = $this->renderCaption($config, $node);
-   
+
     $attached['fixed_banners'][$id] = [];
     
     // Image style (preset) is defined and should be used

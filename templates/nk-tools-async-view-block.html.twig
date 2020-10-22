@@ -16,7 +16,8 @@
 {% if config.links is not empty  %}
   {%
     set link_classes = [
-      'fs-default',
+      'async-view-trigger',
+      'fs-085',
       'fw-500',
       'btn',
       'btn-raised',
@@ -30,14 +31,14 @@
       'pr-8',
     ]
    %}
-   <div class="col-md-offset-3 col-md-6 row start-xs middle-xs pl-4-5p pr-64 pt-16 pb-16"> 
-    <div class="no-p row start-xs between-sm middle-xs col-xs-12">
+{#    <div class="row start-xs middle-xs pt-16 pb-16">  #}
+    <div class="row start-xs between-sm middle-xs col-xs-12 pt-16 pb-16">
       {% for item in config.links %}
         {% if item.url %}
            {{ link(item.title, item.url, {class: link_classes}) }}
         {% endif %}
       {% endfor %}
     </div>
-  </div>
+{#   </div> #}
 {% endif %}
 <div class="js-view-dom-id-{{ dom_id }}"></div>

@@ -209,9 +209,9 @@ trait NkToolsSwiperFormatterTrait {
     }
 
     $images['#attached']['drupalSettings']['nk_tools_swiper']['swipers'][$id] = $formatter_settings['swiper_options']; 
-    $images['#attached']['library'][] = 'nk_tools_swiper/swiper';
-    $images['#attached']['library'][] = 'nk_tools_swiper/nk_tools_swiper'; 
-
+    //$images['#attached']['library'][] = 'nk_tools_swiper/swiper';
+    //$images['#attached']['library'][] = 'nk_tools_swiper/nk_tools_swiper'; 
+    $images['#attached']['library'][] = 'nk_tools_swiper/nk_tools_swiper';
 
     return $images;
   }

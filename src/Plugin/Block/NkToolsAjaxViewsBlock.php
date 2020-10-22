@@ -37,9 +37,9 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       'rendered_view' => [],
       'rendered_view_wrapper' => [],
       'view_trigger' => [],
-      'view_reference' => [],
-      'block_view_display_reference' => [],
-      'block_view_args' => [],
+      //'view_reference' => [],
+      //'block_view_display_reference' => [],
+      //'block_view_args' => [],
       'block_show_links' => [],
       'block_links'=> [],
       'block_links_labels'=> [],
@@ -50,6 +50,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
   /**
    * {@inheritdoc}
    */
+/*
   protected function blockAccess(AccountInterface $account) {
 
     try {
@@ -58,8 +59,8 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       //$is_view = $route->getParameters()->has('view_id');
       $parameters = $route->getParameters()->all();
       if (isset($parameters['view_id']) && !empty($parameters['view_id']) && isset($parameters['display_id']) && !empty($parameters['display_id'])) {
-        $config_view_id = isset($config['view_reference']) && !empty($config['view_reference']) ? $config['view_reference'][0] : NULL;
-        $config_display_id = isset($config['block_view_display_reference']) && !empty($config['block_view_display_reference']) ? $config['block_view_display_reference'][0] : NULL;
+        $config_view_id = isset($config['view_id']) && !empty($config['view_id']) ? $config['view_id'][0] : NULL;
+        //$config_display_id = isset($config['block_view_display_reference']) && !empty($config['block_view_display_reference']) ? $config['block_view_display_reference'][0] : NULL;
         // This is the same View - grant access
         if ($config_view_id == $parameters['view_id']) { // && $config_display_id == $parameters['display_id']) {
           return parent::blockAccess($account);
@@ -79,6 +80,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
     return parent::blockAccess($account);
   }
  
+*/
 
 
   /**
@@ -89,8 +91,9 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
     $form = parent::blockForm($form, $form_state);
 
     $config = $this->getConfiguration();
-    $diplo_config = \Drupal::config('nk_tools.settings');
+    $nk_tools_config = \Drupal::config('nk_tools.settings');
 
+/*
     $form['block_label'] = [
       '#base_type' => 'textfield',
       '#type' => 'text_format',
@@ -99,13 +102,14 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       '#format' => isset($config['block_label']['format']) && !empty($config['block_label']['format']) ? $config['block_label']['format'] : 'full_html',
       '#default_value' => isset($config['block_label']['value']) && !empty($config['block_label']['value']) ? $config['block_label']['value'] : '',  
     ];
+*/
     
     // Gather the number of referenced views in the form already.
     $num_views = $form_state->get('num_views');
     // We have to ensure that there is at least one view
     if ($num_views === NULL) {
-      if (isset($config['view_reference']) && count($config['view_reference']) > 1) {
-        $num_views = count($config['view_reference']);
+      if (isset($config['view_id']) && count($config['view_id']) > 1) {
+        $num_views = count($config['view_id']);
       }
       else {
         $num_views = 1;
@@ -121,15 +125,25 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
     }
     
     $view_ids = [];
+    $display_ids = [];
+    $arguments = [];
+    $filters = [];
+
     if (isset($values['settings']) && isset($values['settings']['block_views']) && isset($values['settings']['block_views']['block_view']) && !empty($values['settings']['block_views']['block_view'])) {
-      foreach ($values['settings']['block_views']['block_view'] as $delta => $view_id) {
-        $view_ids[$delta] = $view_id['view_reference'];
+      foreach ($values['settings']['block_views']['block_view'] as $delta => $view_data) {
+        $view_ids[$delta] = $view_data['view_id'];
+        $display_ids[$delta] = $view_data['display']['display_id'];
+        $arguments[$delta] = $view_data['display']['argument'];
+        $filters[$delta] = $view_data['display']['filter'];
       }
     }
     else {
-      $view_ids = !empty($config['view_reference']) ? $config['view_reference'] : [];
+      $view_ids = !empty($config['view_id']) ? $config['view_id'] : [];
+      $display_ids = !empty($config['display']['display_id']) ? $config['display']['display_id'] : [];
+      $arguments = !empty($config['display']['argument']) ? $config['display']['argument'] : [];
+      $filters = !empty($config['display']['filter']) ? $config['display']['filter'] : [];
     }
- 
+    
     // Now that we did all checkups on properties, start building or Views configuration Details
     $form['block_views'] = [
       '#type' => 'details',
@@ -145,7 +159,11 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
     
       $view_id = !empty($view_ids) && isset($view_ids[$i]) && !empty($view_ids[$i]) ? $view_ids[$i] : NULL;     
       $view_insert[$i] = $view_id ? View::load($view_id) : NULL;
-  
+      
+      $display_id = !empty($display_ids) && isset($display_ids[$i]) && !empty($display_ids[$i]) ? $display_ids[$i] : NULL; 
+      $argument = !empty($arguments) && isset($arguments[$i]) && !empty($arguments[$i]) ? $arguments[$i] : NULL; 
+      $filter =  !empty($filters) && isset($filters[$i]) && !empty($filters[$i]) ? $filters[$i] : NULL; 
+
       $form['block_views']['block_view'][$i] = [
         '#type' => 'container',
         '#attributes' => [
@@ -156,13 +174,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
         ],
       ];
 
-      $form['block_views']['block_view'][$i]['view_trigger'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('Load trigger'),
-        '#description' => $this->t('jQuery selector (a class) for element(s) that load this View on click, via async (ajax). For instance something like <em>.diplo-async-view-trigger</em>'), 
-        '#default_value' => isset($config['view_trigger'][$i]) ? $config['view_trigger'][$i] : NULL,
-       ];
-    
+         
        // Custom composite element
       $form['block_views']['block_view'][$i] = [ 
         '#type' => 'nk_tools_views_reference',
@@ -171,16 +183,22 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
         '#default_value' => [
           'view_id' => $view_id,
           'display' => [
-            'display_id' => $config['display_id'],
-            'argument' => $config['argument'],
-            'filter' => $config['filter'],
+            'display_id' => $display_id,
+            'argument' => $argument,
+            'filter' => $filter,
           ]
         ],
       ];
 
+      $form['block_views']['block_view'][$i]['view_trigger'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Load trigger'),
+        '#description' => $this->t('jQuery selector (a class) for element(s) that load this View on click, via async (ajax). For instance something like <em>.async-view-trigger</em>'), 
+        '#default_value' => isset($config['view_trigger'][$i]) ? $config['view_trigger'][$i] : NULL,
+       ];
 
 /*
-     $form['block_views']['block_view'][$i]['view_reference'] = [ 
+     $form['block_views']['block_view'][$i]['view_id'] = [ 
         '#title'  => $this->t('View label'),
         '#description' => $this->t('A label of a View to load here.'),
         '#type' => 'entity_autocomplete',
@@ -206,6 +224,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
 */
 
  
+/*
       $form['block_views']['block_view'][$i]['display'] = [
         '#type' => 'container',
         '#attributes' => [
@@ -245,6 +264,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
         '#description' => $this->t('If view has contextual filters set provide value(s). If case of multiple values separate those with a "/". For example, all/12/feed.'),
         '#default_value' => isset($config['block_view_args'][$i]) ? $config['block_view_args'][$i] : NULL,  
       ];
+*/
 
       $form['block_views']['block_view'][$i]['rendered_view'] = [
         '#type' => 'checkbox',
@@ -305,6 +325,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       ];
 
 
+/*
       $form['block_views']['block_view'][$i]['view_actions'] = [
         '#type' => 'container',
         '#description' => $this->t('May become future feature, to load more than one view in this way, sequentially, currently disabled'),
@@ -328,6 +349,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
           'wrapper' => 'views-fieldset-wrapper',
         ],
       ];
+*/
 
     }
 
@@ -436,7 +458,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       $num_views = $form_state->get('num_views');
       
       foreach ($values['settings']['block_views']['block_view'] as $index => $view) {
-        if ($index == $i) { //if (isset($view['view_reference']) && !empty($view['view_reference']) && 
+        if ($index == $i) { //if (isset($view['view_id']) && !empty($view['view_id']) && 
           unset($form['settings']['block_views']['block_view'][$i]);
         }
       }
@@ -485,8 +507,8 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
 
 /*
   public static function getView($config) {
-    if (isset($config['view_reference']) && !empty($config['view_reference'])) {
-      $target_id = isset($config['view_reference'][0]['target_id']) && !empty($config['view_reference'][0]['target_id']) ? $config['view_reference'][0]['target_id'] : NULL;
+    if (isset($config['view_id']) && !empty($config['view_id'])) {
+      $target_id = isset($config['view_id'][0]['target_id']) && !empty($config['view_id'][0]['target_id']) ? $config['view_id'][0]['target_id'] : NULL;
       $view_insert = $target_id ? View::load($target_id) : NULL; //loadByName($field['entity_type'], $field['bundle'], $field['field_name']);
       if ($view_insert instanceof View) {
         return $view_insert;
@@ -533,8 +555,8 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       foreach ($values['settings']['block_views']['block_view'] as $index => $view) {
                        
          
-        //$view_id = $values['settings']['block_view']['view_reference'][0]['target_id'];
-        if (isset($view['view_reference']) && !empty($view['view_reference']) && ($index == $num_views - 1)) {
+        //$view_id = $values['settings']['block_view']['view_id'][0]['target_id'];
+        if (isset($view['view_id']) && !empty($view['view_id']) && ($index == $num_views - 1)) {
          
          //foreach ($view['view_reference'] as $view_id) {
              $object[$index] = View::load($view['view_reference']);
@@ -572,26 +594,28 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
   public function build() {
  
     $config = $this->getConfiguration();
-    $diplo_config = \Drupal::config('nk_tools.settings');
+    $nk_tools_config = \Drupal::config('nk_tools.settings');
     $block_label = isset($config['block_label']) && !empty($config['block_label'])  ? $config['block_label'] : '';
     $route = \Drupal::service('current_route_match');
     $route_params = $route->getParameters()->all();
 
    
     $build = [
-      '#theme' => 'diplo_async_view_block',
+      '#theme' => 'nk_tools_async_view_block',
       '#attributes' => [
         'class' => [
         ],
       ],
     ];
 
-    $view_ids = isset($config['view_reference']) && !empty($config['view_reference']) ? $config['view_reference'] : [];
-    $view_displays = isset($config['block_view_display_reference']) && !empty($config['block_view_display_reference']) ? $config['block_view_display_reference'] : [];
+    $view_ids = isset($config['view_id']) && !empty($config['view_id']) ? $config['view_id'] : [];
+    $view_displays = isset($config['display']) && !empty($config['display']) && isset($config['display']['display_id']) ? $config['display']['display_id'] : [];
+    $view_args = isset($config['display']) && !empty($config['display']) && isset($config['display']['argument']) ? $config['display']['argument'] : [];
+    $view_filters = isset($config['display']) && !empty($config['display']) && isset($config['display']['filter']) ? $config['display']['filter'] : [];
 
     if (!empty($view_ids)) {
 
-      $diplo_factory = \Drupal::service('nk_tools.main_service');
+      //$nk_tools_factory = \Drupal::service('nk_tools.main_service');
 
       // Generate unique id/key for this block
       $hash = Crypt::hashBase64($config['id'] . '__' . implode('__', $view_ids));
@@ -606,7 +630,6 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
         //$view_display = $view->getDisplay($view_displays[$delta]);
 
         //$argument = $view_display['display_options']['arguments']['diplo_daterange_tabs']; 
-        //ksm($argument);
  
         // Generate unique id/key for this block settings
         //$settings_hash = Crypt::hashBase64($config['label'] . $view_id . $block_label);
@@ -625,9 +648,9 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
           'animationOut' => isset($config['block_animation_out']) && !empty($config['block_animation_out']) ? $config['block_animation_out'] : NULL,
           'view' => [
             'pager_element' => 'mini', //$pager, //NULL,
-            'view_name' => $config['view_reference'][$delta],
+            'view_name' => $config['view_id'][$delta],
             'view_display_id' => isset($view_displays[$delta]) && !empty($view_displays[$delta]) ? $view_displays[$delta] : 'default',
-            'view_args' => isset($config['block_view_args']) && !empty($config['block_view_args'][$delta]) ? $config['block_view_args'][$delta] : NULL,
+            'view_args' => !empty($view_args) ? $view_args : NULL,
             'view_dom_id' => 'async-view-view-'. $hash, // Note that for usage of existing/rendered view dom it happens in JS since we can't have "future" view_dom_id here 
           ],
         ];
@@ -698,15 +721,17 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
     $values = $form_state->getValues();
    
     // Block custom label field
-    $this->configuration['block_label']['value'] = $values['block_label']['value'];
-    $this->configuration['block_label']['format'] = $values['block_label']['format'];
+   // $this->configuration['block_label']['value'] = $values['block_label']['value'];
+   // $this->configuration['block_label']['format'] = $values['block_label']['format'];
 
     // Views configuration details
     foreach ($values['block_views']['block_view'] as $delta => $view) {
+      
       $this->configuration['view_trigger'][$delta] = $view['view_trigger'];
-      $this->configuration['view_reference'][$delta] = $view['view_reference'];
-      $this->configuration['block_view_display_reference'][$delta] = $view['display']['block_view_display_reference'];
-      $this->configuration['block_view_args'][$delta] = $view['block_view_args'];
+      $this->configuration['view_id'][$delta] = $view['view_id'];
+      $this->configuration['display']['display_id'][$delta] = $view['display']['display_id'];
+      $this->configuration['display']['argument'][$delta] = $view['display']['argument'];
+      $this->configuration['display']['filter'][$delta] = $view['display']['filter'];
 
       $this->configuration['rendered_view'][$delta] = $view['rendered_view'];
       $this->configuration['rendered_view_wrapper'][$delta] = $view['rendered_view_wrapper'];
@@ -715,6 +740,8 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
       $this->configuration['block_links_labels'][$delta] = $view['block_links_labels'];
     }
    
+    
+
     // DOM and Markup configuration details
     $this->configuration['block_hide_mobile'] = $values['block_effects']['block_hide_mobile'];
     $this->configuration['block_hide_init'] = $values['block_effects']['block_hide_init'];
@@ -771,7 +798,9 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
         $render[$delta]['url'] = Url::fromRoute('<current>')->toString(); // Url::fromUserInput()
       }
 
-      $render[$delta]['title'] = $link['label']; 
+      $render[$delta]['title'] = Markup::create($link['label'] .'<i class="material-icons hidden fs-085 absolute ml-12">close</i>'); 
+      //ksm($render[$delta]);
+
       $render[$delta]['link'] = $render[$delta]['url'] instanceof Url ? Link::fromTextAndUrl($render[$delta]['title'], $render[$delta]['url']) : NULL;
           
     }

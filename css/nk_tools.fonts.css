@@ -62,7 +62,7 @@
 }
 
 .fs-085 {
-  font-size: 0.85em;
+  font-size: 0.85em !important;
 }
 
 .fs-72 {
@@ -359,7 +359,7 @@ a.grey.is-active,
 .grey a:hover,
 a.grey:hover,
 .grey-icon.active::before {
-  color: color: rgba(0, 170, 255, 1) !important; /* color: rgba(255, 170, 0, 1); */
+  color: rgba(255, 170, 0, 1); /* color: rgba(255, 170, 0, 1); */
 }
 
 .grey-darker,

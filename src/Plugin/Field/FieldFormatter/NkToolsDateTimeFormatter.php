@@ -49,80 +49,140 @@ class NkToolsDateTimeFormatter extends DateRangeDefaultFormatter {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     
     $dates = parent::viewElements($items, $langcode);
-    
-    if (!empty($dates)) {
+       
+    $date_markup = [];
+   
+    if (!empty($dates)) { // Daterange field
+     
+      foreach ($dates as $index => $date) {
 
-      $date_markup = [
-        '#theme' => 'time',
-        '#text' => '',
-        '#attributes' => [
-          'datetime' => ''
-        ],
-        '#cache' => [
-          'contexts' => ['timezone']
-        ]
-      ];
-
-      $timezone_string = $this->getSetting('timezone_override') ? $this->getSetting('timezone_override') : \Drupal::config('system.date')->get('timezone')['default'];
-      $format_type = $this->getSetting('format_type');
-      $separator = $this->getSetting('separator');
-
-      foreach ($dates as $delta => $date) {
-
-        if (isset($date['start_date']) && !empty($date['start_date']) && !empty($date['start_date']['#text'])) {
-
-          $start_date_object = $this->parseDate($date['start_date']['#text']);
-
-          if ($start_date_object) {
-
-            $start_date = $this->parseDate($date['start_date']['#text'], 'j M Y');
-
-            $start_time = $this->parseDate($date['start_date']['#text'], 'H:i'); 
-
-            //$start_string = $this->dateFormatter->format($start_date_object->getTimestamp(), $format_type, '', $timezone_string != '' ? $timezone_string : NULL);
-            $start_string = $this->dateFormatter->format($start_date_object->getTimestamp(), 'custom', 'l, n F Y g:i A', $timezone_string != '' ? $timezone_string : NULL);
-
-            if (isset($date['end_date']) && !empty($date['end_date']) && !empty($date['end_date']['#text'])) {
-            
-              $end_date_object = $this->parseDate($date['end_date']['#text']);
-
-              if ($end_date_object) {
-                $end_date = $this->parseDate($date['end_date']['#text'], 'j M Y');  
-                $end_time = $this->parseDate($date['end_date']['#text'], 'H:i');
- 
-                if ($end_date == $start_date) {
-                  $end_string = $end_time == $start_time ? NULL : $this->dateFormatter->format($end_date_object->getTimestamp(), 'custom', 'g:i A', $timezone_string != '' ? $timezone_string : NULL);
-                }
-                else {
-                  $end_string = $this->dateFormatter->format($end_date_object->getTimestamp(), 'custom', 'l, n F Y g:i A', $timezone_string != '' ? $timezone_string : NULL);     
-                }
-  
-                $date_markup['#text'] =  $end_string ? $start_string . ' ' . $separator . ' ' . $end_string : $start_string;
-                $date_markup['#attributes']['datetime'] = $this->dateFormatter->format($start_date_object->getTimestamp(), 'custom', DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $timezone_string != '' ? $timezone_string : NULL); 
-              }
-            }
-          }
-        }
-        else {
-          if (isset($date['#theme']) && $date['#theme'] == 'time' && isset($date['#text']) && !empty($date['#text'])) {
-            $single_date = $this->parseDate($date['#text']);
-            $date_markup['#text'] = $this->dateFormatter->format($single_date->getTimestamp(), 'custom', 'j M Y', $timezone_string != '' ? $timezone_string : NULL);
-          }
-        }
+         if (isset($date['start_date']) && !empty($date['start_date']) && !empty($date['start_date']['#text'])) {
+           $date_markup[] = $this->process($date);
+         }
+         else {
+           if (isset($date['#theme']) && $date['#theme'] == 'time' && isset($date['#text']) && !empty($date['#text'])) { // Start and end date are exact the same (same time too)
+             $format_type = $this->getSetting('format_type');
+             $separator = isset($date['separator']) && isset($date['separator']['#plain_text']) ? $date['separator']['#plain_text'] : $this->getSetting('separator');
+             $date_markup = $date;
+             $date_string = $format_type == 'html_datetime' ?  'j M Y ' . $separator . ' H:i\h' :  'j M Y';
+             $date_markup['#text'] =  $this->parseDate($date['#text'], $date_string);
+           }
+           else {
+             if (is_array($date)) {
+             }
+           }
+         }
       }
-      
       return $date_markup; 
     }
+
+    // Datetime field
     else {
-      return [];
+     
+      if (!empty($items)) {
+        
+        $format_type = $this->getSetting('format_type');
+        $separator = isset($date['separator']) && isset($date['separator']['#plain_text']) ? $date['separator']['#plain_text'] : $this->getSetting('separator');
+
+        $date_markup_array = [
+          '#theme' => 'time',
+          '#text' => NULL,
+          '#attributes' => [
+            'datetime' => NULL
+          ],
+          '#cache' => [
+            'contexts' => ['timezone']
+          ]
+        ];
+        
+        foreach ($items as $index => $item) {
+          $value = $item->get('value')->getDateTime();
+          $date_markup[$index] = $date_markup_array;
+
+          $date_string = $format_type == 'html_datetime' ? 'j M Y ' . $separator .' H:i\h' : 'j M Y';
+
+          $date_markup[$index]['#text'] = $this->parseDate($value, $date_string);
+          $date_markup[$index]['#attributes']['datetime'] = $value;
+        }
+      }
+      return $date_markup;
     } 
   }
 
-  public function parseDate(string $datestring, string $format = '') {
+  protected function parseDate(string $datestring, string $format = '') {
     $timezone_string = $this->getSetting('timezone_override') ? $this->getSetting('timezone_override') : \Drupal::config('system.date')->get('timezone')['default'];
     $timezone = new \DateTimeZone($timezone_string);
     $date_object = new DrupalDateTime($datestring, $timezone); //DrupalDateTime::createFromTimestamp(time(), $timezone); // 
     return !empty($format) ? $date_object->setTimeZone($timezone)->format($format) : $date_object;
+  }
+
+  protected function process(array $date) {
+ 
+    $date_markup = [];
+   
+    $format_type = $this->getSetting('format_type');
+    $separator = isset($date['separator']) && isset($date['separator']['#plain_text']) ? $date['separator']['#plain_text'] : $this->getSetting('separator');
+    $timezone_string = $this->getSetting('timezone_override') ? $this->getSetting('timezone_override') : \Drupal::config('system.date')->get('timezone')['default'];
+
+    $start_date_object = $this->parseDate($date['start_date']['#text']);
+
+    if ($start_date_object) {
+
+      $start_datetime = $format_type == 'html_datetime' ? $this->parseDate($date['start_date']['#text'], 'j M Y H:i\h') : $this->parseDate($date['start_date']['#text'], 'j M');
+
+      $start_year = $this->parseDate($date['start_date']['#text'], 'Y');
+      $start_date = $this->parseDate($date['start_date']['#text'], 'j M Y');
+      $start_time = $this->parseDate($date['start_date']['#text'], 'H:i');
+
+      if (isset($date['end_date']) && !empty($date['end_date']) && !empty($date['end_date']['#text'])) {
+            
+        $end_date_object = $this->parseDate($date['end_date']['#text']);
+        
+        if ($end_date_object) {
+                
+          $end_datetime = $format_type == 'html_datetime' ? $this->parseDate($date['end_date']['#text'], 'j M Y H:i\h') : $this->parseDate($date['end_date']['#text'], 'j M Y');  
+
+          $end_year = $this->parseDate($date['end_date']['#text'], 'Y');
+          $end_date = $this->parseDate($date['end_date']['#text'], 'j M Y');
+          $end_time = $this->parseDate($date['end_date']['#text'], 'H:i');
+
+          if ($end_date == $start_date) { // Same date
+            $end_string = $format_type == 'html_datetime' ? $this->parseDate($date['end_date']['#text'], 'g:i A') : NULL;
+            //'H:i\h'); // 'g:i A');
+          }
+          // Different dates
+          else {
+            $end_string = $end_datetime;
+          }
+         
+          $date_markup = $date['end_date'];
+          if ($start_year == $end_year) {
+            //$start_year_string = $format_type == 'html_datetime' ? $this->parseDate($date['start_date']['#text'], 'j M H:i') : $this->parseDate($date['start_date']['#text'], 'j M');
+            $date_markup['#text'] =  $end_string ? $start_datetime . ' ' . $separator . ' ' . $end_string : $start_datetime;
+          }
+          else {
+            $date_markup['#text'] =  $end_string ? $start_datetime . ' ' . $separator . ' ' . $end_string : $start_datetime;
+          }
+        }
+        else {
+          $date_markup = $date['start_date'];
+          $date_markup['#text'] = $format_type == 'html_datetime' ? $this->parseDate($date['start_date']['#text'], 'j M Y H:i\h') : $this->parseDate($date['start_date']['#text'], 'j M Y');
+        } 
+      }
+      else {
+        $date_markup = $date['start_date'];
+        $date_markup['#text'] = $format_type == 'html_datetime' ? $this->parseDate($date['start_date']['#text'], 'j M Y H:i\h') : $this->parseDate($date['start_date']['#text'], 'j M Y');
+      } 
+    }
+    // Same dates and same times
+    else {
+      if (isset($date['#theme']) && $date['#theme'] == 'time' && isset($date['#text']) && !empty($date['#text'])) {
+        $date_markup = $date;
+        $date_markup['#text'] = $format_type == 'html_datetime' ? $this->parseDate($date['#text'], 'j M Y H:i\h') : $this->parseDate($date['#text'], 'j M Y');
+      }
+    }
+  
+    return $date_markup;
   }
 
 }

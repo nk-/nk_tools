@@ -15,7 +15,8 @@ class NkToolsSignUpMenuLink extends LoginLogoutMenuLink {
    */
   public function getTitle() {
     if ($this->currentUser->isAuthenticated()) {
-      return $this->currentUser->getDisplayName(); //$this->t('Sign Out'); return $this->t('Sign Up');
+      $acronym = substr($this->currentUser->getDisplayName(), 0, 2);
+      return $acronym;
     }
     else {
       return $this->t('Sign Up');

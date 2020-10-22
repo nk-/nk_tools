@@ -1,7 +1,7 @@
 
 .form-item {
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin: 0.5rem 0 0.5rem 0;
+  padding: 0 0 1rem 0;
 }
 .form-item .form-item {
   margin-top: 8px;
@@ -169,19 +169,29 @@
 }
 
 .form-item select {
-  min-width: 280px;
+  min-width: 320px;
   width: 100%;
-  height: 36px;
+  height: 24px;
   border-top: 1px solid rgba(0,0,0,0.12);
 }
 
+/*
 .form-item.form-type-select:after {
   content: 'arrow_drop_down';
-  margin-left: -24px;
+  margin-left: -48px;
   color: rgba(0, 0, 0, 0.54);
   z-index: 0;
   position: relative;
 }
+*/
+
+.form-select-icon {
+  margin-left: -48px;
+  color: rgba(0, 0, 0, 0.54);
+  z-index: 0;
+  position: relative;
+}
+
 
 form.form-inline,
 .form-inline form {
@@ -228,6 +238,18 @@ input {
   max-width: 100%;
   background: none;
   font-size: 1rem;
+  outline: none;
+}
+
+/*
+.form-item input[type="text"]:focus,
+.form-item input[type="email"]:focus {
+  border: 2px solid #fff;
+}
+*/
+
+[contenteditable="true"]:focus {
+    outline: none;
 }
 
 .form-item input[type="password"],
@@ -268,6 +290,7 @@ form.views-exposed-form {
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin: 1rem 0;
 }
 
 
@@ -290,7 +313,7 @@ form.views-exposed-form .form-actions input[type=submit] {
 
 .btn, .pager .pager-item > a, .pager .pager-item > span, input[type="submit"] {
   display: inline-block;
-  height: 24px;
+/*   height: 24px; */
   min-width: 88px;
   margin: 8px 8px 8px 0;
   padding: 8px 16px;

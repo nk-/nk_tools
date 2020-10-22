@@ -21,6 +21,7 @@
          // Note double loop since each block can have multiple views/displays attached
          $.each(asyncBlock, function(delta, blockObject) {
 
+
            if (blockObject.trigger && blockObject.view) {
              
              var view = $('.js-view-dom-id-' + blockObject.view.view_dom_id); 
@@ -28,29 +29,84 @@
 
              if (view.length) {
 
+               //var iconsClose = [];
+
+ 
                // Click (on) event on async view link trigger, specified on block config 
-               $(context).find(blockObject.trigger).once('asyncView').each(function() { 
+               $(context).find(blockObject.trigger).once('asyncView').each(function(i, trigger) { 
 
                  // Add attribute to relate each trigger link with the view that it is calling
                  $(this).attr('data-target', blockObject.view.view_dom_id);
 
-                 $(this).on('click', function(event) {
+/*
+                 var iconClose = $(this).find('i') || $(this).next('i');
+                 if (iconClose.length) {
+                   iconsClose.push(iconClose);
+                 }
+*/
+ 
+                  $(this).on('click', function(event) {
                  
                    //blockObject.view.filters = $(this).attr('data-filters');
-                 
+/*
+                    $.each(iconsClose, function(index, icon) {
+                      if (index == i) {
+                        icon.removeClass('hidden');
+
+                        icon.on('click', function() {
+                          
+
+
+                        });
+
+                      }
+                      else {
+                        icon.addClass('hidden');
+                      }
+
+                    });
+*/
+          
+
                    if ($(this).hasClass('current')) {
-                     $(document).trigger('nkTools.asyncView', {event: event, block: blockObject, loaded: true});
+                     $(document).trigger('special.asyncView', {event: event, block: blockObject, loaded: true});
+
+                     if (existing && existing.length) {
+                       var existingClasses = existing.children().eq(0).attr('class').match(/(?:^|\s)js-view-dom-id-([^- ]+)(?:\s|$)/)[1];
+                       blockObject.view.view_dom_id = existingClasses;
+                     }
+                     Drupal.nkToolsFactory.ajaxView(event, drupalSettings.views, blockObject, 'all');
+
+                     $(this).removeClass('current').removeClass('btn-active').trigger('blur');
+
+                     var iconClose = $(this).find('i') || $(this).next('i');
+                     if (iconClose.length) {
+                       iconClose.addClass('hidden');
+                     } 
+
                    }
                    else {
                   
-                     $(this).addClass('current').addClass('btn-active');
-                  
+                     
+
                      if ($(this).siblings().length) {
                        $(this).siblings().each(function(index, sibling) {
+                         var iconClose = $(sibling).find('i') || $(sibling).prev('i');
+                         if (iconClose.length) {
+                           iconClose.addClass('hidden');
+                         }
                          $(sibling).removeClass('current').removeClass('btn-active');
                        });
                      }
  
+                     $(this).addClass('current').addClass('btn-active');
+
+                     var iconClose = $(this).find('i') || $(this).next('i');
+                     if (iconClose.length) {
+                       iconClose.removeClass('hidden');
+                     }
+
+
                      // First check in the DOM, this way we can override in Twig template and have unique arg for each of trigger links 
                      var args = $(this).attr('data-id') && $(this).attr('data-id') !== 'reset' ? $(this).attr('data-id') : null;
                      if (!args) {
@@ -67,8 +123,8 @@
                  });
                });
 
-               // A View container exists and it was just async loaded, a custom "nkTools.asyncView" event  
-               $(document).once('nkToolsAsyncView').on('nkTools.asyncView', function(event, params) { 
+               // A View container exists and it was just async loaded, a custom "special.asyncView" event  
+               $(document).once('nkToolsAsyncView').on('special.asyncView', function(event, params) { 
 
                  // Parent Drupal Block related manipulations
                  var currentBlock = params.block && params.block.block_id ? params.block.block_id : null;

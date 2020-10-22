@@ -3,42 +3,16 @@
 namespace Drupal\nk_tools\Plugin\Block;
 
 use Drupal\Core\Form\FormStateInterface;
-// use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Markup;
-///use Drupal\Core\Field\BaseFieldDefinition;
-// use Drupal\Core\Field\FieldStorageDefinitionInterface;
-
 use Drupal\Core\Entity\EntityInterface;
-
 use Drupal\Core\Form\SubformStateInterface;
-//use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Cache\Cache;
 
-// use Drupal\Component\Render\FormattableMarkup;
-//use Drupal\Component\Utility\NestedArray;
-
-//use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
-
-//use Drupal\field\Entity\FieldConfig;
-//use Drupal\field\Entity\FieldStorageConfig;
-//use Drupal\block_content\Entity\BlockContent;
-//use Drupal\block\Entity\Block;
-
-
-
-//use Drupal\views\Views;
-//use Drupal\views\Entity\View;
-//use Drupal\views\ViewExecutable;
-
 use Drupal\paragraphs\ParagraphInterface;
 
-// use Drupal\nk_tools\Form\DiploViewsReferenceForm;
-
-//use Symfony\Component\DependencyInjection\ContainerInterface;
-
 use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
-
 
 /**
  * Provides an example block.
@@ -636,6 +610,11 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
           'nk-tools-multi-block-item'
         ],
       ],
+      //'#cache' => ['max-age' => 0],
+      '#cache' => [
+        'contexts' => ['url.path', 'url.query_args'], //['route.entity.node.canonical'],
+        'tags' => ['node:' . $node->id()],
+      ],
       '#wrapper_attributes' => [
         'class' => [
           $config['label_display'] == 'visible' ? 'with-title' : 'no-title', 
@@ -717,6 +696,19 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
   }
 
   
+  /**
+   * {@inheritdoc}
+   */
+/*
+  public function getCacheTags() {
+    $node = $this->currentRoute->getParameter('node');
+    if ($node) {
+      return Cache::mergeTags(parent::getCacheTags(), ["node:{$node->id()}"]);
+    }
+  }
+*/
+
+
   protected function generateChildren(array $entity_data, array $config) {
     
     $children = [];
@@ -863,6 +855,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         case 'paragraph':
         
           $values[$field['field_name']] = $this->paragraphField($node, $field, $config);
+          if ($field['field_name'] == 'field_faculty') {
+             //ksm($values);
+          } 
         break;
 
         case 'node':
@@ -901,6 +896,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       if (!empty($values)) {
 
         foreach ($values as $field_name => $value) {
+          //ksm($field_name);
           foreach ($value as $delta => $item) {
           
             switch ($item['type']) {
@@ -969,6 +965,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       }
     }
     
+    //ksm($items);
+   // ksm($node->getTitle());
+
     return ['context' => $context, 'items' => $items];
   }
 
@@ -1028,6 +1027,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         }
       }
     }
+    
     return $values; 
   }
 

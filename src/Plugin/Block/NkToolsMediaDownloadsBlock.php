@@ -20,12 +20,9 @@ use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
  *   id = "nk_tools_media_downloads_block",
  *   admin_label = @Translation("Media downloads"),
  *   category = @Translation("Nk tools"),
- *   context = {
- *     "node" = @ContextDefinition(
- *       "entity:node",
- *       label = @Translation("Node")
- *     )
- *   } 
+ *   context_definitions = {
+ *     "node" = @ContextDefinition("entity:node", label = @Translation("Node"))
+ *   }
  * )
  */
 class NkToolsMediaDownloadsBlock extends NkToolsBlockBase {

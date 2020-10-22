@@ -104,6 +104,78 @@
       factory.progressBar();
 
       
+       
+      
+      var form = $('#views-exposed-form-previous-programs-page');
+      var widget = form.find('input[name=tumor_type]');
+      var button = form.find('.form-actions input.form-submit'); 
+      var label = widget.next();
+      label.addClass('fs-085 fw-500 btn btn-raised btn-grey btn-colored');
+
+      if (widget) {
+/*
+       widget.on('change', function(event) {
+         var select = $(this);       
+         
+         console.log(label);
+         
+
+         var value = $(this).val() ? $(this).val() : 'all';
+                  
+         //Drupal.nkToolsFactory.setViewArgument($(this).val(), {view_id: 'previous_programs', display_id: 'page'});
+           console.log(button);
+      
+        // Ex for ajax 
+          if (button.length) {
+            button.click();
+          } 
+
+          var existingIcon = $(this).next().hasClass('material-icons');
+          if (existingIcon) {
+            //$(this).after('<i class="material-icons">close</i>'); //.after(widget); 
+            //console.log(existingIcon);
+            if ($(this).siblings().length) {
+              $(this).siblings().each(function(i, s) {
+                if ($(s).hasClass('material-icons')) {
+                  $(s).toggleClass('hidden');
+
+                  if ($(s).hasClass('form-select-icon-close')) {
+                     $(s).on('click', function() {
+
+                       select.val('All');
+
+                       $(s).toggleClass('hidden');
+                       $(s).prev().toggleClass('hidden');
+
+                       select.find('option').each(function(d, option) {
+                         if (d == 0) {
+                           $(option).attr('selected', 'selected'); 
+                         }
+                         else {
+                           $(option).removeAttr('selected');
+                         }
+                       });
+                     
+                       var debouncebutton = debounce(function() {
+                         if (button.length) {
+                           button.click();
+                         }
+                       }, 1);
+
+                       debouncebutton();
+
+ 
+                     });
+                  }
+                }
+              });
+            }
+          }
+
+         });
+*/
+      }
+    
       // A magic - any link that has data-target attribute will work as a show/hide toggle
       // As long as value of the attribute is valid target's element id attribute 
       $(context).find('*[data-target]').once('dataTargetCall').each(function() {
@@ -243,6 +315,16 @@
       }
     },
     
+    setViewArgument: function(value, data) {
+      if (drupalSettings.views && drupalSettings.views.ajaxViews) {
+        $.each(drupalSettings.views.ajaxViews, function(view_id, params) {
+          if (data.view_id === params.view_name && data.display_id === params.view_display_id) {
+            drupalSettings.views.ajaxViews[view_id].view_args = value;
+          }  
+        });
+      }
+    },
+
     dataTargetCallback: function(trigger, context, settings) {
       var self = this;
       if (trigger.data('target')) {

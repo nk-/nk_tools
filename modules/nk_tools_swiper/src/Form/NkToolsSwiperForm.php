@@ -3,9 +3,9 @@
 namespace Drupal\nk_tools_swiper\Form;
 
 use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Entity\Query\QueryFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\Element;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -30,12 +30,12 @@ class NkToolsSwiperForm extends EntityForm {
   /**
    * Constructs an Swiper configuration entity.
    *
-   * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
+   * @param \Drupal\Core\Entity\Query\QueryFactoryInterface $entity_query
    *   The entity query.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager
    *   The entity Manager.
    */
-   public function __construct(QueryFactory $entity_query, EntityManagerInterface $entity_manager) {
+   public function __construct(QueryFactoryInterface $entity_query, EntityTypeManagerInterface $entity_manager) {
      $this->entityQuery = $entity_query;
      $this->entityManager = $entity_manager;
    }
@@ -45,8 +45,8 @@ class NkToolsSwiperForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.query'),
-      $container->get('entity.manager')
+      $container->get('entity.query.config'),
+      $container->get('entity_type.manager')
     );
   }
 
