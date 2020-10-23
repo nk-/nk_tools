@@ -7,8 +7,8 @@ swiper:
     url: https://github.com/nolimits4web/swiper/blob/master/LICENSE
     gpl-compatible: true
   js:
-    # js/swiper.js: { weight: -1 }
-    https://unpkg.com/swiper@6.3.3/swiper-bundle.min.js: { type: external, minified: true,  weight: -1 }
+    js/swiper.js: { weight: -1 }
+    # https://unpkg.com/swiper@6.3.3/swiper-bundle.min.js: { type: external, minified: true,  weight: -1 }
   css:
     component: 
       https://unpkg.com/swiper/swiper-bundle.min.css: { type: external, minified: true }

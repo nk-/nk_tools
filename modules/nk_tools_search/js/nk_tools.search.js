@@ -40,11 +40,11 @@
                 if (parentInline.length) {
                   parentInline.each(function(si, searchBlock) {
                     if ($(searchBlock).is(':visible')) { 
-                    console.log($(this));
 
                     var input = $(this).find('input[type="search"]');
                     if (input.length && input.data('target')) {
                       var icon =  input.next().find('i');
+                      //console.log(input);
                       self.searchInline(input, $('.' + input.data('target')), '.rtp-brightcove-playlist-list', 500);
                       self.processIcon(input, icon, true);
                     
@@ -145,15 +145,19 @@
 
     processIcon: function(input, icon, clear) {
     
-      if (icon.length && input.is(':visible')) {
+      if (icon.length) {
 
         var originalIcon = icon.text() ? icon.text() : 'search';
         var alterIcon = icon.data('icon-alter') ? icon.data('icon-alter') : 'forward';
         var iconAnimation = icon.data('in') ? icon.data('in') : 'bounce';
-                    
+
+        console.log(input);
+            
         input.on('change keyup paste blur focus', function(e, ui) {
           // Set active class to search input 
           $(this).toggleClass('active');
+
+          console.log($(this));
 
           // Take care of the icon
           if ($(this).val()) {
@@ -234,12 +238,6 @@
 
   
     searchInline: function(searchInput, parent, linksList, delay) {
-
-      if (!searchInput.is(':visible')) {
-        return;
-      }
-
-      
 
       var self = this;
       var triggers = {
@@ -330,7 +328,7 @@
 
       searchInput.on('keyup', function(event) {
         var input = $(event.target);
-console.log(query);
+
         // A value being typed in the search field
         var query = input.val().toUpperCase();
 
