@@ -23,7 +23,7 @@ use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
  * Provides a "DiploAjaxViewsBlock" block.
  *
  * @Block(
- *  id = "diplo_ajax_views_block",
+ *  id = "nk_tools_ajax_views_block",
  *  admin_label = @Translation("Ajax loaded View(s)"),
  * )
  */
