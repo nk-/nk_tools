@@ -1,0 +1,15 @@
+{#
+/**
+ * @file
+ * Theme override for a 'form' element.
+ *
+ * Available variables
+ * - form: whe whole form, child elements can be called like {{ form.email }}
+ *
+ */
+#}
+<div class="shadow bg-light-grey pl-24 pr-24 pt-12 pb-12">
+ {{ form|without('actions') }}
+</div>
+
+{{ form.actions }}

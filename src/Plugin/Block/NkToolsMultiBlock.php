@@ -35,6 +35,12 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       'icon_back' => NULL,
       'target' => NULL,
      
+      'node_current' => NULL,
+      'node_current_display',
+      'node_current_ui_label' => NULL,
+      'node_current_single' => NULL,
+      'node_current_delta' => NULL,
+
       'node_reference' => NULL,
       'node_display' => NULL,
       'node_ui_label' => NULL,
@@ -124,13 +130,30 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       '#open' => TRUE,
      ];
 
+    $form['node']['node_current'] = [
+      '#type' => 'checkbox', 
+      '#title' => $this->t('Render current node. From current route (page)'),
+      '#description' => $this->t('May be a weird case when we want to repeat the current node on which page we are, but can be with a different view mode'),
+      '#default_value' => $config['node_current']
+    ];
+
+    if ($config['node_current'] && $config['node_current']) {
+      $node_current_entity_data = [
+        'key' => 'node_current',
+        'bundle' => 'course',
+        'label' =>  $this->t('Node'),
+      ];
+      $node_current_children = $this->generateChildren($node_current_entity_data, $config);
+      $form['node'] += $node_current_children;
+    }
+
     $form['node']['node_reference'] = [
       //'#disabled' => TRUE,
       '#tags' => TRUE,
       '#multiple' => TRUE,
       '#maxlength' => '2048',
       '#title'  => $this->t('Node title'),
-      '#description' => $this->t('A title of a Node that we want to load as a content for this block.'),
+      '#description' => $this->t('A title of a specific Node that we want to load as a content for this block. Do NOT combine with a previous checkbox.'),
       '#type' => 'entity_autocomplete',
       '#target_type' => 'node',
       '#default_value' => $referenced_nodes, // The #default_value can be either an entity object or an array of entity objects.
@@ -377,7 +400,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     $this->configuration['target'] = $values['target_ui']['target'];
 
     // Nodes
-    if (isset($values['node']) && isset($values['node']['node_reference']) && !empty($values['node']['node_reference'])) {
+    if (isset($values['node'])) { // && isset($values['node']['node_reference']) && !empty($values['node']['node_reference'])) {
       foreach ($values['node'] as $node_key => $node_value) {
         $this->configuration[$node_key] = $node_value;
       }   
@@ -422,8 +445,13 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         $this->configuration[$paragraph_key] = $paragraph;
       }   
     }
-
-    // Webform
+    else {
+      foreach ($values['paragraph'] as $paragraph_key => $paragraph) {
+        $this->configuration[$paragraph_key] = NULL;
+      } 
+    }
+    
+     // Webform
     if (isset($values['webform']) && isset($values['webform']['webform_reference']) && !empty($values['webform']['webform_reference'])) {
       foreach ($values['webform'] as $webform_key => $webform) {
         $this->configuration[$webform_key] = $webform;
@@ -446,40 +474,48 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     $node = $this->nkToolsFactory->getNode([]);
 
     // Nodes
-    $referenced_nodes = [];
-    $node_context = [];
-    if (is_array($config['node_reference']) && !empty($config['node_reference'][0])) {
+    if ($config['node_current'] && $node instanceof NodeInterface) {
+      $view_mode = isset($config['node_current_display']) ? $config['node_current_display'] : 'default';
+      $items[] = $this->entityTypeManager->getViewBuilder('node')->view($node, $view_mode);
+    }
+    else {
+  
+      $referenced_nodes = [];
+      $node_context = [];
+      if (is_array($config['node_reference']) && !empty($config['node_reference'][0])) {
      
-      $nodes_delta = isset($config['node_delta']) && is_numeric($config['node_delta']) ? $config['node_delta'] : 0;
+        $nodes_delta = isset($config['node_delta']) && is_numeric($config['node_delta']) ? $config['node_delta'] : 0;
 
-      $entity_data = [
-        'key' => 'node',
-        'label' =>  $this->t('Node'),
-      ];
-      $node_children = $this->renderChildren($entity_data, $config);
-      if (is_array($node_children) && !empty($node_children)) {
+        $entity_data = [
+          'key' => 'node',
+          'label' =>  $this->t('Node'),
+        ];
+        $node_children = $this->renderChildren($entity_data, $config);
+        if (is_array($node_children) && !empty($node_children)) {
         
-        $node_render = NULL;
-        $ui_labels = isset($config['node_ui_label']) ? $this->prepareLabels($config['node_ui_label']) : ['Node tab'];
+          $node_render = NULL;
+          $ui_labels = isset($config['node_ui_label']) ? $this->prepareLabels($config['node_ui_label']) : ['Node tab'];
         
-        foreach ($node_children as $index => $child) {
-          if ($config['node_single'] && $child instanceof Markup) {
-            $node_render .= $child->__toString();
+          foreach ($node_children as $index => $child) {
+            if ($config['node_single'] && $child instanceof Markup) {
+              $node_render .= $child->__toString();
+            }
+            else {
+              $items[$nodes_delta] = $child;
+              $labels[$nodes_delta] = isset($ui_labels[$index]) ? $ui_labels[$index] : $ui_labels[0];
+              $nodes_delta++;
+            }
           }
-          else {
-            $items[$nodes_delta] = $child;
-            $labels[$nodes_delta] = isset($ui_labels[$index]) ? $ui_labels[$index] : $ui_labels[0];
-            $nodes_delta++;
-          }
-        }
 
-        if ($node_render) {
-          $items[$nodes_delta] = Markup::create($node_render);
-          $labels[$nodes_delta] = $ui_labels[0];
+          if ($node_render) {
+            $items[$nodes_delta] = Markup::create($node_render);
+            $labels[$nodes_delta] = $ui_labels[0];
+          }
         }
       }
     }
-     
+
+
     // Fields
     $fields = $this->getBundle($config['field_reference']);
     
@@ -712,8 +748,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
   protected function generateChildren(array $entity_data, array $config) {
     
     $children = [];
-   
-    $displays = isset($entity_data['displays']) ? $entity_data['displays'] : $this->entityDisplayRepository->getViewModeOptionsByBundle($entity_data['key'], $entity_data['bundle']); 
+    $entity_key = strpos($entity_data['key'], 'node') !== FALSE ? 'node' : $entity_data['key'];
+
+    $displays = isset($entity_data['displays']) ? $entity_data['displays'] : $this->entityDisplayRepository->getViewModeOptionsByBundle($entity_key, $entity_data['bundle']); 
     
     if ($displays !== FALSE) {
       $children[$entity_data['key'] . '_display'] = [
@@ -896,7 +933,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       if (!empty($values)) {
 
         foreach ($values as $field_name => $value) {
-          //ksm($field_name);
+
           foreach ($value as $delta => $item) {
           
             switch ($item['type']) {
@@ -964,10 +1001,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         }
       }
     }
-    
-    //ksm($items);
-   // ksm($node->getTitle());
-
+ 
     return ['context' => $context, 'items' => $items];
   }
 

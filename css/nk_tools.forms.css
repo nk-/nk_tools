@@ -1,11 +1,12 @@
 
 .form-item {
-  margin: 0.5rem 0 0.5rem 0;
-  padding: 0 0 1rem 0;
+  margin: 1rem 0.5rem 0.5rem 0.5rem;
+  padding: 0;/* 0 0 1rem 0; */
 }
 .form-item .form-item {
   margin-top: 8px;
   margin-bottom: 8px;
+  margin-left: 0;
 }
 .form-item.label-hidden label {
   display: none;
@@ -24,13 +25,27 @@
 }
 
 .form-item.focused label {
-  color: #00b0ff;
+/*   color: #00b0ff; */
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .form-item .description {
-  margin: 8px 0;
+  margin: 2px 0 2px 0;
+  font-size: 90%;
+  color: rgba(0, 0, 0, 0.54);
 }
-.form-item input, .form-item textarea, .form-item select {
+
+form summary {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.form-item.active-form-item {
+  border-bottom: 1px solid #00b0ff;
+}
+
+.form-item input,
+.form-item textarea,
+.form-item select {
   border: 0;
   margin: 0;
   background: none;
@@ -43,13 +58,18 @@
   font-size: 16px;
 }
 
-.form-item input[type="text"], .form-item input[type="email"], .form-item input[type="password"], 
-.form-item input[type="search"], .form-item input[type="tel"], .form-item textarea, .form-item select,
+.form-item input[type="text"],
+.form-item input[type="email"],
+.form-item input[type="password"], 
+.form-item input[type="search"],
+.form-item input[type="tel"],
+.form-item textarea,
 .facets-dropdown {
   width: 100%;
-  max-width: 220px;  /* 460px; */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  padding: 8px 0;
+  max-width: 220px;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: transparent;
   color: rgba(112, 112, 112, 1);
 }
 
@@ -66,9 +86,20 @@
 .form-item textarea:focus,
 .form-item textarea.error:focus,
 .form-item select:focus,
-.form-item select.error:focus {
-  border-bottom: 2px solid #00b0ff;
+.form-item select.error:focus,
+.form-item input[type="text"].active-form-item,
+.form-item input[type="email"].active-form-item,
+.form-item input[type="password"].active-form-item,
+.form-item input[type="search"].active-form-item,
+.form-item input[type="tel"].active-form-item,
+.form-item textarea.active-form-item,
+.form-item select.active-form-item {
+  border-bottom: 1px solid #00b0ff;
   padding-bottom: 7px;
+}
+
+.form-item select.active-form-item {
+  padding-bottom: 0;
 }
 
 .form-item input[type="text"].error,
@@ -78,9 +109,10 @@
 .form-item input[type="tel"].error,
 .form-item textarea.error,
 .form-item select.error {
-  border-bottom: 2px solid #f44336;
+  border-bottom: 1px solid #f44336;
   padding: 8px 0 7px;
 }
+
 
 /* Placeholder */
 .form-item input[type="text"]::-webkit-input-placeholder,
@@ -169,21 +201,25 @@
 }
 
 .form-item select {
-  min-width: 320px;
+  /*
+  min-width: 280px;
   width: 100%;
-  height: 24px;
+ */
+  color: rgba(0, 0, 0, 0.7);
+  height: 40px;
   border-top: 1px solid rgba(0,0,0,0.12);
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+/*   max-width: 287px; */
+  width: auto;
+  padding-left: 8px !important; 
 }
 
-/*
-.form-item.form-type-select:after {
-  content: 'arrow_drop_down';
-  margin-left: -48px;
-  color: rgba(0, 0, 0, 0.54);
-  z-index: 0;
-  position: relative;
+.form-item i.select-toggle {
+  left: 100%;
+  top: 8px;
+  height: 0;  
 }
-*/
+
 
 .form-select-icon {
   margin-left: -48px;
@@ -226,12 +262,6 @@ form.form-inline > .container-inline,
   padding: 0;
 }
 
-.form-item label,
-.form-item .description,
-form summary {
-  font-size: 15px;
-  color: rgba(0, 0, 0, 0.54) !important;
-}
 
 
 input {
@@ -252,22 +282,26 @@ input {
     outline: none;
 }
 
+/*
 .form-item input[type="password"],
 .form-item input[type="search"] {
   border: none;
 }
+*/
 
 .form-item input[type="text"],
 .form-item input[type="email"],
 .form-item input.sibling {
   background-color: transparent;
   padding-left: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+/*   border-bottom: 1px solid rgba(0, 0, 0, 0.12); */
   max-width: 280px;
   min-width: 190px;
   width: 100%;
+/*
   height: 36px;
   border-top: 1px solid rgba(0,0,0,0.12);
+*/
 }
 
 .green-border .form-item .form-email,
@@ -344,7 +378,16 @@ form.views-exposed-form .form-actions input[type=submit] {
   background-color: rgb(38, 135, 71);
 }
 
-.btn:hover, .pager .pager-item > a:hover, .pager .pager-item > span:hover, .btn:focus, .pager .pager-item > a:focus, .pager .pager-item > span:focus, input[type="submit"]:hover, input[type="submit"]:focus   {
+.btn:hover,
+.btn:focus,
+.btn.active,
+.pager .pager-item > a:hover,
+.pager .pager-item > span:hover,
+.pager .pager-item > a:focus,
+.pager .pager-item > span:focus,
+input[type="submit"]:hover,
+input[type="submit"]:focus,
+input[type="submit"].active   {
   background: rgba(153, 153, 153, 0.2);
   text-decoration: none;
   color: rgba(0, 0, 0, 0.87);
@@ -375,7 +418,7 @@ form.views-exposed-form .form-actions input[type=submit] {
 
 .btn-raised.btn-grey, .btn.btn-raised.btn-grey, .pager .pager-item > a.btn-raised.btn-grey, .pager .pager-item > span.btn-raised.btn-grey {
   background: rgba(227, 225, 225, 1);
-  color: rgba(65, 65, 65, 1);
+  color: rgba(65, 65, 65, 0.5);
 }
 .btn-raised.btn-grey:hover a,
 .btn.btn-raised.btn-grey:hover a {
@@ -387,11 +430,12 @@ form.views-exposed-form .form-actions input[type=submit] {
   color: #FFF;
 }
 
+.form-item label.btn-active,
 .btn-raised.btn-active,
 .btn-raised.btn-orange.btn-active,
 .btn-raised.btn-grey.btn-active {
   background-color: rgba(112, 112, 112, 1); /* #546e7a; */
-  color: rgba(242, 242, 242, 1);
+  color: rgba(242, 242, 242, 1) !important;
 }
 
 
@@ -834,15 +878,25 @@ form.views-exposed-form .form-actions input[type=submit] {
 .messages-wrapper,
 .messages {
   padding: 16px;
+  position: relative;
+  z-index: 2;
 }
 
 .messages-status {
   background: #e8f5e9;
 }
+
+.messages-status i {
+  color: #388e3c;
+}
+
+/*
 .messages-status:before {
   content: "check_circle";
   color: #388e3c;
+  margin: 0 8px 4px 0;
 }
+*/
 .messages-status a {
   color: #2e7d32;
 }
@@ -856,9 +910,18 @@ form.views-exposed-form .form-actions input[type=submit] {
 .messages-warning {
   background: #fffde7;
 }
+/*
 .messages-warning:before {
   color: #fbc02d;
+  margin: 0 8px 4px 0;
+  content: "warning";
 }
+*/
+
+.messages-warning i {
+  color: #fbc02d;
+}
+
 .messages-warning a {
   color: #f57f17;
 }
@@ -872,10 +935,10 @@ form.views-exposed-form .form-actions input[type=submit] {
 .messages-error {
   background: #ffebee;
 }
-.messages-error:before {
-  content: "warning";
+.messages-error i {
   color: #d32f2f;
 }
+
 .messages-error a {
   color: #b71c1c;
 }

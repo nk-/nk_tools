@@ -399,7 +399,7 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
           }
           else {
             $width = isset($data['width']) ? $data['width'] : 1920;
-            $height = isset($data['height']) && !empty($data['height']) ? $data : 720;
+            $height = isset($data['height']) && !empty($data['height']) ? $data['height'] : 720;
           }
                 
           if ($width && $height) {

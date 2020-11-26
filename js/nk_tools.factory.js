@@ -103,79 +103,100 @@
 
       factory.progressBar();
 
-      
-       
-      
-      var form = $('#views-exposed-form-previous-programs-page');
-      var widget = form.find('input[name=tumor_type]');
-      var button = form.find('.form-actions input.form-submit'); 
-      var label = widget.next();
-      label.addClass('fs-085 fw-500 btn btn-raised btn-grey btn-colored');
+      // Fix admin toolbar glitches with header (menu) and banner
+      if ($('#toolbar-administration').length) {
 
-      if (widget) {
+        $('#toolbar-administration').find('.toolbar-icon-menu.trigger').once('toolbarOpenClicked').each(function () {
+           
+           $(this).on('click', function(event) {
+             if (!$('body').hasClass('toolbar-tray-open')) {
+               $('#before-main').css('margin-top', '39px');
+             }
+             else {
+               $('#before-main').css('margin-top', '76px');
+             }
+           });
+         }); 
+
 /*
-       widget.on('change', function(event) {
-         var select = $(this);       
-         
-         console.log(label);
-         
+        $('#toolbar-administration').find('.toolbar-icon-toggle-vertical').once('toolbarVerticalClicked').each(function () {
+          $(this).on('click', function(event) {
+            //$('#before-main').css('top', '104px');
+//             $('#secondary-navigation').css('top', '0');
+            //console.log($(this));
+          });
+        });
 
-         var value = $(this).val() ? $(this).val() : 'all';
-                  
-         //Drupal.nkToolsFactory.setViewArgument($(this).val(), {view_id: 'previous_programs', display_id: 'page'});
-           console.log(button);
-      
-        // Ex for ajax 
-          if (button.length) {
-            button.click();
-          } 
+        $('#toolbar-administration').find( '.toolbar-icon-toggle-horizontal').once('toolbarButtonClicked').each(function () {
+          $(this).on('click', function(event) {
+            //$('#before-main').css('top', '0');
+            //console.log($('#before-main'));
+//             $('#secondary-navigation').css('top', '0');
+          });
+        });
+*/
+      }
 
-          var existingIcon = $(this).next().hasClass('material-icons');
-          if (existingIcon) {
-            //$(this).after('<i class="material-icons">close</i>'); //.after(widget); 
-            //console.log(existingIcon);
-            if ($(this).siblings().length) {
-              $(this).siblings().each(function(i, s) {
-                if ($(s).hasClass('material-icons')) {
-                  $(s).toggleClass('hidden');
 
-                  if ($(s).hasClass('form-select-icon-close')) {
-                     $(s).on('click', function() {
+      $('input.pane-trigger').once('paneTriggered').each(function(index, element) {  
+        
+        $(this).on('change', function() {
 
-                       select.val('All');
 
-                       $(s).toggleClass('hidden');
-                       $(s).prev().toggleClass('hidden');
-
-                       select.find('option').each(function(d, option) {
-                         if (d == 0) {
-                           $(option).attr('selected', 'selected'); 
-                         }
-                         else {
-                           $(option).removeAttr('selected');
-                         }
-                       });
-                     
-                       var debouncebutton = debounce(function() {
-                         if (button.length) {
-                           button.click();
-                         }
-                       }, 1);
-
-                       debouncebutton();
-
- 
-                     });
-                  }
-                }
+          var target = $('.' + $(this).data('target-playlist'));
+          if (target.length) {
+            target.each(function(index, element) {
+            
+              var inAnimation = $(this).data('in') ? $(this).data('in') : $(element).data('in');
+              var outAnimation = $(this).data('out') ? $(this).data('out') : $(element).data('out');
+          
+              $(this).siblings().each(function(i, sib) {
+                $(sib).removeClass(inAnimation).addClass(outAnimation).addClass(layout_settings.hidden_class);
               });
+         
+              $(this).removeClass(layout_settings.hidden_class);
+
+              if (outAnimation && $(this).hasClass(outAnimation)) {
+                $(this).removeClass(outAnimation);
+              }
+
+              if (inAnimation && !$(this).hasClass(inAnimation)) {
+                $(this).addClass(inAnimation);
+              }
+            });
+          }
+
+          var label = $(element).next('label');
+          if (label && label.length) {
+
+            label.children().first().addClass('btn-active');
+            var icon = label.find('i');
+
+            if (icon && icon.length && icon.hasClass(layout_settings.hidden_class)) {
+              icon.removeClass(layout_settings.hidden_class); 
             }
           }
 
-         });
-*/
-      }
-    
+          var siblingsParent = $(this).parent().siblings();
+          if (siblingsParent.length) {
+            siblingsParent.each(function(si, sibling) {
+              var siblingLabel = $(sibling).find('.pane-trigger-label');
+              if (siblingLabel && siblingLabel.length) {
+                var siblingLabelChildren = siblingLabel.children();
+                            
+                siblingLabel.removeClass('btn-active');
+                var siblingIcon = siblingLabel.find('i');
+                if (siblingIcon && siblingIcon.length && !siblingIcon.hasClass(layout_settings.hidden_class)) {
+                  siblingIcon.addClass(layout_settings.hidden_class); 
+                }
+              }
+            });           
+          }
+   
+        });
+
+      });
+ 
       // A magic - any link that has data-target attribute will work as a show/hide toggle
       // As long as value of the attribute is valid target's element id attribute 
       $(context).find('*[data-target]').once('dataTargetCall').each(function() {
@@ -203,10 +224,11 @@
               factory.dataTargetCallback($(this), context, settings);
             }
 */
-
             factory.dataTargetCallback($(this), context, settings);
           }
-          //return false; 
+
+          return false; 
+
         });
       });
 
@@ -237,6 +259,46 @@
       }, 1);
  
       debounceInit();
+
+      $('input.form-text').once('selectOptionChange').each(function() {
+        if ($(this).val()) {
+          $(this).addClass('active-form-item');
+        }
+        else {
+          $(this).removeClass('active'); 
+        }
+
+        $(this).on('keyup', function(event) {
+          if ($(this).val()) {
+            //$(this).parent().addClass('active-form-item');
+            $(this).addClass('active-form-item');
+          }
+          else {
+            //$(this).parent().removeClass('active-form-item'); 
+            $(this).removeClass('active-form-item');
+          }
+        });
+      }); 
+    
+      $('select').once('selectOptionChange').each(function() { 
+        
+        if (!$(this).val() || $(this).val() === 'All') {
+          $(this).removeClass('active-form-item');
+        }
+        else {
+          $(this).addClass('active-form-item'); 
+        }         
+        
+        $(this).on('change', function(event) {
+          if (!$(this).val() || $(this).val() === 'All') {
+            $(this).removeClass('active-form-item');
+          }
+          else {
+            $(this).addClass('active-form-item'); 
+          } 
+        });
+      });
+
 
       $(context).find('.text-highlight').each(function() {
         $(this).addClass('highlighted');
@@ -279,15 +341,21 @@
         }
  
         $('.bg-fixed').each(function() { 
-          if ($('#footer-main').length) {
-            var offFixedBlock = $('#footer-main').offset().top - 348; 
+          var element = $(this);
+
+          //if ($('#footer-main').length && $(this).is(':visible')) {
+            var offFixedBlock = 200; //$('#footer-main').offset().top - 348; 
+            if ($(this).data('top')) {
+              offsetTop = $(this).data('top');
+            }
             if (window.pageYOffset > offFixedBlock) {
-             $(this).removeClass('fixed');
+              $(this).removeClass('fixed');
             }
             else {
-             factory.fixOnScroll.fix($(this), {top: offsetTop, trigger: offsetTrigger});
+              factory.fixOnScroll.fix($(this), {top: offsetTop, trigger: offsetTrigger});
             }
-          }
+         // }
+
         });
       });
     }
@@ -332,7 +400,11 @@
         var target = $('#' + trigger.data('target'));
 
         if (target.length) {
-         
+
+          console.log(target);
+
+
+
           var sliding = trigger.data('sliding') ? trigger.data('sliding') : null;
           var parentAnimationOut = trigger.data('parent-out') ? trigger.data('parent-out') : null;
           var parentAnimationIn = trigger.data('parent-in') ? trigger.data('parent-in') : null;
@@ -397,7 +469,7 @@
             var iconBack = trigger.find('.icon-back');
             if (iconBack.length) {
             
-              iconBack.toggleClass(nkToolsLayout.hidden_class);
+              //iconBack.toggleClass(nkToolsLayout.hidden_class);
                   
               if (trigger.find('.toggle-icon').length) {
                 trigger.find('.toggle-icon').toggleClass(nkToolsLayout.hidden_class);
@@ -479,7 +551,6 @@
     // A generic method for on/off classes. For example it works for animations in and out, show/hide and similar
     setClasses: function(targetObject, params) {
       if (targetObject.length && params.classes) {
-
         var nkToolsLayout = drupalSettings.nk_tools && drupalSettings.nk_tools.layout ? drupalSettings.nk_tools.layout : null;
 
         if (params.siblings) {
@@ -505,6 +576,8 @@
           targetObject.remove();
         }
         else {
+          
+
           if (params.classes.remove && params.classes.add) {
             targetObject.removeClass(params.classes.remove).addClass(params.classes.add);
           }

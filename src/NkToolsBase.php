@@ -281,7 +281,7 @@ class NkToolsBase {
       case 'content':
         $block_entity = BlockContent::load($blockId);
         if ($block_entity) {
-          $block = $render ? \Drupal::service('entity_type.manager')->getViewBuilder('block_content')->view($block_entity) : $block_entity;
+          $block = $render ? $this->entityTypeManager->getViewBuilder('block_content')->view($block_entity) : $block_entity;
         }
       break;
 
@@ -318,10 +318,10 @@ class NkToolsBase {
         if ($block_entity) {
 
           if (isset($config['block_content'])) {
-            $block = $render ? \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block_entity) : $block_entity;
+            $block = $render ? $this->entityTypeManager->getViewBuilder('block_content')->view($block_entity) : $block_entity;
           }
           else {
-            $block = $render ? \Drupal::service('entity_type.manager')->getViewBuilder('block')->view($block_entity) : $block_entity;
+            $block = $render ? $this->entityTypeManager->getViewBuilder('block')->view($block_entity) : $block_entity;
           }
         }
       break; 
@@ -329,7 +329,7 @@ class NkToolsBase {
       case 'default':
         $block_entity = \Drupal::entityTypeManager()->getStorage('block')->load($blockId);
         if (!empty($block_entity)) {
-          $block = $render ? \Drupal::entityTypeManager()->getViewBuilder('block')->view($block_entity) : $block_entity;
+          $block = $render ?  $this->entityTypeManager->getViewBuilder('block')->view($block_entity) : $block_entity;
         }
       break; 
 

@@ -7,9 +7,6 @@
 
   'use strict';
 
-  
-
-
   Drupal.behaviors.nkToolsSearchToggle = {
    
     attach: function(context, settings) { 
@@ -18,12 +15,10 @@
 
       var nk_tools_search_inputs = settings.nk_tools_search ? settings.nk_tools_search : null;
       var nk_tools = settings.nk_tools ? settings.nk_tools : {};
-      
-      //console.log(nk_tools_search_inputs);
-      
+          
       if (nk_tools_search_inputs) {
 
-        $.each(nk_tools_search_inputs, function(inputType, nk_tools_search) {
+        $.each(nk_tools_search_inputs, function(inputType, nk_tools_search) { 
 
           var config = nk_tools_search.config || {};
           switch (inputType) {
@@ -31,43 +26,38 @@
             case 'search-inline':
               
               if (config.inline_target) {
-           
+
                 var parentInline = $('.search-inline-wrapper');
 
                 // Search playlist handler
-                
-
                 if (parentInline.length) {
                   parentInline.each(function(si, searchBlock) {
-                    if ($(searchBlock).is(':visible')) { 
-
                     var input = $(this).find('input[type="search"]');
                     if (input.length && input.data('target')) {
                       var icon =  input.next().find('i');
-                      //console.log(input);
                       self.searchInline(input, $('.' + input.data('target')), '.rtp-brightcove-playlist-list', 500);
                       self.processIcon(input, icon, true);
-                    
                     }
-
-                    }
-
                   });
                 }
               }
 
-               $(context).find('.toggle-search').once('searchToggle').each(function() {
-                  var toggle = $(this); 
-                  var input = toggle.parent().find('input:first');
-                  if (input.length) {
-                    var icon = toggle.find('i');
-                    toggle.on('click', function(i, e) {
-                      self.toggleCallback($(e), input, icon, viewPath, queryName, nk_tools, nk_tools_search);
-                      return false; 
-                    });
-                  }
-                });    
-
+              $(context).find('.toggle-search').once('searchToggle').each(function() {
+                var toggle = $(this); 
+                var input = toggle.parent().find('input:first');
+                if (input.length) {
+                  var icon = toggle.find('i');
+                  toggle.on('click', function(event) {
+                    /*
+                    if (config.format === 'narrow') {
+                      nk_tools_search.config.collapsed = 1;
+                    }
+                    */
+                    self.toggleCallback($(event.currentTarget), input, icon, null, null, nk_tools, nk_tools_search);
+                    return false; 
+                  });
+                }
+              });    
 
             break;
 
@@ -116,7 +106,6 @@
                   });
                   
                   self.processIcon(input, icon);
-                  
 
                 });
 
@@ -126,8 +115,8 @@
                   var input = toggle.parent().find('input:first');
                   if (input.length) {
                     var icon = toggle.find('i');
-                    toggle.on('click', function(i, e) {
-                      self.toggleCallback($(e), input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                    toggle.on('click', function(event) {
+                      self.toggleCallback($(event.currentTarget), input, icon, viewPath, queryName, nk_tools, nk_tools_search);
                       return false; 
                     });
                   }
@@ -150,14 +139,10 @@
         var originalIcon = icon.text() ? icon.text() : 'search';
         var alterIcon = icon.data('icon-alter') ? icon.data('icon-alter') : 'forward';
         var iconAnimation = icon.data('in') ? icon.data('in') : 'bounce';
-
-        console.log(input);
-            
+  
         input.on('change keyup paste blur focus', function(e, ui) {
           // Set active class to search input 
           $(this).toggleClass('active');
-
-          console.log($(this));
 
           // Take care of the icon
           if ($(this).val()) {
@@ -190,7 +175,10 @@
       var alterIcon = icon.length && icon.data('icon-alter') ? icon.data('icon-alter') : 'arrow_forward';         
       var iconAnimation = icon.length && icon.data('in') ? icon.data('in') : 'bounce';
 
-      if (input.is(':hidden') && config.collapsed) {
+      if (input.is(':hidden')) { // && config.collapsed) {
+        
+        // console.log(input);
+
         // Show search input
         if (nk_tools.layout && nk_tools.layout.hidden_class && input.hasClass(nk_tools.layout.hidden_class)) {
           input.removeClass(nk_tools.layout.hidden_class);      
@@ -229,7 +217,7 @@
             icon.text(originalIcon).removeClass(iconAnimation); 
           }
  
-          if (config.collapsed && nk_tools.layout && nk_tools.layout.hidden_class) {
+          if (nk_tools.layout && nk_tools.layout.hidden_class) { //config.collapsed && 
             input.addClass(nk_tools.layout.hidden_class); 
           }
         } 
@@ -249,7 +237,7 @@
       };
 
       // First generate usable object with all the data-relations
-      parent.once('parentCheck').each(function() {
+      parent.each(function() {
         $(this).find(linksList).each(function(parentIndex, list) { 
           var items = $(list).children();
           items.each(function(i, l) {
@@ -282,7 +270,7 @@
         });
 
         if (!query) {
-         // And we use "topPArent" parent in order to expand any other possible collapsible panes withi the whole markup
+         // And we use "topParent" parent in order to expand any other possible collapsible panes withi the whole markup
          var topParent = parent.parent();
          var subPanes = topParent.find('.collapsible-toggle');
          if (subPanes.length) {
@@ -328,7 +316,7 @@
 
       searchInput.on('keyup', function(event) {
         var input = $(event.target);
-
+       
         // A value being typed in the search field
         var query = input.val().toUpperCase();
 
@@ -342,7 +330,5 @@
     }
 
   };
-
-
 
 })(jQuery, Drupal, drupalSettings, Drupal.debounce);

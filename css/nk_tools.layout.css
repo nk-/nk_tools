@@ -96,6 +96,13 @@
 .left-0 {
   left: 0; 
 }
+
+.left-8 {
+  left: 8px;
+}
+.left-12 {
+  left: 12px;
+}
 .left-16 {
   left: 16px;
 }
@@ -136,6 +143,13 @@
   right: 1.5%;
 }
 
+.right-24p {
+  right: 24%;
+}
+.right-25p {
+  right: 25%;
+}
+
 .top--9 {
   top: -9px;
 }
@@ -151,6 +165,9 @@
 .top-0 {
   top: 0;
 }
+.top-4 {
+  top: 4px;
+}
 .top-8 {
   top: 8px;
 }
@@ -165,6 +182,16 @@
 .top-35p {
   top: 35%;
 }
+
+.top-40p {
+  top: 40%;
+}
+
+.inherit {
+  left: inherit;
+  right: inherit;
+}
+
 
 /* A special classes for with admin toolbar visible*/
 
@@ -227,7 +254,8 @@
   position: absolute !important;
 }
 
-.fixed {
+.fixed,
+.contextual-region.fixed {
   position: fixed;
 }
 
@@ -288,9 +316,13 @@
 }
 
 aside .bg-fixed {
+
+
+/*
   min-height: 264px;
   display: flex;
   justify-content: flex-end;
+*/
 }
 
 aside .bg-fixed h4 {
@@ -313,10 +345,13 @@ aside .bg-fixed.views-exposed-form form .form-item {
 }
 
 aside .bg-fixed.fixed {
+/*
   height: auto;
   padding: 0;
   top: 14% !important;
-  max-width: 16.66666667%;
+*/
+  max-width: 38%; /* 16.66666667%; */
+  background: #fff;
 }
 
 aside .bg-fixed.fixed .inner {
@@ -376,6 +411,7 @@ aside .bg-fixed.fixed.views-exposed-form form {
   left: 0;
 }
 
+/*
 .toolbar-vertical.navbar-fixed #navbar,
 .toolbar-vertical.navbar-fixed #content-tools.fixed {
   top: 39px;
@@ -383,18 +419,28 @@ aside .bg-fixed.fixed.views-exposed-form form {
 
 .toolbar-horizontal.toolbar-tray-open.navbar-fixed #navbar,
 .toolbar-horizontal.toolbar-tray-open #content-tools.fixed  {
-  top: 79px;
+  top: 78px;
 }
 
 .toolbar-horizontal.toolbar-tray-open.admin-toolbar.navbar-fixed #navbar, .toolbar-horizontal.toolbar-tray-open.admin-toolbar #drawer,
 .toolbar-horizontal.toolbar-tray-open.admin-toolbar #content-tools.fixed  {
-  top: 80px;
+  top: 78px;
 }
 
 .toolbar-horizontal.toolbar-tray-open.admin-toolbar.adminimal-admin-toolbar.navbar-fixed #navbar, .toolbar-horizontal.toolbar-tray-open.admin-toolbar.adminimal-admin-toolbar #drawer,
 .toolbar-horizontal.toolbar-tray-open.admin-toolbar.adminimal-admin-toolbar #content-tools.fixed {
-  top: 79px;
+  top: 78px;
 }
+*/
+
+body.toolbar-fixed.navbar-fixed #navbar {
+  top: 39px;
+} 
+
+body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar { 
+  top: 78px;
+}
+
 
 .adminimal-admin-toolbar.toolbar-fixed.toolbar-vertical {
   padding-top: 39px !important;
@@ -474,6 +520,9 @@ aside .bg-fixed.fixed.views-exposed-form form {
 }
 .mt-64 {
   margin-top: 64px !important;
+}
+.mt-128 {
+  margin-top: 128px !important;
 }
 
 /* Margin bottom */

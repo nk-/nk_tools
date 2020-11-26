@@ -454,6 +454,11 @@ img.leaflet-marker-icon {
 .opacity-0 {
   opacity: 0;
 }
+
+.opacity-0-5 {
+  opacity: 0.5;
+}
+
 .opacity-0-7 {
   opacity: 0.7;
 }
@@ -634,11 +639,22 @@ progress {
 
   /* Progress bar value for IE10+ */
   color: rgba(255, 170, 0, 1);
+
+  margin-left: -1%;
+
 }
 
 .toolbar-fixed progress {
-  top: 153px;
+  top: 153px; /* 192px; */ /* 153px; */
 }
+
+body.toolbar-tray-open.toolbar-horizontal progress {
+  top: 193px;
+}
+
+/* body.toolbar-fixed.toolbar-tray-open #before-main { */
+
+
 
 progress::-webkit-progress-bar {
   background-color: transparent;
@@ -671,11 +687,13 @@ progress::-moz-progress-bar {
   line-height: 1.5;
 }
 
+/*
 .field-type-text-long p,
 .field-type-text-with-summary p {
   margin-top:15px;
   margin-bottom:15px;
 }
+*/
 
 .views-element-container .field-type-text-long p,
 .views-element-container .field-type-text-with-summary p,

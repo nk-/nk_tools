@@ -2,8 +2,7 @@
   
   'use strict';
   
-/*
-   $.event.special.bannerResize = {
+   $.event.special.bannerLoaded = {
     show: function(element) {
       return element;  
     },
@@ -12,7 +11,6 @@
       return element;
     }
   };
-*/
 
   Drupal.behaviors.nk_toolsFixedBanner = {
     
@@ -51,9 +49,12 @@
               // Wait for image loaded promise
               var placeholderImage = new Image();
               placeholderImage.src = imageUrl;
+              //console.log($(placeholderImage));
               $(placeholderImage).imgLoad(function() {
                 // Process banner dimesnions and bg-image position
+                //console.log(bannerSettings);
                 self.processBanner({type: 'init'}, bannerBlock, bannerSettings, layout);
+                $(document).trigger('special.bannerLoaded', [{ bannerBlock: bannerBlock, bannerSettings: bannerSettings, layout: layout}]); 
               });
             }
 
@@ -101,7 +102,7 @@
       var bannerCaption = bannerBlock.data('caption') || null;  
       if (bannerCaption && $(bannerCaption).length && layout.hidden_class && $(bannerCaption).hasClass(layout.hidden_class)) {
         var bottom = parseInt(offsetTop / 2) + 'px';
-        $(bannerCaption).removeClass(layout.hidden_class).css({'margin-bottom': bottom});
+        $(bannerCaption).removeClass(layout.hidden_class); //.css({'margin-bottom': bottom});
       }
     },
 

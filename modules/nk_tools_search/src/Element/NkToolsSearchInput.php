@@ -95,7 +95,7 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
       $name = 'search-inline'; 
     }
     else {
-      if ($view_id && $display_id) {
+      if ($view_id && $display_id) { 
         $name = $filter;
       }
       else {
@@ -108,6 +108,7 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
     }
           
     $attached = [];
+       
     $attached['drupalSettings']['nk_tools_search'][$name] = [
       'type' => $wrapper_type,
       'target' => $inline_target ? $inline_target : 'input.nk-tools-search-input',
@@ -196,6 +197,7 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
 
     // Attach our config array to drupalSettings and have it available in accompanying jQuery code
     $element['#attached'] = $attached; 
+
     // Attach that jQuery code too
     $element['#attached']['library'][] = 'nk_tools_search/search_widget';
     
