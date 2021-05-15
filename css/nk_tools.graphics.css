@@ -251,6 +251,9 @@ img.border-grey-image {
 .border-radius-4 {
   border-radius: 4px;
 }
+.border-radius-8 {
+  border-radius: 8px;
+}
 
 .icon-border, 
 .img-border img,
@@ -343,11 +346,11 @@ img.leaflet-marker-icon {
 }
 
 .pipe-before::before {
-  margin-left: 7px;
+  margin-left: 5px;
 }
 
 .pipe-after::after {
-  margin-right: 7px;
+  margin-right: 5px;
 }
 
 .grey-line::before,
@@ -508,7 +511,16 @@ img.leaflet-marker-icon {
 .shadow {
   -webkit-box-shadow: 14px 11px 16px -9px rgba(0,0,0,0.44);
   -moz-box-shadow: 14px 11px 16px -9px rgba(0,0,0,0.44);
-  box-shadow: 14px 11px 16px -9px rgba(0,0,0,0.44);
+  box-shadow: 0 11px 16px -9px rgba(0,0,0,0.44);
+}
+
+/* @see https://codepen.io/eyecatchup/pen/wLZgMJ */
+.shadow-top {
+  box-shadow: box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.33);
+}
+
+.shadow-bottom {
+  box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.33);
 }
 
 .shadow-3 {
@@ -551,6 +563,9 @@ img.leaflet-marker-icon {
 .block-shadow:not(.bg-dark-blue) {
   background-color: rgba(250, 250, 250, 1);
 }
+
+
+
 
 .img-shadow img,
 img.img-shadow,
@@ -611,20 +626,11 @@ img.img-shadow,
 
 progress {
   
-  /* Positioning */
-  position: fixed;
-/*   left: 0; */
-  top: 114px;
-  
-  margin: 0 auto;
-
-  z-index: 5; 
+  z-index: 10; 
 
   /* Dimensions */
   width: 100%;
-  height: 2px;
-
-  max-width: 1280px;
+  height: 4px;
 
   /* Reset the appearance */
   -webkit-appearance: none;
@@ -634,30 +640,26 @@ progress {
   /* Get rid of the default border in Firefox/Opera. */
   border: none;
 
-  /* Progress bar container for Firefox/IE10+ */
-  background-color: transparent;
-
   /* Progress bar value for IE10+ */
   color: rgba(255, 170, 0, 1);
-
-  margin-left: -1%;
-
 }
 
+/*
 .toolbar-fixed progress {
-  top: 153px; /* 192px; */ /* 153px; */
+  top: 181px;
 }
 
 body.toolbar-tray-open.toolbar-horizontal progress {
-  top: 193px;
+  top: 206px;
 }
+*/
 
 /* body.toolbar-fixed.toolbar-tray-open #before-main { */
 
 
 
 progress::-webkit-progress-bar {
-  background-color: transparent;
+  background-color: rgba(242, 242, 242, 1); /* transparent; */
 }
 
 progress::-webkit-progress-value {
@@ -667,6 +669,17 @@ progress::-webkit-progress-value {
 progress::-moz-progress-bar {
   background-color: rgba(255, 170, 0, 1);
 }
+
+progress.bg-only::-moz-progress-bar {
+  background-color: rgba(242, 242, 242, 1);
+}
+
+progress.bg-only::-webkit-progress-value {
+  background-color: rgba(242, 242, 242, 1);
+}
+
+
+
 
 /* Leaflet Maps */
 .animated-map {
@@ -701,3 +714,20 @@ progress::-moz-progress-bar {
 .collapsible-toggle .field-type-text-with-summary p {
   margin: 0;
 }
+
+@media only screen and (max-width: 414px) {
+
+  .material-icons.fs-48,
+  .fs-48.icon-left::before,
+  .fs-48.icon-right::after {
+    font-size: 1.75rem !important;
+  }
+
+  .material-icons.mb-24,
+  .mb-24.icon-left::before,
+  .mb-24.icon-right::after {
+    margin-bottom: 6px !important;
+  }
+ 
+}
+

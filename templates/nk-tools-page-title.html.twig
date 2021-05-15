@@ -1,0 +1,6 @@
+<h1 {{ title_attributes }}>{{ title }}</h1>
+{% spaceless %}
+  {% if description %}
+    <div {{ description_attributes }}>{{ description }}</div>
+  {% endif %}
+{% endspaceless %}

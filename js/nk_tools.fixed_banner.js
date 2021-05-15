@@ -49,10 +49,9 @@
               // Wait for image loaded promise
               var placeholderImage = new Image();
               placeholderImage.src = imageUrl;
-              //console.log($(placeholderImage));
+
               $(placeholderImage).imgLoad(function() {
                 // Process banner dimesnions and bg-image position
-                //console.log(bannerSettings);
                 self.processBanner({type: 'init'}, bannerBlock, bannerSettings, layout);
                 $(document).trigger('special.bannerLoaded', [{ bannerBlock: bannerBlock, bannerSettings: bannerSettings, layout: layout}]); 
               });
@@ -68,7 +67,6 @@
 
             // Usage of our custom event - external call (from some other flow/script)
             $(document).once('externalCall').on('special.bannerResize', debounce(function(event, data) {
-             // console.log(data);
               if (data.op === 'close' || data.op === 'hide') {
                 var videoBlock = $(bannerSettings.config.video_block);
                 if (!videoBlock.length || (videoBlock.length && !videoBlock.hasClass('ignore-resize'))) {

@@ -36,16 +36,10 @@
 
       var nk_tools_swiper_settings = settings.nk_tools_swiper || null;
 
-     // console.log(nk_tools_swiper_settings);
-
       if (nk_tools_swiper_settings && $.type(nk_tools_swiper_settings.swipers) !== 'undefined') { 
       var nk_tools = settings.nk_tools && settings.nk_tools.layout ? settings.nk_tools.layout : null;
 
-    //  console.log(nk_tools);
-
       $.each(nk_tools_swiper_settings.swipers, function(id, swiper_settings) {
-
-        console.log(id);
 
         var swiper_id = '#' + id;
         if ($(swiper_id).length) {
@@ -56,7 +50,7 @@
 
             //var debounceSwiper = debounce(function() {
               if (Swiper !== null && $.type(Swiper) !== 'undefined') {
-                Drupal.nk_tools_swiper.swipers[swiper_id] = new Swiper(swiper_id, swiper_settings); //Drupal.nk_tools_swiper.swiper(swiper_id, swiper_settings); 
+                Drupal.nk_tools_swiper.swipers[swiper_id] = new Swiper(swiper_id, swiper_settings);
                 //Drupal.nk_tools_swiper.swipers[swiper_id].init();
 
                  Drupal.nk_tools_swiper.swipers[swiper_id].on('slideChangeTransitionEnd', function(swiper) {

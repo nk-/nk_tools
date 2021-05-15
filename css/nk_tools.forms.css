@@ -1,3 +1,13 @@
+/* clears the 'X' from Internet Explorer */
+input[type=search]::-ms-clear {  display: none; width : 0; height: 0; }
+input[type=search]::-ms-reveal {  display: none; width : 0; height: 0; }
+
+/* clears the 'X' from Chrome */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }
+
 
 .form-item {
   margin: 1rem 0.5rem 0.5rem 0.5rem;
@@ -348,7 +358,7 @@ form.views-exposed-form .form-actions input[type=submit] {
 .btn, .pager .pager-item > a, .pager .pager-item > span, input[type="submit"] {
   display: inline-block;
   height: auto;
-  min-width: 88px;
+/*   min-width: 88px; */
   margin: 8px 8px 8px 0;
   padding: 8px 16px;
   text-align: center;
@@ -367,7 +377,7 @@ form.views-exposed-form .form-actions input[type=submit] {
   white-space: nowrap;
   text-overflow: ellipsis;
   transition: background-color .2s, box-shadow .2s;
-  max-width: 86%;
+/*   max-width: 86%; */
 }
 
 .btn.bg-orange {
@@ -396,6 +406,11 @@ input[type="submit"].active   {
 .btn:active, .pager .pager-item > a:active, .pager .pager-item > span:active, input[type="submit"]:active {
   background: rgba(153, 153, 153, 0.4);
 }
+
+.btn.active:hover {
+  background: transparent;/* rgba(153, 153, 153, 0.09); */
+}
+
 
 .btn-colored, .btn-colored:hover, .btn-colored:focus,
 .btn.btn-colored,
@@ -873,6 +888,19 @@ input[type="submit"].active   {
   color: rgba(0, 51, 102, 1);
 }
 
+
+.form-item input[type="radio"].pane-trigger {
+  display: none;
+}
+
+.form-item .btn.pane-trigger-label {
+  padding: 0 1rem;
+}
+
+.btn.with-icon  i {
+  margin-right: 4px;
+  margin-bottom: 1px;
+}
 
 /* Messages - TODO, make vanishing messages */
 .messages-wrapper,

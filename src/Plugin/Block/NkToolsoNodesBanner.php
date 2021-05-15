@@ -2,21 +2,11 @@
 
 namespace Drupal\nk_tools\Plugin\Block;
 
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Template\Attribute;
-
-use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Markup;
 use Drupal\Component\Utility\Html;
 
 use Drupal\node\NodeInterface;
-use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
-use Drupal\image\Entity\ImageStyle;
-
 use Drupal\field\Entity\FieldConfig;
 
 use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
@@ -309,7 +299,7 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
         $build =  $this->renderImage($image, $config, $node);
       }
     }
-    
+
     return parent::build() + $build;
    
   }
@@ -458,13 +448,6 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
         
     $build['#config'] = $config;
 
-    $attributes = [
-      'id' => $id,
-      'class' => [
-        'relative'  
-      ]
-    ];
-    
     $attached['fixed_banners'][$id]['config'] = $config; 
     $build['#attached']['drupalSettings']['nk_tools'] = $attached;
         

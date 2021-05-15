@@ -19,7 +19,7 @@
 {# Both of the classes sets right below are mandatory, it's of course ok to add some more if needed #} 
 {%
   set collapsible_toggle_classes = [
-    'fs-1-25',
+    'fs-1-1',
     'pointer',
     'nk-tools-collapsible-toggle', 
   ]
@@ -66,11 +66,14 @@
             
               {%- if toggle_icon and not panel.is_link -%}
                 <div class="row between-xs middle-xs">
-                  {%- if toggle_icon_back -%}
-                    <i class="material-icons col-xs-1 icon-back {{ nk_tools.hidden_class }}">{{ toggle_icon_back }}</i>
-                  {% endif %}
+                  
                   <div class="pl-8 col-xs-9">{{ panel.label }}</div>
-                  <i class="material-icons toggle-icon end-xs">{{ toggle_icon }}</i>
+                  <i class="material-icons toggle-icon col-xs-1 end-xs">{{ toggle_icon }}</i>
+
+                  {%- if toggle_icon_back -%}
+                    <i class="material-icons icon-back col-xs-1 end-xs {{ nk_tools.hidden_class }}">{{ toggle_icon_back }}</i>
+                  {% endif %}
+
                 </div> 
               {%- else -%}
                 {%- if toggle_icon_back -%}

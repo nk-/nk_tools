@@ -40,6 +40,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\views\Views;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
+use Drupal\views\Entity\View;
 use Drupal\paragraphs\ParagraphInterface;
 
 
@@ -48,6 +49,7 @@ use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Serialization\Json;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -132,47 +134,101 @@ class NkToolsBase {
     return FieldPluginBase::trimText($params, $markup);
   }
 
-  /**
-   * Programmatically load an entity
-   *
-   * @param string $entity_type entity type we are loading (i.e. node, view, block)
-   * @param array $params array of entity specific params like ID, bundle etc.
-   * 
-   * @return array|object array of entity values or raw entity object
-   */
-  /*
-    public function getEntity($entity_type, array $params = []) {
+  public function renderAjaxArgumentsLinks(array $links, array $config, View $view, array $display, array $arguments = [], array $reset_link = []) {
 
-      // if (!$this->entity) {
+    $render = [];
+    $route = \Drupal::service('current_route_match');
+    $route_params = $route->getParameters()->all();
+        
+    foreach ($links as $delta => $link) {
 
-        switch ($entity_type) {
+      $link_arguments = $arguments;
+      $link_arguments[] = $link['key'];
 
-          case 'node':
-            $entity = $this->getNode($params);
-          break;
+      $link_attributes = [
+        'id' => 'button-' . $link['key'],
+        'data-id' => $link['key'],
+        'data-order' => $config['block_order'],
+        'data-view-id' => $view->id(),
+        'data-display-id' => $display['id'],
+        'data-args' => Json::encode($link_arguments),
+        'class' => [],
+      ];
 
-          case 'block': 
-            $render = isset($params['render']) ? $params['render'] : TRUE;
-            $empty = $render ? '' : [];
-            $block_type = isset($params['type']) ? $params['type'] : 'content';
-            $config = isset($params['config']) ? $params['config'] : [];
-            $entity = isset($params['id']) ? self::getBlock($params['id'], $block_type, $config, $render) : $empty; 
-          break;
-
-          case 'view':
-            $arguments = isset($params['args']) ? $params['args'] : [];
-            $viewId = isset($params['id']) ? $params['id'] : NULL;
-            $displayId = isset($params['display_id']) ? $params['display_id'] : 'default';
-            // For the moment this function always returns rendered markup
-            $entity = $viewId ? self::View($viewId, $displayId, $arguments) : ''; 
-          break;
-
+      if (!empty($config['view_trigger']) && !empty($config['view_trigger'][0])) {
+        $link_attributes['class'][] = str_replace('.', '', $config['view_trigger'][0]);
+      }
+          
+      if (!empty($arguments)) {
+        if (in_array($link['key'], $arguments)) { 
+          $link_attributes['class'][] = 'btn-active';
         }
-      //}
+      }
+      else {
+        if ($delta == 0) {
+          //$link_attributes['class'][] = 'btn-active';  
+        }
+      } 
+   
+      if (isset($display['display_options']['path'])) {
+        $href = !empty($arguments) ? '/' . $display['display_options']['path'] . '/' . implode('/', $link_arguments) : '/' . $display['display_options']['path'] . '/' . $link['key'];
+        $url = Url::fromUserInput($href, ['attributes' => $link_attributes]);
+      }
+      else {
+        
+        if (!empty($arguments)) {
+          foreach ($arguments as $index => $arg) {
+            $route_params['arg_' . $index] = $arg;
+          }
+        }
+        
+        if ($route->getRouteName()) {
+          if (!empty($arguments)) {
+            foreach ($arguments as $index => $arg) {
+              $route_params['arg_' . $index] = $arg;
+            }
+          }
+          $url = Url::fromRoute($route->getRouteName(), $route_params, ['attributes' => $link_attributes]);
+        }
+        else {
+          $url = Url::fromRoute('<current>', $route_params, ['attributes' => $link_attributes]);
+        }
+      }
 
-      return $entity;
+      $render[$delta]['url'] = $url;
+      $render[$delta]['uri'] = $url->toString();
+     
+      $render[$delta]['title'] = $link['label']; //Markup::create($link['label'] .'<i class="material-icons hidden fs-085 absolute ml-12 mt-4">close</i>'); 
+      $render[$delta]['link'] = $render[$delta]['url'] instanceof Url ? Link::fromTextAndUrl($render[$delta]['title'], $render[$delta]['url']) : NULL;
+      $render[$delta]['attributes'] = new Attribute($link_attributes);
     }
-  */
+    
+    if (!empty($reset_link) && isset($reset_link['view_id']) && isset($reset_link['display_id']) && isset($reset_link['uri'])) {
+      $reset_attributes = [
+        'id' => 'button-reset',
+        'data-id' => 'reset',
+        'data-view-id' => $reset_link['view_id'], //'faculties',
+        'data-display-id' => $reset_link['display_id'], //'page', '/faculty'
+        'data-args' => isset($reset_link['arguments']) ? Json::encode($reset_link['arguments']) : NULL,
+        'class' => isset($reset_link['class']) ? $reset_link['class'] : [], //['async-view-trigger']
+      ];
+
+      $reset_url = Url::fromUserInput($reset_link['uri'], ['attributes' => $reset_attributes]);
+      $reset_title = isset($reset_link['label']) && !empty($reset_link['label']) ? $reset_link['label'] : t('Reset');
+ 
+       $render['reset'] = [
+        'title' => $reset_title,
+        'link' => Link::fromTextAndUrl($reset_title, $reset_url),
+        'url' => $reset_url,
+        'uri' => $reset_url->toString(),
+        'attributes' => new Attribute($reset_attributes),
+      ];
+    }
+    
+    return $render;   
+  
+  }
+
   /**
    * Load node entity
    *
@@ -343,6 +399,62 @@ class NkToolsBase {
     return $form_element;
   }
 
+  public function renderTargetUi(array &$build, $config, array $toggle_attributes = [], array $pane_wrapper_attributes = [], string $default_theme = NULL) {
+  
+    if ($config['target']) { 
+
+      switch ($config['target']) {
+       
+        // Tabs front end UI
+        case 'tabs':
+          $build['#theme'] = 'nk_tools_tabs';
+          $build['#attached']['library'][] = 'nk_tools/tabs';
+        break;
+       
+        // Collapsible toggle front end UI
+        case 'panel':
+          $build['#theme'] = 'nk_tools_collapsible_pane';
+         
+          foreach ($build['#items'] as $delta => &$item) {
+            $item = [
+              'label' => isset($build['#labels'][$delta]) && !empty($build['#labels'][$delta]) ? $build['#labels'][$delta] : 'Toggle',
+              'content' => $item,  
+              'target' => isset($config['target_ui_id']) && !empty($config['target_ui_id']) ? 'panel-' . $config['target_ui_id'] . '-' . $delta : 'panel-' . $delta
+            ];
+          }
+         
+          $toggle_attributes_default = [ 
+            'data-icon' =>  !empty($config['icon']) ? $config['icon'] : NULL,
+            'data-icon-back' => !empty($config['icon_back']) ? $config['icon_back'] : NULL,
+            'data-target-in' => 'fadeIn',
+            'data-target-out' => 'fadeOut', 
+            'class' => [
+              'text-default-color',
+            ]
+          ];
+
+          $toggle_attributes = array_merge_recursive($toggle_attributes_default, $toggle_attributes);
+
+          $build['#toggle_attributes'] = new Attribute($toggle_attributes);  
+        
+          if (!empty($pane_wrapper_attributes)) {
+            $build['#pane_wrapper_attributes'] = new Attribute($pane_wrapper_attributes);
+          }
+
+        break;
+
+        // "Unformatted", default list of items
+        default:
+          $build['#theme'] = $default_theme ? $default_theme : 'nk_tools_items';
+        break;
+
+      }
+    }
+    else {
+      $build['#theme'] = 'nk_tools_items';
+    }
+
+  }
 
   public function renderViewFilter($view_id, $display_id, $render = FALSE, array &$data = []) {
 
@@ -1434,7 +1546,7 @@ class NkToolsBase {
   public function fieldRender(EntityInterface $entity, array $field, $view_mode = NULL, $is_file = NULL) {
 
     if ($entity->getType() == $field['bundle'] && $entity->hasField($field['field_name']) && !empty($entity->get($field['field_name'])->getValue())) {
-      //$render_value = [];
+
       $value_key = 'value';  
       $values = $entity->get($field['field_name'])->getValue();
 
@@ -1444,14 +1556,15 @@ class NkToolsBase {
         }
       }
 
-      $render = NULL;
       $render_value = NULL;
 
       if ($view_mode) {
         $display_value = EntityViewDisplay::collectRenderDisplay($entity, $view_mode)->getComponent($field['field_name']);
 
         if (is_array($display_value) && !empty($display_value)) {
-          $render_value = $this->renderer->renderRoot($entity->get($field['field_name'])->view($display_value));
+          $field_display = [];
+          $field_display[] = $entity->get($field['field_name'])->view($display_value);
+          $render_value = $this->renderer->renderRoot($field_display);
         } 
         // In case Display mode is set but field actually dosabled there this is a fallback
         // TODO: Send some message to user about this irregularity
@@ -1546,7 +1659,7 @@ class NkToolsBase {
 
             $options = [
               'attributes' => [
-                'download' => $file_properties['filename'][0]['value'],
+                //'download' => $file_properties['filename'][0]['value'],
                 'class' => isset($params['class']) ? $params['class'] : [],
               ],
             ];

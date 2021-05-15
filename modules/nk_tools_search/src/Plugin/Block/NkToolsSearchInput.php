@@ -99,15 +99,6 @@ class NkToolsSearchInput extends NkToolsBlockBase {
       '#default_value' => $config['placeholder'],
     ];
 
-/*
-    $form['search_layout']['icon'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Icon'),
-      '#description' => $this->t('Usage of <a href="https://material.io/resources/icons/" target="blank_">material icons </a>, can be any from that set.'), 
-      '#default_value' => $config['icon'],
-    ];
-*/
-
     $form['search_layout']['border'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Border'),

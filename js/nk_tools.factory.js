@@ -29,19 +29,6 @@
       }
     });
   };
-  
-  /*
-  $.fn.getBgImage = function(callback) {
-    var height = 0;
-    var path = $(this).css('background-image').replace('url', '').replace('(', '').replace(')', '').replace('"', '').replace('"', '');
-    var tempImg = $('<img />');
-    tempImg.hide(); // Hide image
-    tempImg.bind('load', callback);
-    $('body').append(tempImg); // Add to DOM before </body>
-    tempImg.attr('src', path);
-    $('#tempImg').remove(); // Remove from DOM
-  };
-  */
 
   $.event.special.asyncView = {
     show: function(element) {
@@ -53,10 +40,7 @@
     }
   };
 
-  // Custom "pip" event
-/*
-  $.event.special.pip = {
-    
+  $.event.special.bannerResize = {
     show: function(element) {
       return element;  
     },
@@ -65,18 +49,6 @@
       return element;
     }
   };
-*/
-   $.event.special.bannerResize = {
-    show: function(element) {
-      return element;  
-    },
-
-    hide: function(element) {
-      return element;
-    }
-  };
-
-
 
   // Custom event for nkTools search input element
   $.event.special.searchInput = {
@@ -90,6 +62,9 @@
     }
   };
 
+  // Define ajax commands object
+  //Drupal.AjaxCommands = Drupal.AjaxCommands || {};
+
   // Several main general features, always included and invoked 
   Drupal.behaviors.nkToolsFactory = {
     
@@ -99,46 +74,17 @@
 
       var layout_settings = drupalSettings.nk_tools && drupalSettings.nk_tools.layout ? drupalSettings.nk_tools.layout : null;
 
-      factory.smoothScroll.clickCallback();
-
-      factory.progressBar();
-
-      // Fix admin toolbar glitches with header (menu) and banner
-      if ($('#toolbar-administration').length) {
-
-        $('#toolbar-administration').find('.toolbar-icon-menu.trigger').once('toolbarOpenClicked').each(function () {
-           
-           $(this).on('click', function(event) {
-             if (!$('body').hasClass('toolbar-tray-open')) {
-               $('#before-main').css('margin-top', '39px');
-             }
-             else {
-               $('#before-main').css('margin-top', '76px');
-             }
-           });
-         }); 
-
-/*
-        $('#toolbar-administration').find('.toolbar-icon-toggle-vertical').once('toolbarVerticalClicked').each(function () {
-          $(this).on('click', function(event) {
-            //$('#before-main').css('top', '104px');
-//             $('#secondary-navigation').css('top', '0');
-            //console.log($(this));
-          });
+      $('.back-button').once('backButtonClick').each(function() {
+        $(this).on('click', function(event) {
+          factory.backButton(event);
+          return false;
         });
+      });
 
-        $('#toolbar-administration').find( '.toolbar-icon-toggle-horizontal').once('toolbarButtonClicked').each(function () {
-          $(this).on('click', function(event) {
-            //$('#before-main').css('top', '0');
-            //console.log($('#before-main'));
-//             $('#secondary-navigation').css('top', '0');
-          });
-        });
-*/
-      }
+    
+     factory.smoothScroll.clickCallback();
 
-
-      $('input.pane-trigger').once('paneTriggered').each(function(index, element) {  
+     $('input.pane-trigger').once('paneTriggered').each(function(index, element) {  
         
         $(this).on('change', function() {
 
@@ -211,19 +157,6 @@
             if (type !== 'radio' && type !== 'checkbox') {
               e.preventDefault();
             }
-/*
-
-            if ($(this).data('parent-toggle')) {
-              var parentToggle = $('#' + $(this).data('parent-toggle'));
-              console.log(parentToggle); 
-              parentToggle.unbind('click');
-              factory.dataTargetCallback($(this), context, settings);
-              parentToggle.bind('click');
-            }
-            else {
-              factory.dataTargetCallback($(this), context, settings);
-            }
-*/
             factory.dataTargetCallback($(this), context, settings);
           }
 
@@ -244,8 +177,6 @@
 
       $(document).on('lazyloaded', function(event) {
         $('.lazy-placeholder').addClass('loaded');
-        //event.index = factory.processSubtitles.data.index;
-        //factory.processSubtitles.show(event); 
       });
 
       var debounceInit = debounce(function() {
@@ -270,11 +201,9 @@
 
         $(this).on('keyup', function(event) {
           if ($(this).val()) {
-            //$(this).parent().addClass('active-form-item');
             $(this).addClass('active-form-item');
           }
           else {
-            //$(this).parent().removeClass('active-form-item'); 
             $(this).removeClass('active-form-item');
           }
         });
@@ -321,10 +250,20 @@
         factory.itemHover($(this)); 
       });
 
-      var offsetTrigger = 280;
-      var offsetTop = 0;
      
+
+      var secondaryTop = $('#secondary-navigation').offset().top;
+      var secondaryHeight = $('#secondary-navigation').height();
+      var navbarHeight = $('#navbar').height();
+      var navbarTop = $('#navbar').offset().top;
+      var secondaryTop = $('#secondary-navigation').offset().top;
+      var secondaryHeight = $('#secondary-navigation').height();
+      var toolbar = $('#toolbar-bar');
+      var offset = $('#toolbar-bar').length ? 87 : 48;
+      
       $(window).on("scroll resize scrollstop", function(event) { 
+    
+        // Process animated subtitles items
         var elements = $('.' +  factory.processSubtitles.data.element);
         if (elements.length) {
           elements.each(function(index, element) {
@@ -340,6 +279,8 @@
           });
         }
  
+        var offsetTrigger = 280;
+        var offsetTop = 0;
         $('.bg-fixed').each(function() { 
           var element = $(this);
 
@@ -363,47 +304,73 @@
 
   Drupal.nkToolsFactory = {
  
-    progressBar: function() {
+    progressBar: function(offset) {
       var progressBar = $('progress');
 
       if (progressBar.length) {
         var winHeight = $(window).height(); 
         var docHeight = $(document).height();
-      
-        var max, value;
-
-        /* Set the max scrollable area */
-        max = docHeight - winHeight;
+        
+        // Set the max scrollable area
+        var max = offset ? docHeight - winHeight + offset : docHeight - winHeight;
         progressBar.attr('max', max);
 
-        $(document).on('scroll', function() {
+        var value;
+        $(window).on('scroll', function() {
           value = $(window).scrollTop();
           progressBar.attr('value', value);
         });
       }
     },
-    
-    setViewArgument: function(value, data) {
-      if (drupalSettings.views && drupalSettings.views.ajaxViews) {
-        $.each(drupalSettings.views.ajaxViews, function(view_id, params) {
-          if (data.view_id === params.view_name && data.display_id === params.view_display_id) {
-            drupalSettings.views.ajaxViews[view_id].view_args = value;
-          }  
-        });
+
+    backButton: function(event) {
+      
+      if ('referrer' in document) {
+        //window.location = $(event.currentTarget).attr('href'); //document.referrer;
+        /* OR */
+        if (window.history.length < 3) {
+          var href = $(event.currentTarget).attr('href');
+          if (href) {
+            window.location.replace(href);
+          }
+          else {
+             window.history.back();
+          } 
+        }
+        else {
+          window.location.replace(document.referrer);
+        }
       }
+      else {
+        
+        window.history.back();
+      }
+    },
+
+    setAsyncUrl: function(href) {
+      
+      // Update url
+      window.historyInitiated = true;
+      window.history.pushState(null, document.title, href);
+
+      window.addEventListener("popstate", function(e) {
+        if (window.historyInitiated) {
+          window.location.reload();
+        }
+      });
     },
 
     dataTargetCallback: function(trigger, context, settings) {
       var self = this;
       if (trigger.data('target')) {
 
-        var target = $('#' + trigger.data('target'));
+        var target = trigger.parent().find('#' + trigger.data('target')); // We go one level up because there may be multiple elements/block with the same target
+
+        if (!target.length) { // Still sometimes this is not a case so try "general" targetting per id
+          target = $(context).find('#' + trigger.data('target'));
+        }
 
         if (target.length) {
-
-          console.log(target);
-
-
 
           var sliding = trigger.data('sliding') ? trigger.data('sliding') : null;
           var parentAnimationOut = trigger.data('parent-out') ? trigger.data('parent-out') : null;
@@ -469,7 +436,7 @@
             var iconBack = trigger.find('.icon-back');
             if (iconBack.length) {
             
-              //iconBack.toggleClass(nkToolsLayout.hidden_class);
+              iconBack.toggleClass(nkToolsLayout.hidden_class);
                   
               if (trigger.find('.toggle-icon').length) {
                 trigger.find('.toggle-icon').toggleClass(nkToolsLayout.hidden_class);
@@ -1021,41 +988,6 @@
       });
     },
 
-    ajaxView: function(event, viewsSettings, block, args, progress) { 
-
-      var self = this;
-      var ajaxPath = viewsSettings.ajax_path;
-      var viewData = block.view;
-
-      if (args) {
-        viewData.view_args = args; 
-      }
-      
-      var queryString = self.processQuery(ajaxPath);
-      
-      if (viewData.filters) { //if ($(this).attr('data-filters')) {
-        queryString += queryString.length ? '&' + viewData.filters : '?' + viewData.filters;
-      }
- 
-      // Ajax action params
-      var ajax_settings = {
-        url: ajaxPath + queryString,
-        submit: viewData,
-        progress: progress ? progress : { type: 'fullscreen' }
-      };
-
-      Drupal.ajax(ajax_settings).execute().done(function(comands, statusString, ajaxObject) {
-        // After having initialized the Leaflet Map and added features, allow other modules to get access to it via trigger
-        //var view = $('.js-view-dom-id-' + viewData.view_dom_id); 
-        var view = Drupal.views.instances['views_dom_id:' + viewData.view_dom_id];
-        Drupal.attachBehaviors(view.$view[0]);
-
-        // Emit a custom event now so further processing can happen anywhere with a listener
-        $(document).trigger('asyncView', {event: event, block: block, loaded: false, comands: comands, statusString: statusString, ajaxObject: ajaxObject, view: view});
-      });
-
-    },
-
     videoPip: function(wrapper, container, offset, op) {
       var self = this;
       
@@ -1068,7 +1000,6 @@
       if (op === 'off') {
         pipClose.addClass('hidden');
                
-        //container.addClass('fadeOut');
         // Emit this event now for other objects to have access 
         $(document).trigger('special.bannerResize', [{ parent: wrapper, container: container, op: 'hide'}]);
         container.removeClass('pip');
@@ -1085,8 +1016,7 @@
         var top = container.parent().offset().top + container.parent().height();
 
         //var pipClose = container.find('.pip-close');
-        //console.log(top, offset);
-
+       
         if (top && window.pageYOffset > (top + offset) ) {  
           
            
@@ -1132,7 +1062,6 @@
                
             // Emit this event now for other objects to have access 
             //$(document).trigger('special.bannerResize', [{ parent: wrapper, container: container, op: 'hide'}]);
-
             container.removeClass('pip');
           } 
 

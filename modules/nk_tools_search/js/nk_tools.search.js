@@ -12,7 +12,7 @@
     attach: function(context, settings) { 
 
       var self = this;
-
+      
       var nk_tools_search_inputs = settings.nk_tools_search ? settings.nk_tools_search : null;
       var nk_tools = settings.nk_tools ? settings.nk_tools : {};
           
@@ -69,11 +69,12 @@
               var queryName = nk_tools_search.view_filter || null;
               var config = nk_tools_search.config || {};
 
-              if (queryName && viewPath && nk_tools_search.target) {
+              if (nk_tools_search.target) { //queryName && viewPath && 
               
                 $(context).find(nk_tools_search.target).once('searchPageLand').each(function() { 
 
                   var input = $(this);
+
                   var icon =  input.next().find('i');
                   var alterIcon = icon.data('icon-alter') ? icon.data('icon-alter') : 'forward';
 
@@ -119,9 +120,43 @@
                       self.toggleCallback($(event.currentTarget), input, icon, viewPath, queryName, nk_tools, nk_tools_search);
                       return false; 
                     });
+
+                    $(window).on('load resize', function(event) {
+                      if (input.is(':visible')) { 
+                        if ($(window).width() < 1024) {
+                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                        } 
+                      }
+                      else {
+                        if ($(window).width() > 1023) {
+                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                        } 
+                      }
+                    }); 
+
+                    
+                    $(window).once('onceScroll').on("scroll", function(event) {                
+                      if ($('#page').hasClass('sticky')) {
+                        if (input.is(':visible')) {
+                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                        }
+                      }
+                      else {
+                        if ($(window).width() > 1023 && input.is(':hidden')) {
+                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                        }
+                      }
+                    }); 
+
                   }
+
+             
+
                 });    
-              
+                
+                
+
+
               }
 
             break;
@@ -177,8 +212,6 @@
 
       if (input.is(':hidden')) { // && config.collapsed) {
         
-        // console.log(input);
-
         // Show search input
         if (nk_tools.layout && nk_tools.layout.hidden_class && input.hasClass(nk_tools.layout.hidden_class)) {
           input.removeClass(nk_tools.layout.hidden_class);      

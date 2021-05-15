@@ -48,6 +48,24 @@ nk_tools_factory:
     - core/drupalSettings
     - core/drupal.debounce
 
+nk_tools_factory_layout:
+  version: VERSION
+  js: 
+    js/nk_tools.factory.layout.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce
+
+nk_tools_factory_ajax:
+  version: VERSION
+  js: 
+    js/nk_tools.factory.ajax.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce
+
 fixed_banner:
   version: VERSION
   js:

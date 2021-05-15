@@ -66,8 +66,15 @@ class NkToolsBlockFields extends Details {
     $element['hide_mobile'] = [
       '#type' => 'checkbox',
       '#title' => t('Do not display on mobile'),
-      '#description' => t('It ends up on just a single CSS rule eventually.'), 
+      '#description' => t('It ends up on just a single CSS class eventually.'), 
       '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['hide_mobile']) ? $element['#default_value']['hide_mobile'] : NULL, 
+    ];
+
+    $element['hide_desktop'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Do not display on desktop'),
+      '#description' => t('It ends up on just a single CSS class eventually.'), 
+      '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['hide_desktop']) ? $element['#default_value']['hide_desktop'] : NULL, 
     ];
 
     $element['hide_init'] = [
@@ -108,6 +115,29 @@ class NkToolsBlockFields extends Details {
       '#title' => t('Icon'),
       '#description' => t('Any icon you could use in twig template. Provided are <a href="https://material.io/resources/icons/" target="blank_">material icons </a>, can be any icon name from that set.'),
       '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['icon']) ? $element['#default_value']['icon'] : NULL,
+    ];
+
+    $element['icon_back'] = [
+      '#type' => 'textfield',
+      '#title' => t('Icon close'),
+      '#description' => t('Any icon you could use in twig template for toggle-off like state, to hide-again when toggle content is visible. Provided the same same as for the above, main icon.'),
+      '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['icon_back']) ? $element['#default_value']['icon_back'] : NULL,
+    ];
+  
+    $element['target'] = [
+      '#type' => 'radios',
+      '#title' => t('Theme'),
+      '#description' => t('<em>Unformatted</em> is just linear, <em>Tabs</em> are minimal lines in CSS, <em>Collapsible Panel</em> is based on main theme\'s implementation'),
+      '#default_value' => isset($element['#default_value']) && isset($element['#default_value']['target']) ? $element['#default_value']['target'] : 'none',
+      //'#required' => TRUE,
+      '#attributes' => [
+        'id' => 'target-ui-target'
+      ], 
+      '#options' => [
+        'none' => t('Unformatted'),
+        'tabs' => t('Tabs'),
+        'panel' => t('Collapsible Panel'),
+      ],
     ];
 
     return $element;

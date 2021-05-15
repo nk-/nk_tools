@@ -3,7 +3,6 @@
 namespace Drupal\nk_tools\Plugin\Block;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Markup;
 
 use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
 
@@ -75,8 +74,6 @@ class NkToolsBasicBlock extends NkToolsBlockBase {
     
         //$is_node = $route->getParameters()->has('node') ? $route->getParameter('node') : NULL;
         //$view_id = $route->getParameters()->has('view_id') ? $route->getParameter('view_id') : NULL;
-        ksm($this->currentRoute); 
-
 
         if ($node = $route->getParameter('node')) {
           $paragraphs = [];
@@ -87,26 +84,20 @@ class NkToolsBasicBlock extends NkToolsBlockBase {
               'teaser' => isset($variables[3]) && !empty($variables[3]) ? $variables[3] : NULL,
             ]; 
           }
-          elseif (count($variables) == 2) {
-             $paragraphs[$variables[1]] = [
-               'title' => 'Link'
-             ];
+          else if (count($variables) == 2) {
+            $paragraphs[$variables[1]] = [
+              'title' => 'Link'
+            ];
           }
-          else {
-
-          }
-         //$nk_tools_factory = \Drupal::service('nk_tools.main_service');
-         $build['content'] = $this->nkToolsFactory->paragraphLinks($node, $paragraphs);
-      }
-      else {
-        $build['content'] = ['#markup' => $config['block_content']['value']];
-      }
-
-    }
-    else {
-      $build['content'] = ['#markup' => $config['block_content']['value']];
-    }
-
+          $build['content'] = $this->nkToolsFactory->paragraphLinks($node, $paragraphs);
+        }
+        else {
+          $build['content'] = ['#markup' => $config['block_content']['value']];
+        }
+     }
+     else {
+       $build['content'] = ['#markup' => $config['block_content']['value']];
+     }
    }
    else { // Just render content from long text field
      $build['content'] = ['#markup' => $config['block_content']['value']];

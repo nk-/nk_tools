@@ -5,9 +5,12 @@ namespace Drupal\nk_tools\Plugin\Block;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Form\SubformStateInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\Element\EntityAutocomplete;
+use Drupal\Core\Render\Element;
+
+use Drupal\Component\Utility\NestedArray;
 
 use Drupal\node\NodeInterface;
 use Drupal\paragraphs\ParagraphInterface;
@@ -24,30 +27,27 @@ use Drupal\nk_tools\Plugin\Block\NkToolsBlockBase;
  * )
  */
 class NkToolsMultiBlock extends NkToolsBlockBase {
-
+  
+  protected $number = 1;
 
   /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
     return [
-      
-      'icon_back' => NULL,
-      'target' => NULL,
      
       'node_current' => NULL,
-      'node_current_display',
-      'node_current_ui_label' => NULL,
-      'node_current_single' => NULL,
-      'node_current_delta' => NULL,
-
+      'node_current_bundle' => NULL,
+   
       'node_reference' => NULL,
+      'node_format' => NULL,
       'node_display' => NULL,
       'node_ui_label' => NULL,
       'node_single' => NULL,
       'node_delta' => NULL,
       
       'field_reference' => NULL,
+      'field_format' => NULL,
       'field_display' => NULL,
       'image_style' => NULL,
       'field_ui_label' => NULL,
@@ -62,6 +62,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       'view_delta' => NULL,
       
       'paragraph_reference' => NULL,
+      'paragraph_format' => NULL,
       'paragraph_single' => NULL,
       'paragraph_display' => NULL,
       'paragraph_ui_label' => NULL,
@@ -82,114 +83,154 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     $form = parent::blockForm($form, $form_state);
     $config = $this->getConfiguration();
 
-    $form['nk_tools_fields']['icon_back'] = [
-      '#type' => 'textfield',
-      '#title' => t('Icon close'),
-      '#description' => t('Any icon you could use in twig template for toggle-off like state, to hide-again when toggle content is visible. Provided the same same as for the above, main icon.'),
-      '#default_value' => $config['icon_back'],
-      '#weight' => 10
-    ];
+    $values = $this->getCurrentFormState($form_state);
 
-    $form['target_ui'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Entity or entities to render'),
-      '#description' => $this->t('Choose a target entity, or fields, to load as a primary content of this block.'),
-      '#open' => TRUE, 
-    ];
-
-    $form['target_ui']['target'] = [
-      '#type' => 'radios',
-      '#title' => $this->t('Target UI'),
-      '#description' => $this->t('<em>Unformatted</em> is just linear, <em>Tabs</em> are minimal lines in CSS, <em>Collapsible Panel</em> is based on main theme\'s implementation'),
-      '#default_value' => $config['target'], // $config->get('entity_load')['entities'],
-      '#required' => TRUE,
-      '#attributes' => [
-        'id' => 'target-ui-target'
-      ], 
-      '#options' => [
-        'none' => $this->t('Unformatted'),
-        'tabs' => $this->t('Tabs'),
-        'panel' => $this->t('Collapsible Panel'),
-      ],
-    ];
-
-    $referenced_nodes = [];
-   
-    if (is_array($config['node_reference']) && !empty($config['node_reference'][0])) {
-      foreach ($config['node_reference'] as $delta => $reference) {
-        if (isset($reference['target_id']) && !empty($reference['target_id'])) {
-           $referenced_nodes[$delta] = $this->nkToolsFactory->getNode(['id' => $reference['target_id']]);
-        }
-      }
-    }
+    // Disable caching on this form.
+    $form_state->setCached(FALSE);
 
     // Nodes
+    $this->nodeElement($form, $form_state, $values, $config);
+   
+    // Fields
+    $this->fieldElement($form, $form_state, $values, $config);
+
+    // Views
+    $this->viewElement($form, $form_state, $values, $config);
+    foreach (Element::children($form['view']) as $view_delta) {
+      
+      if (is_numeric($view_delta)) {
+        $view_entity_data = [
+          'key' => 'view',
+          'displays' => FALSE,
+          'label' =>  $this->t('View'),
+        ];
+
+        $view_children = $this->generateChildren($view_entity_data, $config, $view_delta);
+        $form['view'][$view_delta] += $view_children;
+      }
+    }
+  
+    // Paragraph
+    $this->paragraphElement($form, $form_state, $values, $config);
+
+    // A Webform reference
+    $this->webformElement($form, $form_state, $values, $config);
+
+    return $form;
+  }
+ 
+  /**
+   * Node element building method.
+   */
+  protected function nodeElement(array &$form, FormStateInterface $form_state, array $values, array $config) {
+  
     $form['node'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Reference node'),
-      '#open' => TRUE,
-     ];
+      '#attributes' => [
+        'id' => 'nk-tools-ajax-wrapper-node'
+      ] 
+    ];
 
+    $node_current_default_value = isset($values['node']['node_current']) && $values['node']['node_current'] !== NULL ? $values['node']['node_current'] : $config['node_current'];
+    
     $form['node']['node_current'] = [
       '#type' => 'checkbox', 
       '#title' => $this->t('Render current node. From current route (page)'),
       '#description' => $this->t('May be a weird case when we want to repeat the current node on which page we are, but can be with a different view mode'),
-      '#default_value' => $config['node_current']
+      '#default_value' => $node_current_default_value,
+      '#ajax' => [
+        'event' => 'change',
+        'callback' => [get_class($this), 'ajaxCallback'],
+        'effect' => 'fade',
+        'wrapper' => 'nk-tools-ajax-wrapper-node',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => t('Verifying entry...'),
+        ],
+      ],
     ];
+    
+    if ($node_current_default_value) {
 
-    if ($config['node_current'] && $config['node_current']) {
-      $node_current_entity_data = [
-        'key' => 'node_current',
-        'bundle' => 'course',
-        'label' =>  $this->t('Node'),
+      $node_bundles = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
+      $node_bundles_options = [];
+      foreach ($node_bundles as $node_bundle_key => $node_bundle) {
+        $node_bundles_options[$node_bundle_key] = $node_bundle->label();
+      }
+
+      $node_current_bundle_default_value = $this->getCurrentValues($values, 'node', $config, 'current_bundle');
+
+      $form['node']['node_current_bundle'] = [
+        '#title'  => $this->t('Current node bundle'),
+        '#description' => $this->t('Define a bundle (content type) for such current node.'),
+        '#type' => 'select',
+        '#options' => $node_bundles_options,
+        //'#weight' => 1,
+        '#empty_option' => t('- Select bundle -'),
+        '#default_value' => $node_current_bundle_default_value,
+        '#ajax' => [
+          'event' => 'change',
+          'callback' => [get_class($this), 'ajaxCallback'],
+          'effect' => 'fade',
+          'wrapper' => 'nk-tools-ajax-wrapper-node',
+          'progress' => [
+            'type' => 'throbber',
+            'message' => t('Verifying entry...'),
+          ],
+        ],
       ];
-      $node_current_children = $this->generateChildren($node_current_entity_data, $config);
-      $form['node'] += $node_current_children;
+
+      if ($node_current_bundle_default_value) {
+        $node_current_entity_data = [
+          'key' => 'node',
+          'bundle' => $node_current_bundle_default_value,
+          'label' =>  $this->t('Node'),
+        ];
+        $node_current_children = $this->generateChildren($node_current_entity_data, $config);
+        $form['node'] += $node_current_children;
+      }
     }
 
-    $form['node']['node_reference'] = [
-      //'#disabled' => TRUE,
-      '#tags' => TRUE,
-      '#multiple' => TRUE,
-      '#maxlength' => '2048',
-      '#title'  => $this->t('Node title'),
-      '#description' => $this->t('A title of a specific Node that we want to load as a content for this block. Do NOT combine with a previous checkbox.'),
-      '#type' => 'entity_autocomplete',
-      '#target_type' => 'node',
-      '#default_value' => $referenced_nodes, // The #default_value can be either an entity object or an array of entity objects.
-      '#attributes' => [
-        'id' => 'nk-tools-node-reference'
-      ], 
-      //'#selection_settings' => [
-        //'target_bundles' => [],
-      //],
-    ];
+    else {
+      $node_default_value = $this->processDefaultValue($form, $values, 'node', $config);
 
-    if (isset($referenced_nodes[0]) && $referenced_nodes[0] instanceof NodeInterface) {
-
-      $node_entity_data = [
-        'key' => 'node',
-        'bundle' => $referenced_nodes[0]->getType(),
-        'label' =>  $this->t('Node'),
+      $form['node']['node_reference'] = [
+        //'#disabled' => TRUE,
+        '#tags' => TRUE,
+        '#multiple' => TRUE,
+        '#maxlength' => '2048',
+        '#title'  => $this->t('Node title'),
+        '#description' => $this->t('A title of a specific Node that we want to load as a content for this block. Do NOT combine with a previous checkbox.'),
+        '#type' => 'entity_autocomplete',
+        '#target_type' => 'node',
+        '#default_value' => $node_default_value, // The #default_value can be either an entity object or an array of entity objects.
+        '#attributes' => [
+          'id' => 'nk-tools-node-reference' 
+        ], 
+        //'#selection_settings' => [
+          //'target_bundles' => [],
+        //],
       ];
-
-      $node_children = $this->generateChildren($node_entity_data, $config);
-      $form['node'] += $node_children;
     }
+  }
 
-    // Fields
-    $fields_data = $this->getBundle($config['field_reference']);
-    // Obviously we cannot support multiple (comma separated) list of fields to have unique view mode set for each, hence we consider the first field set as relevant
-    $field_data = reset($fields_data);
+  /**
+   * Field element building method.
+   */
+  protected function fieldElement(array &$form, FormStateInterface $form_state, array $values, array $config) {
 
     $form['field'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Reference field(s)'),
       '#open' => TRUE,
-      '#attributes' => []    
+      '#attributes' => [
+        'id' => 'nk-tools-ajax-wrapper-field'
+      ]    
     ];
 
-    $fields = $this->nkToolsFactory->elementFieldReference($config['field_reference']);
+    $field_reference = $this->getCurrentValues($values, 'field', $config);
+    $fields = $this->nkToolsFactory->elementFieldReference($field_reference);
      
     $form['field']['field_reference'] = [
       '#title' => t('Field(s) to render'),
@@ -202,109 +243,93 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       '#maxlength' => '2048',
       '#attributes' => [
         'id' => 'nk-tools-field-reference'
-      ] 
+      ],
     ];
      
-    //$field_renders  = $this->entityDisplayRepository->collectRenderDisplay($node, 'default')->getComponent('field_images');
-    $field_displays = $this->entityDisplayRepository->getViewModeOptionsByBundle($field_data['entity_type'], $field_data['bundle']);    
-
-    $field_entity_data = [
-      'key' => 'field',
-      'bundle' => $field_data['bundle'],
-      'label' =>  $this->t('Field'),
-      'empty_option' => $this->t('- None -'),
-      'displays' => $field_displays
-    ];
-
-    $field_children = $this->generateChildren($field_entity_data, $config);
-
-    $form['field'] += $field_children;
-
-    // This is sort of special addition to fields (in case of image - stil to test)
-    $form['field']['image_style'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Image style'),
-      '#description' => $this->t('Choose an image style preset if any of selected fields is Image. Note this applies <strong>only</strong> if Display mode is not selected above.'), 
-      '#options' => image_style_options(),
-      '#default_value' => $config['image_style'], 
+    $form['field']['field_format'] = [
+      '#type' => 'radios',
+      '#title' => t('Display format'),
+      '#description' => t('Select output formatting for this field. Obviously "Image style" or similar option would apply only on image type of field. However, for image type of field you can also opt for View mode instead of image style and set things there on view mode config for that entity type'),
+      '#default_value' => $config['field_format'],
+      '#options' => [
+        'display' => t('Entity View display'),
+        'image' => t('Image style') 
+      ], 
       '#states' => [ // @see https://www.drupal.org/docs/8/api/form-api/conditional-form-fields
         'visible' => [
           ':input[id="nk-tools-field-reference"]' => ['filled' => TRUE],
         ],
       ],
+      '#ajax' => [
+        'event' => 'change', //'autocompleteclose',
+        'callback' => [get_class($this), 'ajaxCallback'],
+        'effect' => 'fade',
+        'wrapper' => 'nk-tools-ajax-wrapper-field',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => t('Verifying entry...'),
+        ],
+      ],
     ];
 
-    // View 
-    $view_id = NULL;
-    $view = NULL;
-    $view_storage = $this->entityTypeManager->getStorage('view');
- 
-    // Check current form state values (if coming from ajax or not) 
-    if ($form_state instanceof SubformStateInterface) {
-      $values = $form_state->getCompleteFormState()->getValues();
-    }
-    else {
-      $values = $form_state->getValues();
-    }
+    $fields_data = $field_reference ? $this->getBundle($field_reference) : NULL;
 
-    if (isset($values['settings']) && isset($values['settings']['view']) && !empty($values['settings']['view'])) {
-      $view_id =  isset($values['settings']['view']['view_id']) ? $values['settings']['view']['view_id'] : NULL;  
-    }
-    else {
-      if (isset($values['view']) && !empty($values['view'])) {
-        $view_id = isset($values['view']['view_id']) ? $values['view']['view_id'] : NULL;
+    // Obviously we cannot support multiple (comma separated) list of fields to have unique view mode set for each, hence we consider the first field set as relevant
+    $field_data = is_array($fields_data) && !empty($fields_data) ? reset($fields_data) : [];
+
+    $field_displays = !empty($field_data) ? $this->entityDisplayRepository->getViewModeOptionsByBundle($field_data['entity_type'], $field_data['bundle']) : [];    
+
+    if (is_array($field_data) && isset($field_data['bundle'])) {
+
+      $field_entity_data = [
+        'key' => 'field',
+        'bundle' => isset($field_data['bundle']) ? $field_data['bundle'] : NULL,
+        'label' =>  $this->t('Field'),
+        'empty_option' => $this->t('- None -'),
+        'displays' => $field_displays
+      ];
+
+      if ($field_entity_data['bundle']) {
+        
+        $format = isset($values['field']['field_format']) && !empty($values['field']['field_format']) ? $values['field']['field_format'] : NULL;
+        $field_children = $this->generateChildren($field_entity_data, $config);
+
+        // This is sort of special addition to fields (in case of image - stil to test)
+        if ($format == 'image') {
+          unset($field_children['field_display']);
+
+          $form['field']['image_style'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Image style'),
+            '#description' => $this->t('Choose an image style preset if any of selected fields is Image. Note this applies <strong>only</strong> if Display mode is not selected above.'), 
+            '#options' => image_style_options(),
+            '#default_value' => $config['image_style'], 
+          ];
+        }
+
+        $form['field'] += $field_children;
       } 
     }
 
-    if ($view_id) {
-      $view = is_object($view_id) ? $view_id : $view_storage->load($view_id);
-    }
-    else {
-      $view_id = isset($config['view_id']) && !empty($config['view_id']) ? $config['view_id'] : NULL;
-      $view = $view_id ? $view_storage->load($view_id) : NULL;
-    }
-  
-    // Custom composite element
-    $form['view'] = [ 
-      '#type' => 'nk_tools_views_reference',
-      '#title' => $this->t('Reference a View'),
-      //'#description' =>  $this->t('Here we choose a View that will serve a route with search result'),
-      //'#disabled' => TRUE,
-      '#default_value' => [
-        'view_id' => $view_id,
-        'display' => [
-          'display_id' => $config['display_id'],
-          'argument' => $config['argument'],
-          'filter' => $config['filter'],
-        ]
-      ],
-    ];
+  }
+
+  /**
+   * Paragraph element building method.
+   */
+  protected function paragraphElement(array &$form, FormStateInterface $form_state, array $values, array $config) {
     
-    $view_entity_data = [
-      'key' => 'view',
-      'displays' => FALSE,
-      'label' =>  $this->t('View'),
-    ];
 
-    $view_children = $this->generateChildren($view_entity_data, $config);
-    $form['view'] += $view_children;
-
-    // Paragraph
     $form['paragraph'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Reference Paragraph(s)'),
+      '#attributes' => [
+        'id' => 'nk-tools-ajax-wrapper-paragraph'
+      ]   
     ];  
     
     if ($this->moduleHandler->moduleExists('paragraphs')) {
 
-      $referenced_paragraphs = [];
-      if (is_array($config['paragraph_reference']) && !empty($config['paragraph_reference'][0])) {
-        foreach ($config['paragraph_reference'] as $delta => $reference) {
-          if (isset($reference['target_id']) && !empty($reference['target_id'])) {
-           $referenced_paragraphs[$delta] = $this->entityTypeManager->getStorage('paragraph')->load($reference['target_id']);
-          }
-        }
-      }
+      $paragraph_default_value = $this->processDefaultValue($form, $values, 'paragraph', $config);
 
       $form['paragraph']['paragraph_reference'] = [
         '#type' => 'entity_autocomplete',
@@ -312,9 +337,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         '#target_type' => 'paragraph',
        // '#selection_handler' => 'default:paragraph',
         '#maxlength' => '2048',
-        '#default_value' => NULL,
         '#tags' => TRUE,
-        '#default_value' => $referenced_paragraphs, // The #default_value can be either an entity object or an array of entity objects.
+        // The #default_value can be either an entity object or an array of entity objects.
+        '#default_value' => $paragraph_default_value,
         '#multiple' => TRUE,
         '#attributes' => [
           'id' => 'nk-tools-paragraph-reference'
@@ -334,24 +359,18 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         ]
         */
       ];
-      
-      if (isset($referenced_paragraphs[0]) && $referenced_paragraphs[0] instanceof ParagraphInterface) {
-        $paragraph_entity_data = [
-          'key' => 'paragraph',
-          'bundle' => $referenced_paragraphs[0]->getType(),
-          'label' =>  $this->t('Paragraph'),
-        ];
-
-        $paragraph_children = $this->generateChildren($paragraph_entity_data, $config);
-        $form['paragraph'] += $paragraph_children;
-      }
 
     }
     else {
       $form['paragraph']['#description'] = Markup::create('<div class="messages messages--warning">Paragraps module is not enabled</div>');
     }
+  }
+  
+  /**
+   * Webform element building method.
+   */
+  protected function webformElement(array &$form, FormStateInterface $form_state, array $values, array $config) {
 
-    // A Webform reference
     $form['webform'] = [ 
       '#type' => 'fieldset',
       '#title' => $this->t('Reference webform'),
@@ -359,12 +378,13 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     ];
     
     if ($this->moduleHandler->moduleExists('webform')) {
+      $webform_default_value = $this->entityTypeManager->getStorage('webform')->load($this->configuration['webform_reference']);
       $form['webform']['webform_reference'] = [
         '#title' => $this->t('Webform'),
         '#type' => 'entity_autocomplete',
         '#target_type' => 'webform',
         //'#required' => TRUE,
-        '#default_value' => $this->getWebform(),
+        '#default_value' => $webform_default_value, //$this->getWebform(),
       ];
 
       $webform_entity_data = [
@@ -375,16 +395,10 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
 
       $webform_children = $this->generateChildren($webform_entity_data, $config);
       $form['webform'] += $webform_children;
-
-
     }
     else {
       $form['webform']['#description'] = Markup::create('<div class="messages messages--warning">Webform module is not enabled</div>');
     }
- 
-    // $form_state->setCached(FALSE);
-
-    return $form;
   }
 
   /**
@@ -395,15 +409,15 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     parent::blockSubmit($form, $form_state);
 
     $values = $form_state->getValues();
-   
-    $this->configuration['icon_back'] = $values['nk_tools_fields']['icon_back'];
-    $this->configuration['target'] = $values['target_ui']['target'];
+
+    //$this->configuration['icon_back'] = $values['nk_tools_fields']['icon_back'];
+    //$this->configuration['target'] = $values['target_ui']['target'];
 
     // Nodes
     if (isset($values['node'])) { // && isset($values['node']['node_reference']) && !empty($values['node']['node_reference'])) {
       foreach ($values['node'] as $node_key => $node_value) {
         $this->configuration[$node_key] = $node_value;
-      }   
+      }
     }
 
     // Fields
@@ -414,30 +428,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     }
 
     // View
-    if (isset($values['view']) && isset($values['view']['view_id']) && !empty($values['view']['view_id'])) {
-      foreach ($values['view'] as $view_key => $view_value) {
-        if (is_array($view_value) && !empty($view_value)) {
-          foreach ($view_value as $property_id => $property) {
-            $this->configuration[$property_id] = $property;
-          } 
-        }
-        else {
-          $this->configuration[$view_key] = $view_value;
-        }
-      }   
-    }
-    else {
-      foreach ($values['view'] as $view_key => $view_value) {
-        if (is_array($view_value) && !empty($view_value)) {
-          foreach ($view_value as $property_id => $property) {
-            $this->configuration[$property_id] = NULL;
-          } 
-        }
-        else {
-          $this->configuration[$view_key] = NULL;
-        }
-      }
-    }
+    $this->viewElementSubmit($values);
  
     // Paragraph
     if (isset($values['paragraph']) && isset($values['paragraph']['paragraph_reference']) && !empty($values['paragraph']['paragraph_reference'])) {
@@ -457,7 +448,6 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         $this->configuration[$webform_key] = $webform;
       }   
     }
-
   }
 
   /**
@@ -474,9 +464,15 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     $node = $this->nkToolsFactory->getNode([]);
 
     // Nodes
-    if ($config['node_current'] && $node instanceof NodeInterface) {
-      $view_mode = isset($config['node_current_display']) ? $config['node_current_display'] : 'default';
-      $items[] = $this->entityTypeManager->getViewBuilder('node')->view($node, $view_mode);
+    if ($config['node_current']) {
+      if ($node instanceof NodeInterface) {
+        $view_mode = isset($config['node_display']) ? $config['node_display'] : 'default';
+        $items[] = $this->entityTypeManager->getViewBuilder('node')->view($node, $view_mode);
+        $labels[] = isset($config['node_ui_label']) && !empty($config['node_ui_label']) ? $config['node_ui_label'] : $this->t('Current node');  
+      }
+      else {
+        \Drupal::service('messenger')->addWarning($this->t('You have "Render current node" set in block "Multi block (Nk tools)" config. However, this is not a node page so no item can be shown.'));
+      }
     }
     else {
   
@@ -515,10 +511,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       }
     }
 
-
     // Fields
-    $fields = $this->getBundle($config['field_reference']);
-    
+    $fields = $config['field_reference'] ? $this->getBundle($config['field_reference']) : [];
+
     if (!empty($fields)) {
       
       $fields_delta = isset($config['field_delta']) && is_numeric($config['field_delta']) ? $config['field_delta'] : count($items);
@@ -575,10 +570,14 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
    
     // View
     if (!empty($config['view_id']) && !empty($config['display_id'])) {
-      $views_delta = isset($config['view_delta']) && is_numeric($config['view_delta']) ? $config['view_delta'] : count($items);
-      $arguments = !empty($config['argument']) ? [$config['argument']] : [];
-      $items[$views_delta] = $this->nkToolsFactory->getView($config['view_id'], $config['display_id'], $arguments, TRUE);
-      $labels[$views_delta] = $config['view_ui_label'];
+      $view_items = [];
+      $view_labels = [];
+      foreach ($config['view_id'] as $delta => $view_id) {
+        $views_delta = isset($config['view_delta']) && isset($config['view_delta'][$delta]) && is_numeric($config['view_delta'][$delta]) ? $config['view_delta'][$delta] : count($items);
+        $arguments = isset($config['argument']) && isset($config['argument'][$delta]) && !empty($config['argument'][$delta]) ? [$config['argument'][$delta]] : [];
+        $items[$views_delta] = $this->nkToolsFactory->getView($view_id, $config['display_id'][$delta], $arguments, TRUE);
+        $labels[$views_delta] = isset($config['view_ui_label'][$delta]) && !empty($config['view_ui_label'][$delta]) ? $config['view_ui_label'][$delta] : 'View';
+      }
     }
 
     // Paragraph 
@@ -595,14 +594,17 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         
         $paragraph_render = NULL;
         $ui_labels = isset($config['paragraph_ui_label']) ? $this->prepareLabels($config['paragraph_ui_label']) : ['Paragraph tab'];
-        
+
+        $view_mode = isset($children[0]['#view_mode']) ? $children[0]['#view_mode'] : 'default';
+        $field_data['context'][] = ['list_type' => 'paragraph', 'view_mode' => $view_mode];
+         
         foreach ($children as $index => $child) {
         
           if ($config['paragraph_single']) {
             $paragraph_render .= $this->renderer->render($child)->__toString();
           }
           else {
-            $items[$paragraphs_delta] = $this->renderer->render($child);
+            $items[$paragraphs_delta] = $child; //$this->renderer->render($child);
             $labels[$paragraphs_delta] = isset($ui_labels[$index]) ? $ui_labels[$index] : $ui_labels[0]; 
             $paragraphs_delta++;
           }
@@ -632,8 +634,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     ksort($items);
     ksort($labels);
 
-   
-    // Finally, now that we have our items fetched, make a build array
+     // Finally, now that we have our items fetched, make a build array
     $build = [
       '#list_type' => 'ul',
       '#list_title' => isset($config['block_label']['value']) && !empty($config['block_label']['value']) ? Markup::create($config['block_label']['value']) : $config['label'],
@@ -649,7 +650,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       //'#cache' => ['max-age' => 0],
       '#cache' => [
         'contexts' => ['url.path', 'url.query_args'], //['route.entity.node.canonical'],
-        'tags' => ['node:' . $node->id()],
+        //'tags' => ['node:' . $node->id()],
       ],
       '#wrapper_attributes' => [
         'class' => [
@@ -659,62 +660,31 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       ],
     ];
 
+    if ($node instanceof NodeInterface) {
+      $build['#cache' ]['tags'] = ['node:' . $node->id()];
+    }
+
     if (!empty($config['icon'])) {
       $build['#attributes']['data-icon'] = $config['icon'];
     }
 
-    switch ($config['target']) {
-       
-       // Tabs front end UI
-       case 'tabs':
-         
-         $build['#theme'] = 'nk_tools_tabs';
-         $build['#attached']['library'][] = 'nk_tools/tabs';
+    $toggle_attributes = [
+      /*
+      'class' => [
+        'pl-0',
+        'mb-16', 
+      ]
+      */
+    ];
+    
+    $pane_wrapper_attributes = [
+      'class'=> [
+        'nk-tools-multi-block',
+        // 'mt-16',
+      ]
+    ];
 
-       break;
-       
-       // Collapsible toggle front end UI
-       case 'panel':
-         
-         $build['#theme'] = 'nk_tools_collapsible_pane';
-         
-         foreach ($build['#items'] as $delta => &$item) {
-           $item = [
-             'label' => isset($build['#labels'][$delta]) && !empty($build['#labels'][$delta]) ? $build['#labels'][$delta] : 'Toggle',
-             'content' => $item,  
-             'target' => 'panel-' . $delta
-           ];
-         }
-         
-         $toggle_attributes = [ 
-          'data-icon' =>  !empty($config['icon']) ? $config['icon'] : NULL,
-          'data-icon-back' => !empty($config['icon_back']) ? $config['icon_back'] : NULL,
-          'data-target-in' => 'fadeIn',
-          'data-target-out' => 'fadeOut', 
-          'class' => [
-            'text-default-color',
-            'pl-0',
-            'mb-16', 
-          ]
-        ];
-        $build['#toggle_attributes'] = new Attribute($toggle_attributes);  
-
-        $pane_wrapper = [
-          'class'=> [
-            'nk-tools-multi-block',
-            'mt-16',
-          ]
-        ];
-        $build['#pane_wrapper_attributes'] = new Attribute($pane_wrapper);
-
-       break;
-
-       // "Unformatted", default list of items
-       default:
-         $build['#theme'] = 'nk_tools_multi_block';
-       break;
-
-    }
+    $this->nkToolsFactory->renderTargetUi($build, $config, [], $pane_wrapper_attributes, 'nk_tools_multi_block');
 
     if (isset($field_data['context']) && !empty($field_data['context'])) {
       foreach ($field_data['context'] as $type => $c) {
@@ -733,87 +703,79 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
 
   
   /**
-   * {@inheritdoc}
+   * Custom method, generates View modes form element (select) for various entities that implement
    */
-/*
-  public function getCacheTags() {
-    $node = $this->currentRoute->getParameter('node');
-    if ($node) {
-      return Cache::mergeTags(parent::getCacheTags(), ["node:{$node->id()}"]);
-    }
-  }
-*/
-
-
-  protected function generateChildren(array $entity_data, array $config) {
+  public function formatTrigger(array &$form, string $key, array $config, array $options = [], $description = NULL) {
     
-    $children = [];
-    $entity_key = strpos($entity_data['key'], 'node') !== FALSE ? 'node' : $entity_data['key'];
-
-    $displays = isset($entity_data['displays']) ? $entity_data['displays'] : $this->entityDisplayRepository->getViewModeOptionsByBundle($entity_key, $entity_data['bundle']); 
+    $radio_options = !empty($options) ? $options : ['none' => t('Unformatted'), 'display' => t('Entity View display')];
     
-    if ($displays !== FALSE) {
-      $children[$entity_data['key'] . '_display'] = [
-        '#title'  => $this->t('Display mode'),
-        '#description' => $this->t('Choose a display mode for the @entity. Means what is set as formatting there for these fields will render.', ['@entity' => $entity_data['label']]),
-        '#type' => 'select',
-        '#options' => is_array($displays) && !empty($displays) ? $displays : [],
-        '#default_value' => $config[$entity_data['key'] . '_display'],
-        '#states' => [ // @see https://www.drupal.org/docs/8/api/form-api/conditional-form-fields
-          'visible' => [
-             ':input[id="nk-tools-' . $entity_data['key'] . '-reference"]' => ['filled' => TRUE],
-          ],
-        ],
-      ];
-    
-      if ($entity_data['empty_option']) {
-        $children[$entity_data['key'] . '_display']['#empty_option'] =  $entity_data['empty_option'];// $this->t('- None -'),
-      }
-    }
-
-    $children[$entity_data['key'] . '_ui_label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Label(s) for tabs or collapsible panes'),
-      '#description' => $this->t('A comma separated label(s), one for each tab or collapsible toggle that entity selected here provides in render. Leave blank if "Unformatted" is selected as target UI.'),
-      '#default_value' => $config[$entity_data['key'] . '_ui_label'],
+    $form[$key][$key .'_format'] = [
+      '#type' => 'radios',
+      '#title' => t('Display format'),
+      '#description' => $description ? $description : t('Select output formatting for this @key.', ['@key' => $key]),
+      '#default_value' => $config[$key .'_format'],
+      '#options' => $radio_options, 
+      '#weight' => 1,
       '#states' => [ // @see https://www.drupal.org/docs/8/api/form-api/conditional-form-fields
         'visible' => [
-           ':input[id="nk-tools-' . $entity_data['key'] . '-reference"]' => ['filled' => TRUE],
+          ':input[id="nk-tools-' . $key . '-reference"]' => ['filled' => TRUE],
         ],
       ],
-      '#weight' => 10,
-
-    ];
-
-    $skip = ['webform', 'view'];
-
-    if (!in_array($entity_data['key'], $skip)) {
-      $children[$entity_data['key'] . '_single'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Single render'),
-        '#description' => $this->t('By default each @key instance renders separate (i.e. separate tab / collapsible pane). Check this if you prefer it to load as one in the sequence.',['@key' => $entity_data['key'] .'\'s']),
-        '#default_value' => $config[$entity_data['key'] . '_single'],
-         '#weight' => 11,
-      ];
-    }
-
-    $children[$entity_data['key'] . '_delta'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Weight'),
-      '#description' => $this->t('Set weight for this data in the render/template. Labels (for tabs or collapsible pane UI) above should follow. Note also that multiple values for one field renders into <strong>one tab/pane</strong>'),
-      '#default_value' => $config[$entity_data['key'] . '_delta'],  
-      '#states' => [ // @see https://www.drupal.org/docs/8/api/form-api/conditional-form-fields
-        'visible' => [
-           ':input[id="nk-tools-' . $entity_data['key'] . '-reference"]' => ['filled' => TRUE],
+      '#ajax' => [
+        'event' => 'change', //'autocompleteclose',
+        'callback' => [get_class($this), 'ajaxCallback'],
+        'effect' => 'fade',
+        'wrapper' => 'nk-tools-ajax-wrapper-' . $key,
+        'progress' => [
+          'type' => 'throbber',
+          'message' => t('Verifying entry...'),
         ],
       ],
-       '#weight' => 12,
     ];
-
-    return $children;
-
   }
 
+  protected function processDefaultValue(array &$form, array $values, string $key, array $config) {
+
+    $reference = $this->getCurrentValues($values, $key, $config);
+    $references_data = $reference ? $this->getBundle($reference, $key) : NULL;
+
+    // Obviously we cannot support multiple (comma separated) list of fields to have unique view mode set for each, hence we consider the first field set as relevant
+    $reference_data = is_array($references_data) && !empty($references_data) ? reset($references_data) : [];
+    $default_value = isset($reference_data['entity_object']) && is_object($reference_data['entity_object']) ? $reference_data['entity_object'] : NULL;
+ 
+    if ($default_value) {
+
+      $label = ucfirst($key);
+
+      $entity_data = [
+        'key' => $key,
+        'bundle' => $default_value->getType(),
+        'label' =>  $this->t('@label', ['@label' => $label]),
+      ];
+
+      $children = $this->generateChildren($entity_data, $config);
+      
+      if (!empty($children)) {
+
+        $format = isset($values[$key][$key . '_format']) && !empty($values[$key][$key . '_format']) ? $values[$key][$key . '_format'] : NULL;
+        
+        if ($format == 'none' && isset($children[$key . '_display'])) {
+          unset($children[$key . '_display']);
+        }
+        
+        $form[$key] += $children;
+      } 
+    }
+
+    // Set the actual ajax trigger here (radios) as a form element
+    $this->formatTrigger($form, $key, $config);
+
+    return $default_value;
+  }
+
+  /**
+   * Render (append) set of child elements
+   */
   protected function renderChildren(array $entity_data, array $config, $node = NULL) {
     $entities = [];
     $context = [];
@@ -843,12 +805,11 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     
             $field_data = [
               'bundle' => $referenced_entity->getType(),
-               'rendered_entity' => TRUE,
+              'rendered_entity' => TRUE,
             ];
     
             $paragraphs = $this->paragraphField($node, $field_data, $config);
-            //$paragraph = is_array($paragraphs) ? reset($paragraphs) : $paragraphs;
-    
+
             if (!empty($paragraphs)) {
               foreach ($paragraphs as $index => $paragraph) {
                 $entities[$index] = $this->entityTypeManager->getViewBuilder($key)->view($paragraph, $config['paragraph_display']);
@@ -892,9 +853,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
         case 'paragraph':
         
           $values[$field['field_name']] = $this->paragraphField($node, $field, $config);
-          if ($field['field_name'] == 'field_faculty') {
-             //ksm($values);
-          } 
+      
         break;
 
         case 'node':
@@ -936,6 +895,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
 
           foreach ($value as $delta => $item) {
           
+            if (isset($item['type'])) {
+
+              
             switch ($item['type']) {
 
               // Check if it is an image
@@ -995,7 +957,9 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
 
               break;
            
-           }
+            }
+
+            }
          
           }
         }
@@ -1009,8 +973,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
   protected function paragraphField(NodeInterface $node, array $entity_info, array $config) {
    
     $values = [];
-  
-    // $ff = $this->nkToolsFactory->getEntityFields('node', $node->getType());
+
 
     foreach ($node->getFields() as $key => $field) {
       $field_type = $field->getFieldDefinition()->getType();
@@ -1071,25 +1034,11 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
     return $labels;
   }
 
-
-/*
-  protected function getLabels($config) {
-    $label_string = str_replace(', ', ',', $config['tabs']);
-    $labels = explode(',', $label_string);
-    return $labels;
-  }
-*/
-
   /**
-   * Get this block instance webform.
+   * Image handling
    *
-   * @return \Drupal\webform\WebformInterface
-   *   A webform or NULL.
+   * @return array with context data and rendered image itself
    */
-  protected function getWebform() {
-    return $this->entityTypeManager->getStorage('webform')->load($this->configuration['webform_reference']);
-  }
-
   protected function image(EntityInterface $entity, array $field, array $config) {
 
     $params = [

@@ -52,7 +52,7 @@ function nk_tools_swiper_theme() {
         'item' => [],
         'settings' => [],
         'loader' => NULL,
-        'caption' => '',
+        'caption' => NULL,
         'background' => NULL,
         'video' => NULL,
       ],

@@ -466,14 +466,16 @@ class NkToolsViewBlock extends Block {
    * @param \Drupal\views\Plugin\Block\ViewsBlock $block
    *   The block plugin for views displays.
    */
-  /*
+/*
   public function preBlockBuild(ViewsBlock $block) {
     parent::preBlockBuild($block);
 
     $config = $block->getConfiguration();
-    if ($config['block_hide_mobile'] !== 'none') {
-      $this->view->setItemsPerPage($config['items_per_page']);
+    ksm($config);
+    if (isset($config['block_hide_mobile']) && $config['block_hide_mobile']) {
+      ksm($block); //$this->view->setItemsPerPage($config['items_per_page']);
     }
   }
-  */
+ 
+*/
 }

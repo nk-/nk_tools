@@ -2,9 +2,10 @@
 
 namespace Drupal\nk_tools\Plugin\Block;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
@@ -12,16 +13,18 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Markup;
+use Drupal\Core\Form\SubformStateInterface;
+use Drupal\Core\Entity\Element\EntityAutocomplete;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Utility\NestedArray;
+
+use Drupal\filter\Render\FilteredMarkup;
 
 use Drupal\nk_tools\NkToolsBase;
+use Drupal\nk_tools\NkToolsBlockBaseInterface;
 
-
-class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterface {
+class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterface, NkToolsBlockBaseInterface {
   
   /**
    * Drupal\Core\Entity\EntityTypeManager definition
@@ -125,11 +128,15 @@ class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterf
         'format' => 'basic_html'
       ],
       'icon' => NULL,
+      'icon_back' => NULL,
       'hide_mobile' => NULL,
+      'hide_desktop' => NULL,
       'hide_init' => NULL,
       'additional_class' => NULL,
       'animation_in' => NULL,
       'animation_out' => NULL,
+      'target' => NULL,
+ 
     ] + parent::defaultConfiguration();
   }
 
@@ -144,7 +151,7 @@ class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterf
     // Custom composite element
     $form['nk_tools_fields'] = [
       '#type' => 'nk_tools_block_fields',
-      '#title' => $this->t('Base settings'),
+      '#title' => $this->t('Nk tools base settings'),
       '#open' => TRUE,
       '#default_value' => $config
     ];
@@ -204,13 +211,23 @@ class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterf
     if (isset($config['hide_init']) && $config['hide_init'] > 0) {
       $build['#attributes']['class'][] = isset($nk_tools_config['layout']['hidden_class']) ? $nk_tools_config['layout']['hidden_class'] : NULL;
     }
+    
     if (isset($config['hide_mobile']) && $config['hide_mobile'] > 0) {
       $build['#attributes']['class'][] = isset($nk_tools_config['layout']['desktop_only_class']) ? $nk_tools_config['layout']['desktop_only_class'] : NULL;
+    }
+    else { // We do not want both classes, in case user checked both checkboxes
+      if (isset($config['hide_desktop']) && $config['hide_desktop'] > 0) {
+        $build['#attributes']['class'][] = isset($nk_tools_config['layout']['mobile_only_class']) ? $nk_tools_config['layout']['mobile_only_class'] : NULL;
+      }
     }
 
     // Textfields
     if (isset($config['icon']) && !empty($config['icon'])) {
       $build['#attributes']['data-icon'] = $config['icon'];
+    }
+
+    if (isset($config['icon_back']) && !empty($config['icon_back'])) {
+      $build['#attributes']['icon_back'] = $config['icon_back'];
     }
 
     if (isset($config['additional_class']) && !empty($config['additional_class'])) {
@@ -241,55 +258,155 @@ class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterf
 
     // Block label, formatted textfield element
     if (isset($config['block_label']) && isset($config['block_label']['value']) && !empty($config['block_label']['value'])) {
-      $build['#title'] = Markup::create($config['block_label']['value']);
+      $build['#title'] = FilteredMarkup::create($config['block_label']['value']);
     }
 
     return $build;
   }
 
-  
- 
   /**
-   * Returns entity (form) displays for the current entity display type.
-   *
-   * @return \Drupal\Core\Entity\Display\EntityDisplayInterface[]
-   *   An array holding entity displays or entity form displays.
+   * Check current form state values (if coming from ajax or not) 
    */
-/*
-  protected function getDisplays($reference = NULL, $bundle = NULL) {
-    
-    if (!$bundle && $reference) {
-      $bundle = $this->getBundle($reference);
+  protected function getCurrentFormState(object $form_state) {
+    if ($form_state instanceof SubformStateInterface) {
+      $values = $form_state->getCompleteFormState()->getValues();
+      return isset($values['settings']) ? $values['settings'] : $values;
     }
-
-    if ($bundle) {
-      $load_ids = [];
-      $display_entity_type = 'entity_view_display'; //$node->getEntityTypeId();
-      $entity_type = $this->entityTypeManager->getDefinition($display_entity_type);
-      $config_prefix = $entity_type->getConfigPrefix();
-      $ids = $this->configFactory->listAll($config_prefix . '.node.' . $bundle. '.');
-      foreach ($ids as $id) {
-        $config_id = str_replace($config_prefix . '.', '', $id);
-        list(,, $display_mode) = explode('.', $config_id);
-        if ($display_mode != 'default') {
-          $load_ids[] = $config_id;
-        }
-      }
-      return $this->entityTypeManager->getStorage($display_entity_type)->loadMultiple($load_ids);
+    else {
+      return $form_state->getValues();
     }
   }
-  
-*/
 
-  protected function getBundle($reference) {
+  protected function getCurrentValues(array $values, string $key, array $config, string $subkey = 'reference', $delta = NULL) {
+
+    $reference = NULL;
+    $container_values = $delta !== NULL ? $values[$key][$delta] : $values[$key];
+    $container_config = $delta !== NULL ? $config[$key . '_' . $subkey][$delta] : $config[$key . '_' . $subkey];
+
+    if (isset($container_values[$key . '_' . $subkey]) && !empty($container_values[$key . '_' . $subkey])) {
+      $reference = $container_values[$key . '_' . $subkey];
+    }
+    else {
+      if ($container_config) {
+        $reference = $container_config;
+      }
+    }
+
+    if ($key == 'view' && $reference) {
+      
+      $references = [
+        'view_id' => $reference
+      ];
+      
+      if (isset($container_values['display']) && isset($container_values['display']['display_id']) && !empty($container_values['display']['display_id'])) {
+         $references['display_id'] = $container_values['display']['display_id'];
+         
+      }
+      else {
+        if ($container_config) {
+           $references['display_id'] = $config['display_id'];
+        }
+      }
+      return $references;
+    }
+
+    return $reference;
+  }
+
+  protected function generateChildren(array $entity_data, array $config, $delta = NULL) {
+    
+    $children = [];
+    $entity_key = strpos($entity_data['key'], 'node') !== FALSE ? 'node' : $entity_data['key'];
+
+    $displays = isset($entity_data['displays']) ? $entity_data['displays'] : $this->entityDisplayRepository->getViewModeOptionsByBundle($entity_key, $entity_data['bundle']); 
+
+    if ($displays !== FALSE) {
+      $children[$entity_data['key'] . '_display'] = [
+        '#title'  => $this->t('Display mode'),
+        '#description' => $this->t('Choose a display mode for the @entity. Means what is set as formatting there for these fields will render. Set to "- None -" to print unformatted value.', ['@entity' => $entity_data['label']]),
+        '#type' => 'select',
+        '#options' => is_array($displays) && !empty($displays) ? $displays : [],
+        '#weight' => 2,
+        '#default_value' => $config[$entity_data['key'] . '_display'],
+        '#states' => [ 
+          'visible' => [
+             ':input[id="nk-tools-' . $entity_data['key'] . '-reference"]' => ['filled' => TRUE],
+          ],
+        ],
+      ];
+    
+      if ($entity_data['empty_option']) {
+        $children[$entity_data['key'] . '_display']['#empty_option'] =  $entity_data['empty_option'];
+      }
+    }
+
+    $children[$entity_data['key'] . '_ui_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Label(s) for tabs or collapsible panes'),
+      '#description' => $this->t('A comma separated label(s), one for each tab or collapsible toggle that entity selected here provides in render. Leave blank if "Unformatted" is selected as target UI.'),
+      '#default_value' => $delta !== NULL && is_array($config[$entity_data['key'] . '_delta']) ? $config[$entity_data['key'] . '_ui_label'][$delta] : $config[$entity_data['key'] . '_ui_label'],
+      '#states' => [
+        'visible' => [
+           ':input[id="nk-tools-' . $entity_data['key'] . '-reference"]' => ['filled' => TRUE],
+        ],
+      ],
+      '#weight' => 10,
+
+    ];
+
+    $skip = ['webform', 'view'];
+
+    if (!in_array($entity_data['key'], $skip)) {
+      $children[$entity_data['key'] . '_single'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Single render'),
+        '#description' => $this->t('By default each @key instance renders separate (i.e. separate tab / collapsible pane). Check this if you prefer it to load as one in the sequence.',['@key' => $entity_data['key'] .'\'s']),
+        '#default_value' => $config[$entity_data['key'] . '_single'],
+         '#weight' => 11,
+      ];
+    }
+
+    $children[$entity_data['key'] . '_delta'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Weight'),
+      '#description' => $this->t('Set weight for this data in the render/template. Labels (for tabs or collapsible pane UI) above should follow. Note also that multiple values for one field renders into <strong>one tab/pane</strong>'),
+      '#default_value' => $delta !== NULL && is_array($config[$entity_data['key'] . '_delta']) ? (int)$config[$entity_data['key'] . '_delta'][$delta] : (int)$config[$entity_data['key'] . '_delta'],  
+      '#states' => [ // @see https://www.drupal.org/docs/8/api/form-api/conditional-form-fields
+        'visible' => [
+           ':input[id="nk-tools-' . $entity_data['key'] . '-reference"]' => ['filled' => TRUE],
+        ],
+      ],
+      '#weight' => 12,
+    ];
+
+    return $children;
+
+  }
+
+  /**
+   * Parse entity data, either by provided target_id or string (from autocomplete)
+   */
+  protected function getBundle(array $reference = [], $entity_type = NULL) {
     $entities = [];
-    if (isset($reference) && !empty($reference[0])) { 
+    if (!empty($reference)) { 
       foreach ($reference as $index => $entity) {
-        if (!empty($entity) && !empty($entity['target_id'])) {
-          $split = explode('.', $entity['target_id']);
-          if (count($split) > 2) {
-            //str_replace('node.issue.', '', $field['target_id']); // : NULL;
-            $entities[] = isset($split[2]) && !empty($split[2]) ? ['entity_type' => $split[0], 'bundle' => $split[1], 'field_name' => $split[2]] : [];
+
+        if (isset($entity['target_id']) && !empty($entity['target_id'])) {
+          if (is_numeric($entity['target_id'])  && $entity_type) {
+            $entity_object = $this->entityTypeManager->getStorage($entity_type)->load($entity['target_id']);
+            if (is_object($entity_object)) {
+              $entities[] = [
+                'entity_type' => $entity_type,
+                'entity_object' => $entity_object,
+              ];
+            }
+          }
+          else {
+            $split = explode('.', $entity['target_id']);
+            if (count($split) > 2) {
+              //str_replace('node.issue.', '', $field['target_id']); // : NULL;
+              $entities[] = isset($split[2]) && !empty($split[2]) ? ['entity_type' => $split[0], 'bundle' => $split[1], 'field_name' => $split[2]] : [];
+            }
           }
         }
       }
@@ -297,5 +414,205 @@ class NkToolsBlockBase extends BlockBase implements ContainerFactoryPluginInterf
     return $entities;
   }
 
+  /**
+   * View element building method.
+   */
+  protected function viewElement(array &$form, FormStateInterface $form_state, array $values, array $config) {
+  
+    // Gather the number of referenced views in the form already.
+    $num_views = $form_state->get('num_views');
+    // We have to ensure that there is at least one widget
+    if ($num_views === NULL) {
+      if (isset($config['view_id']) && count($config['view_id']) > 1) {
+        $num_views = count($config['view_id']);
+      }
+      else {
+        $num_views = 1;
+      }
+    }
+
+    $form_state->set('num_views', $num_views);
+
+    // Container for out custom composite view reference element
+    $form['view'] = [
+      '#type' => 'container',
+      '#tree' => TRUE,
+      '#attributes' => [
+        'id' => 'nk-tools-ajax-wrapper-view'
+      ] 
+    ];
+   
+    $input = $form_state->getUserInput();
+
+    for ($delta = 1; $delta <= $num_views; $delta++) {
+
+      $view_id_default_value = NULL;
+   
+      $index = $delta - 1;
+
+      $view_id = NULL;
+      $display_id = NULL;
+
+      if (isset($input['settings']['view']) && isset($input['settings']['view'][$index]) && isset($input['settings']['view'][$index]['view_id'])) {
+        if (!empty($input['settings']['view'][$index]['view_id'])) {
+          $view_id = strpos($input['settings']['view'][$index]['view_id'], '(') !== FALSE ? EntityAutocomplete::extractEntityIdFromAutocompleteInput($input['settings']['view'][$index]['view_id']) : $input['settings']['view'][$index]['view_id'];
+        }
+        $display_id = isset($input['settings']['view'][$index]['display']['display_id']) && !empty($input['settings']['view'][$index]['display']['display_id']) ? $input['settings']['view'][$index]['display']['display_id'] : NULL;
+      }
+      else {
+        $view_data = $this->getCurrentValues($values, 'view', $config, 'id', $index);
+        $view_id = $view_data['view_id'];
+        $display_id = $view_data['display_id'];
+      }
+
+      // Custom composite element
+      $form['view'][$index] = [ 
+        '#type' => 'nk_tools_views_reference',
+        '#title' => $this->t('Reference a View'),
+        '#default_value' => [
+          'view_id' => $view_id,
+          'display' => [
+            'display_id' => $display_id ? $display_id : $config['display_id'],
+            'argument' => $config['argument'],
+            'filter' => $config['filter'],
+          ]
+        ],
+        '#attributes' => [
+          'id' => 'nk-tools-view-reference-' . $index
+        ], 
+      ];
+    }
+
+    $form['view']['add_view'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add View'),
+      '#limit_validation_errors' => [],
+      //'#executes_submit_callback' => FALSE,
+      //'#description' => $this->t('May become future feature, to load more than one view in this way, sequentially, currently disabled'),
+      //'#disabled' => TRUE,
+      '#submit' => [
+        [get_class($this), 'addViewSubmit'],
+      ],
+      '#validate' => [
+        [get_class($this), 'addViewValidate'],
+      ],
+      '#weight' => 20, 
+      '#ajax' => [
+        //'method' => 'append',
+        'callback' => [get_class($this), 'ajaxCallback'],
+        'wrapper' => 'nk-tools-ajax-wrapper-view',
+      ],
+    ];
+
+    if ($num_views > 1) {
+    
+      $form['view']['remove_view'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Remove view'),
+        '#limit_validation_errors' => [],
+        '#submit' => [
+          [get_class($this), 'removeViewSubmit'],
+        ],
+        '#weight' => 20, 
+        '#ajax' => [
+          'callback' => [get_class($this), 'ajaxCallback'],
+          'wrapper' => 'nk-tools-ajax-wrapper-view',
+        ],
+      ];
+    }
+
+  }
+
+  /**
+   * View element submit method.
+   */
+  protected function viewElementSubmit(array $values) {
+   
+    if (isset($values['view']) && !empty($values['view'])) {
+      foreach ($values['view'] as $delta => $view_value) {
+        if (is_array($view_value) && !empty($view_value)) {
+          foreach ($view_value as $property_id => $property) {
+            if ($property_id == 'display') {
+              foreach ($property as $prop_id => $prop) {
+                if ($prop !== NULL || !empty($prop)) {
+                  $this->configuration[$prop_id][$delta] = $prop;
+                }
+                else {
+                  if (isset($this->configuration[$prop_id][$delta])) {
+                    unset($this->configuration[$prop_id][$delta]);
+                  }
+                }
+              }
+            }
+            else {
+              if ($property !== NULL || !empty($property)) {
+                $this->configuration[$property_id][$delta] = $property;
+              }
+              else {
+                if (isset($this->configuration[$property_id][$delta])) {
+                  unset($this->configuration[$property_id][$delta]);
+                }
+              }
+            }
+          } 
+        }
+        else {
+          if ($view_value) {
+            $this->configuration[$view_key][$delta] = $view_value;
+          }
+          else {
+            if (isset($this->configuration[$view_key][$delta])) {
+              unset($this->configuration[$view_key][$delta]);
+            }
+          }
+        }
+      }   
+    }
+    else {
+      foreach ($values['view'] as $delta => $view_value) {
+        if (is_array($view_value) && !empty($view_value)) {
+          foreach ($view_value as $property_id => $property) {
+            $this->configuration[$property_id][$delta] = NULL;
+          } 
+        }
+        else {
+          $this->configuration[$view_key][$delta] = NULL;
+        }
+      }
+    }
+  }
+  
+  /**
+   * Callback for all ajax actions.
+   *
+   * Returns parent container element for each group
+   */
+  public static function ajaxCallback(array &$form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    $parents = array_slice($trigger['#parents'], 0, -1);
+    $element = NestedArray::getValue($form, $parents);
+    return $element; 
+  }
+
+  /**
+   * "Add View" Submit callback
+   */
+  public function addViewSubmit(array &$form, FormStateInterface $form_state) {
+    $num_views = $form_state->get('num_views');
+    $current = $num_views - 1;
+    $delta = $num_views + 1;
+    $form_state->set('num_views', $delta);
+    $form_state->setRebuild(TRUE);
+  }
+
+  /**
+   * "Remove View" Submit callback
+   */
+  public function removeViewSubmit(array &$form, FormStateInterface $form_state) {
+    $num_views = $form_state->get('num_views');
+    $delta = $num_views - 1;
+    $form_state->set('num_views', $delta);
+    $form_state->setRebuild(TRUE);
+  }
 
 }

@@ -6,6 +6,9 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormStateInterface;
 
+use Drupal\Core\Render\Markup;
+
+
 /**
  * Implements hook_theme().
  */ 
@@ -53,6 +56,14 @@ function nk_tools_theme() {
       ],
     ],
 
+    'nk_tools_items' => [
+      'variables' => [
+        'items' => [],
+        'attributes' => [],
+        'wrapper_attributes' => [],
+      ],
+    ],
+
     'nk_tools_multi_block' => [
       'variables' => [
         'list_type' => NULL,
@@ -60,6 +71,7 @@ function nk_tools_theme() {
         'show_list_title' => NULL,
         'node' => NULL,
         'items' => [],
+        'parent_index' => NULL,
         'config' => NULL,
         'target' => NULL,
         'context' => [],
@@ -73,7 +85,12 @@ function nk_tools_theme() {
     'nk_tools_async_view_block' => [
       'variables' => [
         'config' => [],
+        'views' => NULL,
+        'displays' => NULL,
+        'arguments' => NULL,
         'dom_id' => NULL,
+        'ajax_links' => NULL,
+        'reset_link' => NULL,
         'attributes' => [],
       ],
     ],
@@ -94,6 +111,24 @@ function nk_tools_theme() {
         'icon' => 'close',
         'attributes' => [],
       ],
+    ],
+
+    'nk_tools_ajax_links' => [
+      'variables' => [
+        'ajax_links' => [],
+        'title' => NULL,
+        'icon' => 'close',
+        'attributes' => [],
+      ],
+    ],
+
+    'nk_tools_page_title' => [
+      'variables' => [
+        'title' => NULL,
+        'title_attributes' => [],
+        'description' => NULL,
+        'description_attributes' => []
+      ]
     ],
 
 
@@ -157,7 +192,6 @@ function nk_tools_form_views_exposed_form_alter(&$form, FormStateInterface $form
     }
   }
 }
-
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -313,6 +347,8 @@ function nk_tools_theme_suggestions_block_alter(array &$suggestions, array $vari
     if ($node instanceof NodeInterface && isset($variables['elements']['content']['#context']) && !empty($variables['elements']['content']['#context'])) {
       foreach ($variables['elements']['content']['#context'] as $key => $context) {
         
+        $context = is_array($context) ? implode('_', array_values($context)) : $context;
+        
         $suggestions[] = 'block__nk_tools_multi_block__' . $context;
         $suggestions[] = 'block__nk_tools_multi_block__' . $context . '__' . $node->getType();
 
@@ -344,13 +380,16 @@ function nk_tools_theme_suggestions_nk_tools_multi_block(array $variables) {
   // Our multi block defines fine tuned properties per field/field type so based on that we can have pretty unique twig templates
   if (isset($variables['context']) && !empty($variables['context'])) {
     foreach ($variables['context'] as $key => $context) {
-
+      
+      $context = is_array($context) ? implode('_', array_values($context)) : $context;
+      
       $suggestions[] = 'nk_tools_multi_block__' . $context;
+
       if ($variables['node'] instanceof NodeInterface) {
-         $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType();
+        $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType();
       }
 
-      if ($variables['elements']['#configuration']['hide_init']) {
+      if (isset($variables['elements']) && isset($variables['elements']['#configuration']) && isset($variables['elements']['#configuration']['hide_init'])) {
         $suggestions[] = 'nk_tools_multi_block__' . $context .'__hidden'; 
         if ($variables['node'] instanceof NodeInterface) {
           $suggestions[] = 'nk_tools_multi_block__' . $context . '__' . $variables['node']->getType() .'__hidden';
@@ -360,6 +399,23 @@ function nk_tools_theme_suggestions_nk_tools_multi_block(array $variables) {
   }
 
   return $suggestions; 
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function nk_tools_theme_suggestions_paragraph_alter(&$suggestions, $variables) {
+  
+  $paragraph = $variables['elements']['#paragraph'];
+  $parent = $paragraph->getParentEntity();
+
+  $suggestions[] = 'paragraph__' . $parent->bundle() . '__' .  $paragraph->bundle();
+
+  // Get the parent field of the current paragraph, assuming that the parent field name is field_test_paragraph
+  $parent_field_name = $paragraph->parent_field_name->value;
+
+  // field_test_paragraph should be added to theme suggestions
+  $suggestions[] = 'paragraph__' . $parent->bundle() . '__' . $parent_field_name . '__' .  $paragraph->bundle(); 
 }
 
 /**
@@ -382,6 +438,8 @@ function nk_tools_preprocess(&$variables, $hook) {
 
     // This is our main JS factory with re-usable methods, so load it everywhere
     $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory';
+    $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_layout';
+    $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_ajax';
   }
 }
 

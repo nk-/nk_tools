@@ -6,3 +6,6 @@
 
 # Ignore temp/working files
 *~
+
+# Ignore this main class for now
+modules/nk_tools_swiper/js/swiper.js

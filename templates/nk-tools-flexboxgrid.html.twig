@@ -1,7 +1,7 @@
 {%
   set parent_classes = [
-    'pl-16',
-    'pr-16',
+    'pl-8',
+    'pr-8',
     'row',
     'between-xs',
   ]
@@ -11,24 +11,24 @@
   set column_classes = [
     config.class,
     'pl-0',
+    'pr-0',
     'pt-24',
     'pb-24', 
-    'mr-16',
     'col-xs-12',
     'col-sm-12',
 
   ]
 %}
 
-{% if config.columns == 2 %}
-  {% set column_classes = column_classes|merge(['col-md-5', 'col-lg-5']) %}  
-{% elseif config.colums == 3 %} 
+{% if config.columns == '2' %}
+  {% set column_classes = column_classes|merge(['col-md-6', 'col-lg-6']) %}  
+{% elseif config.columns == '3' %} 
   {% set column_classes = column_classes|merge(['col-md-4', 'col-lg-4']) %}
-{% elseif config.colums == 4 %} 
+{% elseif config.columns == '4' %} 
   {% set column_classes = column_classes|merge(['col-md-3', 'col-lg-3']) %}
-{% elseif config.colums == 5 %}
+{% elseif config.columns == '5' %}
   {% set column_classes = column_classes|merge(['col-md-2', 'col-lg-2']) %}
-{% elseif config.colums == 6 %}  
+{% elseif config.columns == '6' %}  
   {% set column_classes = column_classes|merge(['col-md-1', 'col-lg-1']) %}
 {% endif %}
 
@@ -40,6 +40,7 @@
 
 <div {{ attributes.addClass(parent_classes) }}>
   {% for item in rows %}
+    {% if item is not null and item is not empty %}
     <div {{ create_attribute({'class': column_classes}) }}>
      {% if config.icon %}
 
@@ -58,5 +59,6 @@
        {{ item|render }}
      {% endif %}
     </div>
+    {% endif %}
   {% endfor %}
 </div>
