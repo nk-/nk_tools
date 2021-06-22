@@ -4,6 +4,7 @@ namespace Drupal\nk_tools_search\Plugin\Block;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformStateInterface;
+use Drupal\Core\Cache\Cache;
 
 use Drupal\Component\Utility\Html;
 
@@ -216,14 +217,34 @@ class NkToolsSearchInput extends NkToolsBlockBase {
 
     $config = $this->getConfiguration();
     $config['input_type'] = 'search';
-
+  
     $search_input_element = [
       '#type' => 'nk_tools_search_input',
-      '#default_value' => $config
+      '#default_value' => $config,
+      '#cache' => [
+        'contexts' => [ 
+          'url',
+          'route', 
+        ],
+      ], 
     ];
     // Attach that jQuery code too
     //$search_input_element['#attached']['library'][] = 'nk_tools_search/search_widget'; 
-
+/*
+    $parent = parent::build(); 
+    $parent['#attached']['library'][] = 'search_api_autocomplete/search_api_autocomplete';
+    ksm($parent);
+*/
+  
     return parent::build() + $search_input_element;
   }
+
+  public function getCacheContexts() {
+    //if you depends on \Drupal::routeMatch()
+    //you must set context of this block with 'route' context tag.
+    //Every new route this block will rebuild
+    return Cache::mergeContexts(parent::getCacheContexts(), ['route', 'url']);
+  }
+
+
 }

@@ -30,19 +30,10 @@ class AjaxResponseSubscriber implements EventSubscriberInterface {
       $display = $view->display_handler->display;
 
 /*
-      $filters = [];
-      if (!empty($view->getExposedInput())) {
-        $skip = ['content_identifier', 'single_filter'];
-        foreach ($view->getExposedInput() as $key => $value) {
-          if (!in_array($key, $skip) && !empty($value) && $value != 'All') {
-            $filters[$key] = $value;
-          }
-        }
-      }
-
+      
       if ($view->display_handler->hasPath()) { // && $view->pager->usePager()) {
         $commands[] = [
-          'command' => 'diploAjaxPager',
+          'command' => 'nkToolsAjaxPager',
           'selector' => '.js-view-dom-id-' . $view->dom_id,
           'view_dom_id' =>  $view->dom_id,
           'view_arg' => $view->args,
@@ -59,11 +50,33 @@ class AjaxResponseSubscriber implements EventSubscriberInterface {
         'view_arg' => $view->args
       ];
 */
+      
+/*
+      ksm($view->current_display);
+      ksm($display);
+*/
+
+      //$attached['library'][] = 'nk_tools/nk_tools_factory_ajax_response'; //'nk_tools/nk_tools_factory_ajax';
+      //$response->setAttachments($attached);
+      $filters = [];
+      if (!empty($view->getExposedInput())) {
+        $skip = ['content_identifier', 'single_filter'];
+        foreach ($view->getExposedInput() as $key => $value) {
+          if (!in_array($key, $skip) && !empty($value) && $value != 'All') {
+            $filters[$key] = $value;
+          }
+        }
+      }
+
       $commands[] = [
         'command' => 'nkToolsAjaxArguments',
         'selector' => '.js-view-dom-id-' . $view->dom_id,
+        'view_id' => $view->storage->id(),
+        'display_id' => $display['id'],
+        'view_path' => $display['display_plugin'] == 'page' ? $display['display_options']['path'] : NULL, // $view->display_handler->getPath(),
         'view_dom_id' =>  $view->dom_id,
-        'view_args' => $view->args
+        'view_args' => !empty($view->args) ? $view->args : NULL,
+        'view_filters' => $filters,
       ];
 
     }

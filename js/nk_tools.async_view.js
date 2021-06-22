@@ -3,7 +3,7 @@
  * "Async view" feature/block.
  */
 
-(function ($, Drupal, drupalSettings) { 
+(function ($, Drupal, drupalSettings) {  
 
   'use strict';
 
@@ -15,18 +15,17 @@
      attach: function(context, settings) {
        
        var self = this;
+
+       // Arguments       
        var asyncBlocks = settings.nk_tools && settings.nk_tools.asyncBlocks;
- 
        $.each(asyncBlocks, function(target, asyncBlock) {
          
          // Note double loop since each block can have multiple views/displays attached
          $.each(asyncBlock, function(delta, blockObject) {
 
-           if (blockObject.trigger && blockObject.view) {
+           if (blockObject && blockObject.trigger && blockObject.view) {
 
              // Process this block's logig
-             //console.log(blockObject.use_rendered);
-             //var existing = blockObject.use_rendered && blockObject.use_rendered[0] ? $(blockObject.use_rendered[0]) : null; // + ' .views-element-container');
              var existing = blockObject.use_rendered ? $(blockObject.use_rendered) : null;
              self.process(blockObject, existing);
 
@@ -37,6 +36,28 @@
            }
          });
        });
+
+/*
+       // Filters
+       $(context).find('.nk-tools-ajax-filter').once('triggerAjaxFilter').each(function(i, ajaxTrigger) {
+         $(this).on('change', function(event) {
+           var button = $(event.currentTarget).parents('form').find('.nk-tools-autotrigger input.form-submit');
+           console.log(button);
+           button.once('autoTriggerButton').trigger('click');
+             
+           // Our custom ajax event
+           $(document).once('nkToolsActiveElements').on('nkTools.activeElements', function(event, params) { 
+             //params.appendBlock = data.append_block ? $(data.append_block) : {}
+             self.resetFilter(event, params, button, 1);
+           });
+
+           return false;
+
+         });
+       });
+*/
+       
+
      },
 
      process: function(blockObject, existing) {
@@ -48,15 +69,56 @@
 
          // Add attribute to relate each trigger link with the view that it is calling
          // $(this).attr('data-target', blockObject.view.view_dom_id);
+         var widgetType = 'link';
 
-         $(this).on('click', function(event) {
+/*
+         if ($(trigger).attr('type')) {
+           widgetType = $(trigger).attr('type');
+         }
+         else {
+           if ($(trigger).is('select')) {
+             widgetType = 'select';
+           }
+           else {
+             widgetType = blockObject.widget_type ? blockObject.widget_type : 'link';
+           }
+         }
+*/
+         
+         var action = 'click';
+         var delay = 150;
 
-           var iconClose = $(this).find('i') || $(this).next('i');
-           var currentArgs = self.getCurrentArgs(blockObject.view);
+/*
+         switch (widgetType) {
+           case 'link':
+             action = 'click';
+             delay = 150;  
+           break;
+           case 'select':
+             action = 'change';
+             delay = 150; 
+           break; 
+           default: 
+             if ($(this).hasClass('form-autocomplete')) {
+               action = 'autocompleteclose';
+               delay = 150;
+             }
+             else {
+               action = 'keyup';
+             }
+           break; 
+         }
+*/
+
+
+         $(trigger).once('triggerAjaxFlow').on(action, function(event) {
+
+           var iconClose = $(event.currentTarget).find('i') || $(this).next('i'); 
+           var currentArgs = Drupal.behaviors.nkToolsAjaxViews.getCurrentArgs(blockObject.view);
       
            var setArgs = [];
            // First check in the DOM, this way we can override in Twig template and have unique arg for each of trigger links 
-           if ($(this).attr('data-args').length && Drupal.nkToolsFactory.isJson($(this).attr('data-args'))) {
+           if ($(this).attr('data-args') && Drupal.nkToolsFactory.isJson($(this).attr('data-args'))) {
              setArgs = $.parseJSON($(this).attr('data-args'));
            }
            else {
@@ -69,34 +131,53 @@
              blockObject.view.view_display_id = $(this).attr('data-display-id');
            }
 
+/*
+           if (widgetType !== 'link' && $(event.currentTarget).data('filter')) {
+
+             var button = $(trigger).parents('form').find('.nk-tools-autotrigger input.form-submit');
+             console.log(button);
+             button.once('autoTriggerButton').trigger('click');
+             
+             // Our custom ajax event
+             $(document).once('nkToolsActiveElements').on('nkTools.activeElements', function(event, params) { 
+               //params.appendBlock = data.append_block ? $(data.append_block) : {}
+               self.resetFilter(event, params, button, 1);
+             });
+
+             // If this was a View filter do NOT go anywhere further (to arguments logic)
+             return false;
+           }
+*/
+           
            if ($(this).hasClass('current')) { // This is cancelling, clicking-off the button
            
              // Trigger custom event
              $(document).trigger('special.asyncView', {event: event, block: blockObject, loaded: true});
 
              // Take care of Views arguments
-             var getCurrentArgs = self.getCurrentArgs(blockObject.view);
+             var getCurrentArgs = Drupal.behaviors.nkToolsAjaxViews.getCurrentArgs(blockObject.view);
              var currentArgs = getCurrentArgs.args;
              var data = getCurrentArgs.data || {};
 
              // Parse and find actual view dom id 
+             
              Drupal.behaviors.nkToolsAjaxViews.matchExistingViewDom(existing, blockObject);
 
              var order = $(this).attr('data-order') ? parseInt($(this).attr('data-order')) - 1 : 0;
-
              if (currentArgs && currentArgs[order]) {
+               //console.log(currentArgs[order]);
                currentArgs[order] = 'all';
                setArgs = currentArgs;
              }
 
-             Drupal.behaviors.nkToolsAjaxViews.setViewArgument(setArgs, data);
-
              if (setArgs.length) {
+               Drupal.behaviors.nkToolsAjaxViews.setViewArgument(setArgs, data);
                setArgs = setArgs.join('/');
              }
  
+             console.log(setArgs); 
              // Now invoke our main ajax view method
-             Drupal.behaviors.nkToolsAjaxViews.ajaxView(event, drupalSettings.views, blockObject, setArgs, { type: 'fullscreen' }, 'POST');
+             Drupal.behaviors.nkToolsAjaxViews.ajaxView(event, drupalSettings.views, blockObject, setArgs, { type: 'fullscreen' }, 'GET');
 
              $(this).removeClass('current').removeClass('btn-active').trigger('blur');
 
@@ -125,11 +206,12 @@
              }
 
              // Take care of Views arguments
-             var getCurrentArgs = self.getCurrentArgs(blockObject.view);
+             var getCurrentArgs = Drupal.behaviors.nkToolsAjaxViews.getCurrentArgs(blockObject.view); 
              var currentArgs = getCurrentArgs.args;
              var data = getCurrentArgs.data || {};
 
              // Parse and find actual view dom id        
+             console.log(existing);
              Drupal.behaviors.nkToolsAjaxViews.matchExistingViewDom(existing, blockObject);
              
              // Override default settings with values that are set directly on html/twig         
@@ -156,12 +238,14 @@
                    setArgs = setArgs[0];
                  }
                } 
+               console.log(setArgs, data);
                Drupal.behaviors.nkToolsAjaxViews.setViewArgument(setArgs, data);
 
              }
 
              // Now invoke our main ajax view method
-             Drupal.behaviors.nkToolsAjaxViews.ajaxView(event, drupalSettings.views, blockObject, setArgs, { type: 'fullscreen' }, 'POST');
+             console.log(blockObject);
+             Drupal.behaviors.nkToolsAjaxViews.ajaxView(event, drupalSettings.views, blockObject, setArgs, { type: 'fullscreen' }, 'GET');
 
            }
            return false;
@@ -215,8 +299,19 @@
            }
          }
        }
-     },
+     }
+   
+/*
+     resetFilter: function(event, params, button, click) {
+       if (button.length && click) {
+         button.trigger('click');
+         $(document).trigger('nkTools.asyncView', {event: event, block: {}, loaded: true, widgetType: params.widgetType, element: params.element, op: params.op}); 
+       }
+     }
+*/
 
+
+/*
      getCurrentArgs: function(view) {
        var data = {
          'view_id': view.view_name,
@@ -238,6 +333,7 @@
        }
        return currentArgs;
      }
+*/
 
 
   };

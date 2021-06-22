@@ -1,4 +1,11 @@
-<h1 {{ title_attributes }}>{{ title }}</h1>
+{% if append_args %}
+  <h1 {{ title_attributes.addClass(title_classes) }}>
+    <span class="page-title-with-argument">{{ title }}</span> <em {{ append_args_attributes.addClass('ml-8', 'mt-2', 'text-highlight', 'highlighted', 'fs-1-25') }}>{{ append_args }}</em>
+  </h1>
+{% else %}
+  <h1 {{ title_attributes.addClass(title_classes) }}>{{ title }}</h1>
+{% endif %}
+
 {% spaceless %}
   {% if description %}
     <div {{ description_attributes }}>{{ description }}</div>

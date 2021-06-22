@@ -88,6 +88,12 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
     $argument = isset($config['argument']) && !empty($config['argument']) ? $config['argument'] : NULL;
     $filter = isset($config['filter']) && !empty($config['filter']) ? $config['filter'] : 'search_api_fulltext';
 
+    $route = \Drupal::service('current_route_match');
+    $view_id_route = $route->getParameters()->has('view_id') ? $route->getParameter('view_id') : NULL;
+    $display_id_route = $route->getParameters()->has('display_id') ? $route->getParameter('display_id') : NULL;
+    $current_arg = $route->getParameters()->has('arg_0') ? $route->getParameter('arg_0') : NULL; 
+
+
     // Set some default properties/variables first
     $wrapper_type = isset($config['type']) && !empty($config['type']) ? $config['type'] : 'single'; // Wether this is a single, standalone views exposed filter, without any other exposed filters
     $inline_target = isset($config['inline_target']) && !empty($config['inline_target']) ? $config['inline_target'] : NULL;
@@ -103,7 +109,7 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
       }
     }
    
-    if (isset($config['autocomplete']) && !empty($config['autocomplete'])) { //$element['#module_handler']->moduleExists('search_api_autocomplete')) {
+    if (isset($config['autocomplete']) && !empty($config['autocomplete'])) {
       $config['search_api_autocomplete'] = TRUE;
     }
           
@@ -123,7 +129,13 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
         'class' => ['nk-tools-search-input'], 
         'type' => 'search',
         'placeholder' => isset($config['placeholder']) && !empty($config['placeholder']) ? $config['placeholder'] : NULL,
-      ]
+      ],
+      '#cache' => [
+        'contexts' => [ 
+          'url',
+          'route', 
+        ],
+      ], 
     ];
     
     if ($view_id && $display_id) {
@@ -143,28 +155,38 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
         }
       }
 
+      if ($current_arg && $view_id_route == $view_id) {
+        $attached['drupalSettings']['nk_tools_search'][$name]['argument_title'] = $current_arg;
+        $attached['drupalSettings']['nk_tools_search'][$name]['argument'] = $current_arg;
+      }  
+
       $config['view'] = ['view_id' => $view_id, 'display_id' => $display_id, 'argument' => $argument, 'filter' => $filter, 'path' => $view_path->toString()]; 
 
       $params = ['#config' => $config];
       $views_exposed_form = \Drupal::service('nk_tools.main_service')->renderViewFilter($view_id, $display_id, FALSE, $params);
 
+ 
       if (isset($views_exposed_form['form'])) {
         $element = $views_exposed_form['form'];
       }
 
       $element_config['#attributes']['data-drupal-selector'] = 'edit-' . $filter;
 
+      $element_config['search_api_autocomplete'] = NULL;
+
       // Finally a support for search_api_autocomplete required processing
-      if (isset($config['autocomplete']) && !empty($config['autocomplete'])) {
+      if (isset($config['autocomplete']) && !empty($config['autocomplete']) && isset($views_exposed_form['form'])) {
         $plugin_id = 'views:' . $view_id;
         $search_storage = \Drupal::service('entity_type.manager')->getStorage('search_api_autocomplete_search');
         $search = $search_storage->loadBySearchPlugin($plugin_id);
         if ($search && $search->getEntityTypeId() == 'search_api_autocomplete_search') {
           // TODO: With search_api_autocomplete module on test if this is really needed
-          search_api_autocomplete_form_views_exposed_form_alter($views_exposed['form'], $views_exposed['form_state']);
-
+          //search_api_autocomplete_form_views_exposed_form_alter($views_exposed_form['form'], $views_exposed_form['form_state']);
+          
+          $element_config['search_api_autocomplete'] = TRUE;
           $element_config['#attributes']['data-search-api-autocomplete-search'] = $view_id;
           $element_config['#attributes']['data-autocomplete-path'] = '/search_api_autocomplete/' . $view_id . '?display=' . $display_id .'&filter=' . $filter;
+//           
         }
       }
 
@@ -174,8 +196,12 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
       // Set our theme and other input properties
       $element[$filter]['#theme'] = $element_config['#theme'];
       $element[$filter]['#config'] = $element_config['#config'];
-
+    
       $element[$filter]['#attributes'] = $element_config['#attributes'];
+      if ($element_config['search_api_autocomplete']) {
+        $element[$filter]['#attached']['library'][] = 'search_api_autocomplete/search_api_autocomplete';
+      }
+ 
       // Does not work for some reason, yet in theme / twig tpl it does
       //$element[$filter]['#type'] = 'search';
       // Element::setAttributes($element[$filter], ['type']);
@@ -201,6 +227,16 @@ class NkToolsSearchInput extends Search implements RenderCallbackInterface {
     // Attach that jQuery code too
     $element['#attached']['library'][] = 'nk_tools_search/search_widget';
     
+    //$element['actions']['#attributes']['class'][] = 'visually-hidden';
+    unset($element['actions']);
+    
+    $skip = ['filter_elements', 'actions', 'form_token', 'form_build_id', 'form_id'];
+    $skip[] = $filter;
+    foreach (Element::children($element) as $element_key) {
+      if (!in_array($element_key, $skip)) {
+        unset($element[$element_key]);
+      }
+    }
     return $element;
 
   }

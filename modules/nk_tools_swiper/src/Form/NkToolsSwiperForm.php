@@ -316,9 +316,10 @@ class NkToolsSwiperForm extends EntityForm {
    * Helper function to check whether an swiper configuration entity exists.
    */
    public function exist($id) {
-     $entity = $this->entityQuery->get('nk_tools_swiper')
-       ->condition('id', $id)
-       ->execute();
+     $entity = $this->entityManager->getStorage('nk_tools_swiper')->load($id);
+     //$exists = $this->entityQuery->get($entity)
+     //  ->condition('id', $id)
+     //  ->execute();
      return (bool) $entity;
    }
 }

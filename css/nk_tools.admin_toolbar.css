@@ -1,0 +1,119 @@
+/* Drupal admin toolbar exclusive tweaks */
+
+#navbar .contextual.open {
+  top: -54px;
+  left: 8px;  
+}
+
+body.toolbar-fixed {
+  padding-top: 0 !important;
+}
+
+#toolbar-administration {
+  position: sticky;
+  position: -webkit-sticky; /* Safari */
+  width: 100%;
+  background: #111;
+  height: 39px;
+  top: 0;
+  z-index: 31;
+}
+
+/* Fixes for Drupal's admin toolbar */
+body.toolbar-tray-open.toolbar-horizontal .top-0 { 
+  top: 39px;
+}
+
+body.toolbar-tray-open.toolbar-horizontal .top--100 {
+  top: -39px;
+}
+
+body.toolbar-tray-open.toolbar-horizontal .top-16 {
+  top: 54px;
+}
+
+body.toolbar-tray-open.toolbar-horizontal .top-72 {
+  top: 111px;
+}
+
+.adminimal-admin-toolbar.toolbar-fixed.toolbar-vertical {
+  padding-top: 39px;
+}
+
+body.toolbar-tray-open.toolbar-horizontal #navbar {
+  transform: translateY(39px);
+}
+
+body.toolbar-fixed #page.sticky #navbar {
+  transform: translateY(39px);
+}
+
+body.toolbar-tray-open.toolbar-horizontal #page.sticky #navbar {
+  transform: translateY(78px);
+}
+
+body.toolbar-fixed #page.sticky .region-navbar {
+  height: 3rem;
+  transform: translateY(0);
+}
+
+body.toolbar-tray-open #page.sticky .region-navbar {
+  height: 2.25rem;
+  transform: translateY(0);
+}
+
+body.toolbar-fixed #page.sticky .region-navbar-right {
+   transform: translateY(0); /* -0.333rem); */
+   height: 3rem;
+}
+
+body.toolbar-tray-open #page.sticky .region-navbar-right {
+  transform: translateY(0);
+}
+
+body.toolbar-tray-open #page.sticky #secondary-navigation {
+  margin-top: 8px !important;
+}
+
+body.toolbar-tray-open.toolbar-horizontal #before-main {
+  padding-top: 39px;
+}
+
+body.toolbar-tray-open.toolbar-horizontal #main {
+  padding-top: 32px;
+}
+
+body.toolbar-fixed .ui-widget.ui-widget-content.search-api-autocomplete-search {
+  top: 136px !important;
+}
+body.toolbar-fixed.toolbar-tray-open.toolbar-horizontal .ui-widget.ui-widget-content.search-api-autocomplete-search {
+  top: 175px !important;
+}
+
+/* Sticky elements */
+body.toolbar-fixed #main-content .sticky-element,
+body.toolbar-fixed #sidebar-first.sticky-element {
+  top: 125px;  
+}
+body.toolbar-fixed.toolbar-tray-open.toolbar-vertical #main-content .sticky-element,
+body.toolbar-fixed.toolbar-tray-open.toolbar-vertical #sidebar-first.sticky-element {
+  top: 132px;
+}
+body.toolbar-fixed.toolbar-tray-open.toolbar-horizontal #main-content .sticky-element,
+body.toolbar-fixed.toolbar-tray-open.toolbar-horizontal #sidebar-first.sticky-element {
+  top: 172px;
+}
+
+@media only screen and (max-width: 1023px)  {  
+  
+  body.toolbar-tray-open .region-secondary-navigation,
+  body.toolbar-tray-open #page.sticky #secondary-navigation .region-secondary-navigation {
+    padding-right: 0;
+  }
+
+  body.toolbar-fixed #page.sticky .region-navbar-right {
+    transform: translateY(0);
+  }
+
+
+}

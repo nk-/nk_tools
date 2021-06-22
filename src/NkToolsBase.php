@@ -11,17 +11,17 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Form\FormState;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\EntityReferenceFieldItemList;
+// use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
-use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\Core\Image\Image;
+//use Drupal\Core\Render\BubbleableMetadata;
+//use Drupal\Core\Image\Image;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\Core\Menu\MenuLinkTreeElement;
+//use Drupal\Core\Menu\MenuLinkTreeElement;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
@@ -61,6 +61,23 @@ use Symfony\Component\HttpFoundation\Request;
  * A various custom processing   
  */
 class NkToolsBase {
+
+ const NK_TOOLS_AJAX_FILTERS = [
+    
+   'faculties' => [
+      'display_id' => ['page'],
+      'filters' => [
+        'title' => 'Quick find faculty',
+        'tumor_type_select' => 'Tumor type'
+      ]  
+    ],
+    'default_search' => [
+      'display_id' => ['page_1'],
+      'filters' => [
+        'type' => 'Type',
+      ],
+    ],
+  ];
 
   /**
    * Drupal\Core\Entity\EntityTypeManager definition
@@ -148,7 +165,7 @@ class NkToolsBase {
       $link_attributes = [
         'id' => 'button-' . $link['key'],
         'data-id' => $link['key'],
-        'data-order' => $config['block_order'],
+        'data-order' => $config['argument_order'],
         'data-view-id' => $view->id(),
         'data-display-id' => $display['id'],
         'data-args' => Json::encode($link_arguments),
@@ -227,6 +244,196 @@ class NkToolsBase {
     
     return $render;   
   
+  }
+
+   public function processAjaxViewFilters(&$form, $form_state, array $skip = []) {
+
+    // Search widget binded to a View, as exposed filter  
+    $nk_tools_config = \Drupal::config('nk_tools.settings');
+    $nk_tools_widgets = $nk_tools_config->get('widgets');
+    if (isset($nk_tools_widgets['search']['view_container']) && isset($nk_tools_widgets['search']['view_container']['view_filter'])) {
+      $view_filter = !empty($nk_tools_widgets['search']['view_container']['view_filter']) ? $nk_tools_widgets['search']['view_container']['view_filter'] : 'search_api_fulltext';
+    }
+    else {
+      $view_filter = 'search_api_fulltext';
+    }
+  
+    $search_query_key = NULL;
+
+  //  ksm($this->routeMatch);
+    
+    $route = $this->routeMatch; //\Drupal::service('current_route_match');
+    $view = $route->getParameters()->has('view') ? $route->getParameter('view') : NULL;
+    $view_id = $route->getParameters()->has('view_id') ? $route->getParameter('view_id') : NULL;
+    $current_display = $route->getParameters()->has('display_id') ? $route->getParameter('display_id') : NULL;
+    $current_args = [];
+    
+    $attached = [];
+
+    $include = [];
+    
+    if ($view_id && $current_display) {
+      foreach (static::NK_TOOLS_AJAX_FILTERS as $view_name => $view_data) {
+        if ($view_name == $view_id && in_array($current_display, $view_data['display_id'])) {
+          $include[$form['#id']] = $view_data['filters'];
+        }
+      }
+
+      $parameters = $route->getParameters()->all();
+      foreach ($parameters as $key => $parameter) {
+        if (strpos($key, 'arg_') !== FALSE) {
+          $current_args[] = strpos($parameter, ' ') !== FALSE ? str_replace(' ', '+', $parameter) : $parameter;
+        }
+      }
+    }
+
+    if (!empty($include)) {
+
+      $ajax_filters[$form['#id']] = [];
+
+      foreach (Element::children($form) as $element_key) {
+        
+        $key = $element_key;
+        $element = $form[$key];
+               
+        if (in_array($key, array_keys($include[$form['#id']]))) {
+
+          $ajax_filters[$form['#id']][$key] = $view_id;
+
+          $form[$element_key]['#attributes']['class'][] = 'nk-tools-ajax-filter';
+          $form[$element_key]['#attributes']['data-title'] = $include[$form['#id']][$key];
+
+          if ($form[$element_key]['#type'] == 'select') {
+            if (isset($form[$element_key]['#options']['All'])) {
+              $option_string = $form[$element_key]['#options']['All'] instanceof Markup ? $form[$element_key]['#options']['All']->__toString() : $form[$element_key]['#options']['All'];
+              if (empty($option_string) || $option_string == '- Any -') {
+                $form[$element_key]['#options']['All'] = isset($form[$element_key]['#attributes']) && isset($form[$element_key]['#attributes']['data-label']) ? $form[$element_key]['#attributes']['data-label'] : 'Filter by ' . strtolower(str_replace('_', ' ', $form[$element_key]['#attributes']['data-title']));
+              }
+            }
+
+            $options = $form[$element_key]['#options'];
+
+            if (!empty($current_args)) {
+              $set_args = [];
+              foreach ($current_args as $arg) {
+                if (strpos($arg, '+') !== FALSE) {
+                  $set_args += explode('+', $arg);
+                }
+                else {
+                  $set_args[] = $arg;
+                }
+              }
+              foreach ($set_args as $set_arg) {
+                if (in_array($set_arg, array_keys($options))) { 
+                  //$form[$element_key]['#default_value'] = $set_arg;
+                }
+              } 
+            }
+          }
+          else if ($form[$element_key]['#type'] == 'textfield' || $form[$element_key]['#type'] == 'search') {
+            $form[$element_key]['#type'] = 'search';
+            $options = ['title' => $form[$element_key]['#default_value']]; 
+          }
+          
+          $form[$element_key]['#attributes']['data-filter'] = $element_key;
+
+   
+          $hash = 'gwrwgwrgw';
+          $attached[$key] = [
+            //'current_path' => $path_array[0],
+            'use_rendered' =>  '#main-content .views-element-container',
+/*
+            'trigger' => '.nk-tools-ajax-filter', 
+            'once' => TRUE,
+            'block_id' => 'async-view-block-' . $hash,
+            'view' => [
+              'pager_element' => 'mini', //$pager, //NULL,
+              'view_name' => $view_id,
+              'view_display_id' => $current_display,
+              'view_args' => $current_args,
+              'view_dom_id' => 'async-view-view-'. $hash, // Note that for usage of existing/rendered view dom it happens in JS since we can't have "future" view_dom_id here 
+            ],
+*/
+            'append_block' => '.block-page-title-block', // A bit of a hardcode, but no better place for this yet, unless rewriting each of default view filters separately
+            'view_id' => $view_id,
+            'display_id' => $current_display,
+            'set_url' => TRUE,
+            'hide_submit' => TRUE,
+            'selector' => 'select[name="'. $key .'"]',
+            //'button' => $form['actions']['submit']['#id']
+          ];
+  
+          $path =  \Drupal::service('request_stack')->getCurrentRequest()->getPathInfo();
+          $path_array = explode('/', $path);
+          array_shift($path_array);
+
+          if (isset($path_array[0])) {
+            $attached[$key]['current_path'] = $path_array[0]; 
+          }
+
+        
+          switch ($form[$element_key]['#type']) {
+
+            case 'select':
+              $attached[$key]['selector'] = 'select[name="'. $key .'"]';
+              $attached[$key]['widget_type'] = 'select'; 
+            break;
+
+            case 'search':
+              $attached[$key]['selector'] = 'input[type=search]';
+              $attached[$key]['widget_type'] = 'search';   
+            break;
+
+            case 'textfield':
+              $attached[$key]['selector'] = 'input.nk-tools-ajax-filter.form-text';
+              $attached[$key]['widget_type'] = 'textfield'; 
+            break;
+          } 
+        }
+      }
+
+      if (isset($ajax_filters[$form['#id']]) && !empty($ajax_filters[$form['#id']])) {
+        $form['#attributes']['class'][] = 'nk-tools-filters';
+      
+        //$form['#attached']['library'][] = 'diplo_formatters/fixed';
+        //$form['#attached']['library'][] = 'diplo_formatters/views_ajax_filters';
+
+        // A View pager 
+        //$pager = isset($view_display['display_options']['pager']) && !empty($view_display['display_options']['pager']['type']) ? $view_display['display_options']['pager']['type'] : 'none'; 
+         
+
+        $form['actions']['#attributes']['class'][] = 'visually-hidden'; 
+        $form['actions']['#attributes']['class'][] = 'nk-tools-autotrigger';
+
+        $form['#attached']['drupalSettings']['nk_tools']['ajax_filters'] = $attached;
+        
+        //$form['#attached']['drupalSettings']['nk_tools']['asyncBlocks'][$hash] = array_values($attached);
+/*
+        $hash = 'gwrwgwrgw';
+        $form['#attached']['drupalSettings']['nk_tools']['asyncBlocks'][$attached[$key]][] = [
+          'use_rendered' =>  '#main-content .views-element-container',
+          'trigger' => '.nk-tools-ajax-filter', 
+          'once' => TRUE,
+          'block_id' => 'async-view-block-' . $hash,
+          'additionalClass' => NULL, //$config['additional_class'],
+          'animationIn' => NULL, //$config['animation_in'],
+          'animationOut' => NULL, //$config['animation_out'],
+          'order' => 1, //is_array($config['argument_order']) && isset($config['argument_order'][$delta]) ? $config['argument_order'][$delta] : NULL,
+          'view' => [
+            'pager_element' => 'mini', //$pager, //NULL,
+            'view_name' => $view_id,
+            'view_display_id' => $current_display,
+            'view_args' => $current_args,
+            'view_dom_id' => 'async-view-view-'. $hash, // Note that for usage of existing/rendered view dom it happens in JS since we can't have "future" view_dom_id here 
+          ],
+        ];
+*/
+        //$build['#attached']['library'][] = 'views-autocomplete-filters/drupal.views-autocomplete-filters';
+       //$form['#attached']['library'][] = 'nk_tools/async_vew';
+        $form['#cache']['contexts'][] = 'url.query_args';
+
+      }
+    }
   }
 
   /**
@@ -458,6 +665,9 @@ class NkToolsBase {
 
   public function renderViewFilter($view_id, $display_id, $render = FALSE, array &$data = []) {
 
+    static $count = 0;
+    $count++;
+
     $view = Views::getView($view_id);
     $view->setDisplay($display_id);
     $view->initHandlers();
@@ -476,10 +686,52 @@ class NkToolsBase {
 
     $form_state->setFormState($values);
 
+    $form_state->setRequestMethod('POST');
+    $form_state->setCached(TRUE);
+
     $form = \Drupal::formBuilder()->buildForm('Drupal\views\Form\ViewsExposedForm', $form_state);   
+    $form['#id'] = 'nk-tools-search-widget-' . $count;
     //$form['#attributes']['data-dom-id'] = $view->dom_id;
+    
     // We do not want submit button visible here, but we want it operational (JS/Ajax)
     //$form['actions']['#attributes']['class'][] = 'visually-hidden';
+   
+
+ 
+    if (isset($data['#config'])) {
+      $form['#config'] = $data['#config'];
+    }
+/*
+    else {
+      $form['#config'] = [
+        //'view' => [
+        //  'view_dom_id' => $view->dom_id,
+        //],
+        'type' => 'sibling',
+        'collapsed' => 0,
+        'icon' => NULL,
+      ]; 
+    }
+*/
+
+/*
+    ksm($form['#config']);
+
+    // Support for search_api_autocomplete module   
+    if (\Drupal::service('module_handler')->moduleExists('search_api_autocomplete') && isset($form['#config']['autocomplete'])) {
+    
+      $plugin_id = 'views:' . $view_id;
+      $search_storage = $this->entityTypeManager->getStorage('search_api_autocomplete_search'); 
+      $search = $search_storage->loadBySearchPlugin($plugin_id);
+      
+      if ($search && $search->getEntityTypeId() == 'search_api_autocomplete_search') {
+        search_api_autocomplete_form_views_exposed_form_alter($form, $form_state);
+        $form['#config']['search_api_autocomplete'] = TRUE; 
+      }
+    } 
+*/
+   
+
     return $render ? $this->renderer->render($form) : ['form_state' => $form_state, 'form' => $form]; 
   }
 
@@ -611,210 +863,6 @@ class NkToolsBase {
       });
     }
   }
-
-  /*
-  public static function renderCollapsibleMenu(string $menu_name, int $depth = 1, $tree = NULL, array $attributes = [], string $sort = 'ASC') {
-
-    //$menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
-    //$nk_tools_factory = \Drupal::service('nk_tools.main_service'); 
-
-    // Prepare items array for our custom theme
-    $links = [];
-    $build_menu_tree = [
-      '#theme' => 'nk_tools_collapsible_pane',
-      '#hook' => 'menu_' . $menu_name,
-      '#block_id' =>  Html::getUniqueId($menu_name . '-' . $depth), 
-      '#items' => [],
-      '#attributes' => isset($attributes['menu']) ? $attributes['menu'] : []
-    ];
-
-    $menu_tree = $tree ? $tree : self::getMenu($menu_name, $depth, $sort);
-
-    if (!empty($menu_tree)) {
-
-      foreach ($menu_tree as $menu_link_key => $menu_link) {
-
-        $collapsible_key = Html::getUniqueId($menu_link_key);
-
-        //$metadata = $menu_link->link->getMetaData();
-        //$entity = is_array($metadata) && isset($metadata['entity_id']) && !empty($metadata['entity_id']) ? $menu_link_storage->load($metadata['entity_id']) : NULL;
-        //$extra_fields = self::getLinkExtraFields($entity, ['highlighted', 'icon']); 
-       // $extra_fields = self::getLinkExtraFields($menu_link->link, ['highlighted', 'icon']); 
-        $get_parent_link_label = self::linkLabel($menu_link);
-
-        $build_menu_tree['#items'][$collapsible_key] = [
-          'target' => 'pane-' . $collapsible_key,
-          'label' => $get_parent_link_label['label'],
-          'is_link' => $get_parent_link_label['is_link'],
-          'content' => [],
-        ];
-
-        $parent_toggle_attributes = [];
-        if (isset($get_parent_link_label['class']) && !empty($get_parent_link_label['class'])) {
-          $parent_toggle_attributes['class'] = [$get_parent_link_label['class']];
-          //$build_menu_tree['#toggle_attributes'] = new Attribute($parent_toggle_attributes); 
-        }
-
-        $links = [
-          '#theme' => 'links', 
-          '#set_active_class' => TRUE,
-          '#attributes' => isset($attributes['links']) ? $attributes['links'] : [],
-          '#links' => [],
-        ];
-
-        $menu_level = 0;
-        if ($menu_link->hasChildren && $menu_level < $depth) {
-
-          // ASC is a default sorting as the menu tree shows up in interface, smaller delta first
-          self::sortMenuLinks($menu_link->subtree, $sort);
-
-          $build_menu_tree['#items'][$collapsible_key]['content'] = [
-            '#theme' => 'nk_tools_collapsible_pane',
-            '#hook' => 'menu_' . $menu_name,
-            '#items' => [],
-            '#attributes' => isset($attributes['menu']) ? $attributes['menu'] : []   
-          ];
-          $sublinks = $links;
-          foreach ($menu_link->subtree as $item_key => $item) {
-            $key = Html::getUniqueId($item_key);
-            $sublinks[$key] = $links;
-
-
-            //$extra_fields[$key] = self::getLinkExtraFields($item->link, ['highlighted', 'icon']); 
-
-            $sublinks[$key]['#attributes']['class'][] = 'no-p';
-
-            //if (isset($extra_fields[$key]['highlighted'])) {
-              //$sublinks[$key]['#attributes']['class'][] = $extra_fields[$key]['highlighted'];
-              //ksm($key);
-              //ksm($sublinks[$key]['#attributes']);  
-            //}
-
-            $sublinks[$key]['#links'] = self::nestedRecursive($item->subtree);
-
-            $get_link_label = self::linkLabel($item);
-            $build_menu_tree['#items'][$collapsible_key]['content']['#items'][$key] = [
-              'target' => 'pane-' . $key,
-              'label' => $get_link_label['label'],
-              'is_link' => $get_link_label['is_link'],
-              'class' => $get_link_label['class'],
-              'content' => $sublinks[$key]
-            ];
-
-            $toggle_attributes = isset($attributes['toggle']) ? $attributes['toggle'] : [];
-
-            // Reset classes here
-            $toggle_attributes['class'] = [];
-
-
-            if ($item->hasChildren) {
-
-              // Some default small padding
-              $toggle_attributes['class'][] = 'pr-4';
-              $toggle_attributes['class'][] = 'pl-4';
-
-              if ($get_link_label['class']) {
-                $toggle_attributes['class'][] = $get_link_label['class'];
-              }
-
-              if (isset($attributes['fonts']) && isset($attributes['fonts'][1])) { // Second level of menu, same for font-sizes (going down)
-                $toggle_attributes['class'][] = $attributes['fonts'][1];
-              } 
-              else {
-                $toggle_attributes['class'][] = 'fs-1-1';
-              }
-
-              $build_menu_tree['#items'][$collapsible_key]['content']['#toggle_attributes'] = new Attribute($toggle_attributes); 
-
-              $pane_wrapper = isset($attributes['pane_wrapper']) ? $attributes['pane_wrapper'] : ['class' => ['pane-wrapper']];
-              $build_menu_tree['#items'][$collapsible_key]['content']['#pane_wrapper_attributes'] = new Attribute($pane_wrapper); 
-            }
-          }
-
-          $menu_level += 1;
-        }
-        else {
-          $links['#links'] = self::nestedRecursive($menu_link->subtree);
-          $build_menu_tree['#items'][$collapsible_key]['content'] = $links;
-        }
-      }
-    } 
-    return $build_menu_tree;
-  }
-
-  public static function nestedRecursive(array $tree, array $extra_fields = []) {
-    $links = [];
-    $fields = [];
-    foreach ($tree as $menu_link_key => $menu_link) {
-      $collapsible_key = Html::getUniqueId($menu_link_key);
-      $fields[$collapsible_key] = self::getLinkExtraFields($menu_link->link, ['highlighted', 'icon']); 
-      $links[$collapsible_key] = [
-        'title' => $menu_link->link->getTitle(),
-        'attributes' => [
-          'class' => [
-            'nk-tools-collapsible-menu-link'
-          ] 
-        ],
-      ];
-      if (!empty($menu_link->link->getRouteName())) {
-        $links[$collapsible_key]['url'] = Url::fromRoute($menu_link->link->getRouteName(), $menu_link->link->getRouteParameters());
-      } 
-      if (isset($fields[$collapsible_key]['highlighted']) && !empty($fields[$collapsible_key]['highlighted'])) {
-        //$links[$collapsible_key]['attributes']['class'][] = $fields[$collapsible_key]['highlighted'];
-      }
-    }      
-    return $links;
-  }
-
-  public static function linkLabel(MenuLinkTreeElement $menu_link, array $extra_fields = []) {
-    $is_link = FALSE;
-    $label = $menu_link->link->getTitle();
-    $class = 'expandable-menu-link';
-    $menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
-
-    if (!$menu_link->hasChildren) {
-      if (!empty($menu_link->link->getRouteName())) {
-        $uri = Url::fromRoute($menu_link->link->getRouteName(), $menu_link->link->getRouteParameters());
-        $label = Link::fromTextAndUrl($menu_link->link->getTitle(), $uri);
-        $is_link = TRUE;
-        $values = self::getLinkExtraFields($menu_link->link, ['highlighted', 'icon']);
-        //$fields = ['highlighted', 'icon']; 
-        //$metadata = $menu_link->link->getMetaData();
-        //$entity = is_array($metadata) && isset($metadata['entity_id']) && !empty($metadata['entity_id']) ? $menu_link_storage->load($metadata['entity_id']) : NULL;
-        //$values = [];
-        //foreach ($fields as $field) {
-        //  if ($entity->hasField($field) && !empty($entity->get($field)->getValue())) {
-         ////   $values[$field] = $entity->get($field)->getValue()[0]['value'];
-          //}
-        //}
-        if (isset($values['highlighted']) && !empty($values['highlighted'])) {
-          $class .= ' ' . $values['highlighted'];   
-        }
-      } 
-    }
-    return [
-      'is_link' => $is_link,
-      'label' => $label,
-      'class' => $class,
-    ];
-  }
-
-
-  public static function getLinkExtraFields($menu_link_content, array $fields) {
-    $values = [];
-    $metadata = $menu_link_content->getMetaData();
-    $menu_link_storage = \Drupal::service('entity_type.manager')->getStorage('menu_link_content');
-    $entity = is_array($metadata) && isset($metadata['entity_id']) && !empty($metadata['entity_id']) ? $menu_link_storage->load($metadata['entity_id']) : NULL;
-    if ($entity && !empty($fields)) {
-     foreach ($fields as $field) {
-       if ($entity->hasField($field) && !empty($entity->get($field)->getValue())) {
-          $values[$field] = $entity->get($field)->getValue()[0]['value'];
-        }
-      }
-    }
-    return $values;
-  }
-*/
 
   public function exposedQuery($filter, $bundle, $properties) {
 
@@ -1231,7 +1279,7 @@ class NkToolsBase {
       }
 
       // Attach our library now - it does auto-calculate image's container based on image data given here
-      $build['#attached']['library'][] = 'nk_tools/fixed_banner';
+      $build['#attached']['library'][] = 'nk_tools/nk_tools_factory_banner';
 
     }
 
@@ -1339,7 +1387,7 @@ class NkToolsBase {
       }
 
       // Attach our library now - it does auto-calculate image's container based on image data given here
-      $variables['#attached']['library'][] = 'nk_tools/fixed_banner';
+      $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_banner';
     }
   }
 

@@ -451,7 +451,7 @@ class NkToolsoNodesBanner extends NkToolsBlockBase {
     $attached['fixed_banners'][$id]['config'] = $config; 
     $build['#attached']['drupalSettings']['nk_tools'] = $attached;
         
-    $build['#attached']['library'][] = 'nk_tools/fixed_banner'; 
+    $build['#attached']['library'][] = 'nk_tools/nk_tools_factory_banner'; 
         
     return $build; 
 

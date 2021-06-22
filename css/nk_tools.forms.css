@@ -1,3 +1,15 @@
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: rgba(112, 112, 112, 1);
+  opacity: 1;
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: rgba(112, 112, 112, 1);
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: rgba(112, 112, 112, 1);
+}
+
 /* clears the 'X' from Internet Explorer */
 input[type=search]::-ms-clear {  display: none; width : 0; height: 0; }
 input[type=search]::-ms-reveal {  display: none; width : 0; height: 0; }
@@ -13,6 +25,11 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
   margin: 1rem 0.5rem 0.5rem 0.5rem;
   padding: 0;/* 0 0 1rem 0; */
 }
+
+aside .form-item {
+  margin: 1rem 0 0.5rem 0;
+}
+
 .form-item .form-item {
   margin-top: 8px;
   margin-bottom: 8px;
@@ -21,9 +38,17 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
 .form-item.label-hidden label {
   display: none;
 }
-.form-item label, .form-item .description {
+.form-item label,
+.form-item .description {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.54);
+  transition: transform .6s cubic-bezier(.47,0,.745,.715),-webkit-transform .2s cubic-bezier(.47,0,.745,.715);
+  -webkit-transform: translate(0);
+  -ms-transform: translate(0);
+  transform: translate(0);
+/*   pointer-events: none; */
+}
+
 }
 .form-item label.option, .form-item.focused label.option {
   font-size: 16px;
@@ -49,9 +74,12 @@ form summary {
   color: rgba(0, 0, 0, 0.54);
 }
 
+/*
 .form-item.active-form-item {
   border-bottom: 1px solid #00b0ff;
 }
+*/
+
 
 .form-item input,
 .form-item textarea,
@@ -76,7 +104,7 @@ form summary {
 .form-item textarea,
 .facets-dropdown {
   width: 100%;
-  max-width: 220px;
+/*   max-width: 220px; */
   border-bottom-width: 2px;
   border-bottom-style: solid;
   border-bottom-color: transparent;
@@ -217,27 +245,41 @@ form summary {
  */
   color: rgba(0, 0, 0, 0.7);
   height: 40px;
-  border-top: 1px solid rgba(0,0,0,0.12);
-  border-bottom: 1px solid rgba(0,0,0,0.12);
-/*   max-width: 287px; */
   width: auto;
   padding-left: 8px !important; 
 }
 
-.form-item i.select-toggle {
-  left: 100%;
-  top: 8px;
-  height: 0;  
-}
-
-
-.form-select-icon {
-  margin-left: -48px;
-  color: rgba(0, 0, 0, 0.54);
+.form-item .select-wrapper .form-select-icon {
+  margin-left: -46px;
+/*   color: rgba(0, 0, 0, 0.54); */
   z-index: 0;
   position: relative;
 }
 
+.form-item i.select-toggle {
+  left: 96%;
+  top: 0.25rem;
+  height: 0;
+}
+
+.form-item .active-form-item select {
+  pointer-events: none;
+}
+
+.form-item .select-wrapper i.select-toggle-close {
+  font-size: 94%;
+  font-weight: 600;
+  top: 1rem;
+  left: 0;
+  margin-right: 0.5rem;
+  pointer-events: all;
+}
+
+/*
+.form-item .element-wrapper:not(.select-wrapper) i.select-toggle-close {
+  margin-top: -0.25rem;
+}
+*/
 
 form.form-inline,
 .form-inline form {
@@ -314,6 +356,42 @@ input {
 */
 }
 
+.active-form-item input:not(.form-submit):not(.form-checkbox):not(.form-radio), 
+.active-form-item select,
+.bg-light-grey .active-form-item input:not(.form-submit),
+.bg-light-grey .active-form-item select {
+  border-bottom: 1px solid #00b0ff;
+  border-top: none;
+}
+
+/*
+.form-item label.floating-label {
+  position: relative;
+  left: 7px;
+  height: 0;
+  margin-bottom: 20px;
+  font-size: 80% !important;
+}
+
+.select-wrapper .floating-label {
+  left: 16px;
+}
+*/
+
+.form-item .floating-label-float {
+  transform: translateY(-20%);
+/*
+  transition-delay: .2s;
+  pointer-events: none;
+  transition: .3s ease; 
+*/
+}
+
+.form-item .select-wrapper .floating-label {
+  transform: translateX(0.75rem);
+}
+
+
 .green-border .form-item .form-email,
 .green-border .form-item .form-text,
 .green-border .form-item .form-email:focus,
@@ -334,7 +412,7 @@ form.views-exposed-form {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 1rem 0;
+  margin: 0;/* 1rem 0; */
 }
 
 
@@ -1013,6 +1091,7 @@ ul.messages-list {
 
 @media only screen and (min-width: 1280px) {
   
+/*
   aside .form-item input[type="text"],
   aside .form-item input[type="email"],
   aside .form-item input[type="password"],
@@ -1024,6 +1103,7 @@ ul.messages-list {
     max-width: 200px;
     margin-right: 16px;
   }
+*/
 
 }
 

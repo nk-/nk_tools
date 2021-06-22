@@ -64,6 +64,7 @@ class NkToolsBasicBlock extends NkToolsBlockBase {
     
     $config = $this->getConfiguration();
 
+/*
     if (isset($config['block_variable']) && !empty($config['block_variable'])) {
    
       $variables = strpos($config['block_variable'], ',') !== FALSE ? explode(', ', $config['block_variable']) : [$config['block_variable']];
@@ -102,7 +103,9 @@ class NkToolsBasicBlock extends NkToolsBlockBase {
    else { // Just render content from long text field
      $build['content'] = ['#markup' => $config['block_content']['value']];
    }
+*/
    
+   $build['content'] = ['#markup' => $config['block_content']['value']];
    return parent::build() + $build;
 
   }

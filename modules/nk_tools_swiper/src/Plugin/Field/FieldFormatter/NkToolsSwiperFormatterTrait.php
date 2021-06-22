@@ -51,8 +51,8 @@ trait NkToolsSwiperFormatterTrait {
     // Load the selected options.
     // #orig $options = $this->loadOptions($formatter->getSetting('options'));
     //$options = $this->loadStorage($formatter->getSetting('options'));
-    $options = NkToolsSwiper::load($formatter->getSetting('options'))->toArray();    
-
+    $load_options = NkToolsSwiper::load($formatter->getSetting('options'));    
+    $options = $load_options ? $load_options->toArray() : [];
 
     // Build the options summary.
     $os_summary = !empty($options) && isset($options['label']) ? $options['label'] : $formatter->t('Default settings');

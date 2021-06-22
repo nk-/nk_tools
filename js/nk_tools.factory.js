@@ -175,14 +175,14 @@
       });
       */
 
-      $(document).on('lazyloaded', function(event) {
+      $(document).on('lazyloaded', function(event) { 
         $('.lazy-placeholder').addClass('loaded');
       });
 
       var debounceInit = debounce(function() {
 
-        var event = { index: factory.processSubtitles.data.index };
-        factory.processSubtitles.show(event);
+        var event = { index: factory.processDeffered.data.index };
+        factory.processDeffered.show(event);
  
         if (layout_settings && layout_settings.animate_class) {
           $('.underline-animated').addClass(layout_settings.animate_class);
@@ -229,9 +229,11 @@
       });
 
 
+/*
       $(context).find('.text-highlight').each(function() {
         $(this).addClass('highlighted');
       });
+*/
     
       /*
       $(document).on('lazybeforeunveil', function(e) { 
@@ -240,18 +242,26 @@
    
 
       // Filters toggle widget
+      /*
       var filtersToggle = $(context).find('.filters-toggle').once('filtersToggle');
       if (filtersToggle.length) {
         factory.toggleFilters(filtersToggle); 
       }
+      */
 
       // Tiles func/to-be widget
       $('.has-caption').once('tileHover').each(function() {
         factory.itemHover($(this)); 
       });
 
-     
+      // Active form elements
+      var activeElements = {};
+      activeElements.input = ['input.form-text', 'input.form-search', 'input.form-email'];
+      activeElements.select = ['select'];
+      factory.activeFormElements.init(activeElements);
 
+
+/*
       var secondaryTop = $('#secondary-navigation').offset().top;
       var secondaryHeight = $('#secondary-navigation').height();
       var navbarHeight = $('#navbar').height();
@@ -299,6 +309,7 @@
 
         });
       });
+*/
     }
   };
 
@@ -314,11 +325,12 @@
         // Set the max scrollable area
         var max = offset ? docHeight - winHeight + offset : docHeight - winHeight;
         progressBar.attr('max', max);
-
+        progressBar.addClass('hidden');
         var value;
         $(window).on('scroll', function() {
           value = $(window).scrollTop();
           progressBar.attr('value', value);
+          progressBar.removeClass('hidden');
         });
       }
     },
@@ -347,17 +359,33 @@
       }
     },
 
-    setAsyncUrl: function(href) {
+    setAsyncUrl: function(href, replace) {
       
       // Update url
       window.historyInitiated = true;
-      window.history.pushState(null, document.title, href);
+      
+      if (replace) {
+        window.history.replaceState(null, document.title, href);
+        console.log(window.history);
+      }
+      else {
+        console.log(href);
+        window.history.pushState(null, document.title, href);
+      }
 
       window.addEventListener("popstate", function(e) {
         if (window.historyInitiated) {
           window.location.reload();
         }
       });
+    },
+
+    inputDelayed: function(input) {
+      input.once('textInputEntered').on('keyup', debounce(function(e) {
+        if ($(e.currentTarget).val()) {
+          $(e.currentTarget).triggerHandler('finishedinput');
+        }
+      }, 1200));
     },
 
     dataTargetCallback: function(trigger, context, settings) {
@@ -395,7 +423,7 @@
           if (parentAnimationIn) {
             trigger.parent().toggleClass(parentAnimationIn);
           }
-         
+   
           var params = {
             siblings: target.siblings(),
             classes: {
@@ -452,6 +480,14 @@
           target.toggleClass('expanded'); 
           trigger.toggleClass('expanded');
 
+          if (trigger.data('do-scroll')) {
+            var scrollOffset = trigger.data('do-scroll') > 0 ? parseInt(trigger.data('do-scroll')) : 74;
+            var scrollValue =  parseInt(Math.abs(target.offset().top - target.height())) - scrollOffset;
+            $('html, body').stop().animate({
+              'scrollTop': parseInt(scrollValue)
+              }, 600, 'swing', function (e) {
+            });
+          }
 
           // Targets could containe a close toggle element with such class ".close-pane"
           var closeToggle = target.find('.close-pane');
@@ -493,6 +529,243 @@
       }
     },
 
+
+    activeFormElements: {
+  
+      resetElement: function(event, element, widgetType, label, icon, closeIcon) {
+
+        var target = element.parents('.element-wrapper').length ? element.parents('.element-wrapper') : element.parents('.form-item');
+     
+        if (target.hasClass('active-form-item')) {
+          target.removeClass('active-form-item');
+        }
+
+        if (widgetType === 'select') {
+          element.removeClass('active-form-item');
+        }
+
+        if (element.val() && element.val() !== 'All') {
+          
+          var value = widgetType === 'select' ? element.find('option').first().val() : '';
+          element.val(value);
+          
+          $(document).trigger('nkTools.activeElements', {event: event, widgetType: widgetType, element: element, op: 'reset'});
+
+          if (label.length) {
+            
+            if (widgetType === 'input') {
+              element.attr('placeholder', label.text());
+            }
+
+            var debounceShow = debounce(function() {
+              label.removeClass('floating-label-float');
+              var debounceUnhide = debounce(function() {
+                label.parent().removeClass('mt-32'); 
+                label.removeClass('floating-label').addClass('visually-hidden'); 
+              }, 0);
+
+              debounceUnhide();
+
+            }, 250);
+            debounceShow();
+
+          }  
+        }
+ 
+        icon.removeClass('hidden'); 
+        closeIcon.addClass('hidden');
+        
+      },
+
+      processInput: function(element, eventType) {
+
+        var self = this;
+
+        var name = element.attr('data-drupal-selector');
+        var placeholder = element.attr('placeholder'); 
+        var target = element.parents('.element-wrapper').length ? element.parents('.element-wrapper') : element.parents('.form-item');
+        var label = target.find('label').length ? target.find('label') : target.prev('label');
+
+        if (!label.length) {
+          if (placeholder) {
+            target.prepend('<label for="' + name + '" class="visually-hidden">' + placeholder + '</label>');
+            label = target.find('label');
+          }
+        }
+
+        var debounceAll = debounce(function() {
+
+
+        if (element.val() || eventType === 'focus') {
+
+          if (placeholder) {
+            element.attr('placeholder', '');
+          }
+
+          target.addClass('active-form-item');
+
+          if (label.length) {
+            
+            label.addClass('floating-label');
+            //label.parent().addClass('mt-32'); 
+            label.removeClass('visually-hidden');
+            label.addClass('floating-label-float');
+          }
+
+          element.on('keyup', debounce(function(event) {
+            var textInput = $(event.currentTarget);
+            var icon = textInput.parent().find('.select-toggle-default');
+            var closeIcon = textInput.parent().find('.select-toggle-close');
+
+            if (textInput.val()) {
+              icon.addClass('hidden'); 
+              closeIcon.removeClass('hidden');
+            }
+            else {
+              icon.removeClass('hidden'); 
+              closeIcon.addClass('hidden');
+            }
+
+            // Reset callback ("x" icon click)
+            closeIcon.on('click', function(event) {
+               textInput.trigger('blur');
+               self.resetElement(event, textInput, 'input', label, icon, closeIcon);
+            });
+          } , 450));
+
+        }
+        else {
+
+          target.removeClass('active-form-item'); 
+
+          if (label.length) {
+            element.attr('placeholder', label.text());
+            label.removeClass('floating-label').addClass('visually-hidden').removeClass('floating-label-float'); 
+          }
+        }
+
+        }, 0);
+   
+        debounceAll();
+
+      },
+
+      processSelect: function(element, event, emptyOption) {
+
+        var self = this;
+
+        var name = element.attr('data-drupal-selector');
+        var target = element.parents('.element-wrapper').length ? element.parents('.element-wrapper') : element.parents('.form-item');
+        var label = target.find('label').length ? target.find('label') : target.prev('label');
+        
+        if (!label.length) {
+          if (emptyOption) {
+            target.prepend('<label for="' + name + '" class="visually-hidden">' + emptyOption + '</label>');
+            label = target.find('label');
+          }
+        }
+
+        var icon = element.parent().find('.select-toggle-default');
+        var closeIcon = element.parent().find('.select-toggle-close');
+
+        if (!element.val() || element.val() === 'All') {
+
+          icon.removeClass('hidden'); 
+          closeIcon.addClass('hidden');
+
+          target.removeClass('active-form-item');
+
+          label.removeClass('floating-label'); 
+          label.addClass('visually-hidden'); 
+          label.removeClass('floating-label-float');
+        }
+        else {
+          
+          var debounceAll = debounce(function() {
+
+            icon.addClass('hidden'); 
+            closeIcon.removeClass('hidden');
+
+            // Reset callback ("x" icon click)
+            closeIcon.on('click', function(event) {
+              element.trigger('blur');
+              self.resetElement(event, element, 'select', label, icon, closeIcon);
+            });
+
+
+            target.addClass('active-form-item'); 
+          
+            if (label.length) {
+            
+              label.addClass('floating-label');
+              label.removeClass('visually-hidden');
+              label.addClass('floating-label-float');
+            }
+
+          }, 0);
+
+          debounceAll();
+        }     
+      },  
+
+      init: function(elements) {
+      
+        var self = this;
+
+        // Our custom ajax event
+        $(document).once('labelDiploAsyncView').on('diplo.asyncView', debounce(function(event, params) { 
+          if (params.op === 'reset') {
+            var action = params.widgetType && params.widgetType === 'select' ? 'change' : 'blur';
+            params.element.trigger(action);
+          }
+        }, 0));
+
+        $.each(elements, function(type, selectors) {
+          $.each(selectors, function(i, selector) {
+          
+            var element = $(selector);  
+
+            element.once('elementChange-' + name).each(function() {
+            
+              if (type === 'input') {
+
+                var input = $(this);
+                var cloned = input.clone(true);
+                var name = cloned.attr('data-drupal-selector');
+                var placeholder;
+
+                // Focus event 
+                input.on('focus', function(event) {
+                  if (!$(event.currentTarget).hasClass('diplo-search-input')) {
+                    placeholder = $(event.currentTarget).clone().attr('placeholder');
+                    self.processInput($(event.currentTarget), event.type);
+                  }
+                });
+
+                // Blur event
+                input.on('blur', function(event) {
+                  if (!$(event.currentTarget).hasClass('diplo-search-input')) {
+                    placeholder = $(event.currentTarget).clone().attr('placeholder');
+                    self.processInput($(event.currentTarget), event.type);
+                  }
+                });
+              }
+          
+              else { // This should be select, radios checkboxes
+                var select = $(this);
+                var emptyOption = select.find('option').first().text();
+       
+                // Change event
+                select.on('change', function(event) {
+                  self.processSelect($(event.currentTarget), event.type, emptyOption);
+                });
+              }
+            });
+          });
+        });
+      
+      }
+    }, 
 
     triggerToggleClass: function(element, target, targetClass, value) {
       if (targetClass) {
@@ -634,7 +907,7 @@
       
     },
  
-    processSubtitles: {
+    processDeffered: {
       data: {
         index: 0,
         element:'subtitles-animated',

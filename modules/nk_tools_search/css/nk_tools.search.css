@@ -1,3 +1,31 @@
 input.nk-tools-search-input.absolute {
   max-width: 220px;
 }
+
+@media only screen and (max-width: 1023px)  { 
+  header .nk-tools-search-input,
+  *[role=menubar] .nk-tools-search-input { 
+    padding-bottom: 0.25rem;
+    width: 413px;
+  }
+}
+
+@media only screen and (max-width: 375px)  { 
+  header .nk-tools-search-input,
+  *[role=menubar] .nk-tools-search-input {
+    width: 357px;
+  }
+  
+  header .block-nk-tools-search-input-block,
+  *[role=menubar] .block-nk-tools-search-input-block {
+    margin-right: 2rem;
+  }
+}
+
+@media only screen and (max-width: 320px)  { 
+  header .nk-tools-search-input,
+  *[role=menubar] .nk-tools-search-input {
+    width: 302px;
+    font-size: 0.8rem;
+  }
+}

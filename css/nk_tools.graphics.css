@@ -85,6 +85,11 @@
   color: #00b0ff;
 }
 
+aside .material-icons {
+  font-size: 1.25rem;
+}
+
+
 .orange-icon {
   color: rgba(255, 170, 0, 1);
 }
@@ -276,9 +281,7 @@ img.leaflet-marker-icon {
 
  
 .text-highlight {
-  background-image: -webkit-gradient(linear,left top,right top,color-stop(50%,#fefefe),color-stop(50%,#b1e5ff));
-  background-image: linear-gradient(90deg,#fefefe 50%, #b1e5ff 0);
-  background-position: 0;
+   background-position: 0;
   background-size: 200%;
   -webkit-transition: all .8s;
   transition: all .8s;
@@ -287,6 +290,9 @@ img.leaflet-marker-icon {
 
 .text-highlight.highlighted {
   background-position: -100%;
+  background-image: -webkit-gradient(linear,left top,right top,color-stop(50%,#fefefe),color-stop(50%,#b1e5ff));
+  background-image: linear-gradient(90deg,#fefefe 50%, #b1e5ff 0);
+ 
 }
 
 .hover-blue:hover,
@@ -342,9 +348,10 @@ img.leaflet-marker-icon {
 .pipe-before::before,
 .pipe-after::after {
   content: "|";
-  margin: 0 2px;
+  margin: 0 2px 0 6px;
 }
 
+/*
 .pipe-before::before {
   margin-left: 5px;
 }
@@ -352,6 +359,7 @@ img.leaflet-marker-icon {
 .pipe-after::after {
   margin-right: 5px;
 }
+*/
 
 .grey-line::before,
 .grey-line::after {
@@ -508,6 +516,14 @@ img.leaflet-marker-icon {
   filter: blur(2px);
 }
 
+.text-shadow-1 {
+  text-shadow: #ccc 1px 1px;
+}
+
+.text-shadow-2 {
+  text-shadow: #ccc 2px 2px;
+}
+
 .shadow {
   -webkit-box-shadow: 14px 11px 16px -9px rgba(0,0,0,0.44);
   -moz-box-shadow: 14px 11px 16px -9px rgba(0,0,0,0.44);
@@ -630,7 +646,7 @@ progress {
 
   /* Dimensions */
   width: 100%;
-  height: 4px;
+  height: 3px;
 
   /* Reset the appearance */
   -webkit-appearance: none;
@@ -642,6 +658,13 @@ progress {
 
   /* Progress bar value for IE10+ */
   color: rgba(255, 170, 0, 1);
+
+  transition: transform .6s cubic-bezier(.47,0,.745,.715),-webkit-transform .2s cubic-bezier(.47,0,.745,.715);
+
+  -webkit-transform: translateY(0);
+  -ms-transform: translateY(0);
+  transform: translateY(0);
+
 }
 
 /*
@@ -678,6 +701,130 @@ progress.bg-only::-webkit-progress-value {
   background-color: rgba(242, 242, 242, 1);
 }
 
+
+/* Fab */
+.fab {
+  display: inline-block;
+  height: 56px;
+  width: 56px;
+  margin: 8px;
+  padding: 16px;
+  text-align: center;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: 0;
+  border: 0;
+  color: rgba(0, 0, 0, 0.87);
+  text-decoration: none;
+  font-family: "Roboto", sans-serif;
+  font-size: 24px;
+  line-height: 24px;
+  vertical-align: middle;
+  font-weight: 500;
+  transition: background-color .2s, box-shadow .2s;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 2px 4px rgba(0, 0, 0, 0.23);
+}
+
+.fab:hover, .fab:focus {
+  background: rgba(153, 153, 153, 0.2);
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.fab:active {
+  background: rgba(153, 153, 153, 0.4);
+}
+
+.fab.fab-colored {
+  background: #607d8b;
+  color: #FFF;
+}
+
+.fab.fab-colored:hover, .fab.fab-colored:focus {
+  background: #546e7a;
+  color: #FFF;
+}
+
+.fab.fab-colored:active {
+  background: #455a64;
+}
+
+.fab.fab-accent {
+  background: #00b0ff;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.fab.fab-accent:hover, .fab.fab-accent:focus {
+  background: #0aa2ff;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.fab.fab-accent:active {
+  background: #0091ea;
+}
+
+.fab.fab-colored .rippleAnimate, .fab.fab-accent .rippleAnimate {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.fab.fab-mini {
+  height: 40px;
+  width: 40px;
+  padding: 8px;
+  line-height: 1.1;
+}
+
+.fab.fab-24 {
+  max-width: 1.75rem;
+  max-height: 1.75rem;
+  padding: 2px;
+  font-size: 100%;
+  line-height: 1.7rem;
+}
+
+.fab.fab-32 {
+  padding: 4px;
+  max-width: 32px;
+  max-height: 32px;
+  font-size: 1rem; 
+  line-height: 1.75rem;
+}
+
+.fab.fab-32 .fs-24 {
+  font-size: 1.5rem;
+}
+
+.fab.fab-40 {
+  padding: 7px 6px 10px;
+  max-width: 40px;
+  max-height: 40px;
+  width: auto;
+  height: auto;
+}
+
+.fab.fab-52 {
+  padding: 8px 8px 10px;
+  max-width: 52px;
+  max-height: 52px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.fab.fab-56 {
+  padding: 16px 8px;
+  width: 56px;
+  height: 56px; 
+}
+
+.fab.fab-64 {
+  padding: 8px;
+  width: 64px;
+  height: 64px; 
+}
+
+.fab.fab-72 {
+  padding: 12px;
+  width: 72px;
+  height: 72px; 
+}
 
 
 

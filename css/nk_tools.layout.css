@@ -51,6 +51,12 @@
   height: 440px;
 }
 
+.sticky-element {
+  position: sticky;
+  position: -webkit-sticky; /* Safari */
+  top: 0; /* Mandatory property for sticky to work, override per element/class */
+}
+
 
 /* Layers and positioning */
 
@@ -142,6 +148,9 @@
 .right-20 {
   right: 20px;
 }
+.right-24 {
+  right: 24px;
+}
 
 .right-1-5p {
   right: 1.5%;
@@ -169,18 +178,39 @@
 .top-0 {
   top: 0;
 }
+
 .top-4 {
   top: 4px;
 }
+
 .top-8 {
   top: 8px;
 }
+
 .top-16 {
   top: 16px;
 }
 
+.top-39 {
+  top: 39px;
+}
+
+.top-55 {
+  top: 55px;
+}
+
+.top-72 {
+  top: 72px;
+}
+.top-78 {
+  top: 78px;
+}
 .top-100 {
   top: 100px;
+}
+
+.top-124 {
+  top: 124px;
 }
 
 .top-35p {
@@ -197,35 +227,7 @@
 }
 
 
-/* A special classes for with admin toolbar visible*/
-
-.toolbar-fixed .top-0 { 
-  top: 39px;
-}
-
-.toolbar-fixed .top--100 {
-  top: -39px;
-}
-
-.toolbar-fixed .top-16 {
-  top: 54px;
-}
-
-.top-39 {
-  top: 39px;
-}
-.top-55 {
-  top: 55px;
-}
-.top-72 {
-  top: 72px;
-}
-
-.toolbar-fixed .top-72 {
-  top: 111px;
-}
-
-/* Other generci classes */
+/* Other generic classes */
 
 .overflow-hidden {
   overflow: hidden;
@@ -267,190 +269,28 @@
   flex-direction: column;
 }
 
-.bg-fixed {
-  width: 100%;
-  z-index: 2;
-  background-repeat: no-repeat;
+.base-transition {
+  transition: transform .6s cubic-bezier(.47,0,.745,.715),-webkit-transform .2s cubic-bezier(.47,0,.745,.715);
 }
 
-.bg-fixed.fixed {
-  background-image: none;
-  height: 54px;
-  margin-top: 32px;
+.base-transition-translate {
+  -webkit-transform: translate(0);
+  -ms-transform: translate(0);
+  transform: translate(0);
 }
 
-.bg-fixed.bg-fixed-default.fixed {
-  margin-top: 0;
-}
-
-.bg-fixed .block-inner,
-.bg-fixed .block-inner-bg  {
-  opacity: 0.94;
-  z-index: 4;
-  height: 84px;
-  color: #000;
-  position: relative;
-  min-width: 100%;
-  top: 120px;
-  margin: 0 auto;
-  transition: opacity 260ms ease; 
-}
-
-.bg-fixed.bg-fixed-default .block-inner {
-  height: auto;
-  top: 0;
-  padding: 4px 16px;
-}
-
-.bg-fixed.fixed .block-inner {
-  background-color: rgb(255, 255, 255); 
-  opacity: 1;
-  padding: 24px 4px 0 0;
-  margin-left: -4px;
-}
-
-.toolbar-fixed .bg-fixed.fixed .block-inner {
-  padding-top: 52px;
-}
-
-.bg-fixed .block label,
-.bg-fixed .block a,
-.bg-fixed .block > * {
-  color: #000;
-}
-
-aside .bg-fixed {
-
-
-/*
-  min-height: 264px;
-  display: flex;
-  justify-content: flex-end;
-*/
-}
-
-aside .bg-fixed h4 {
-  padding: 0 8px 0 12px;
-}
-
-aside .fs-18.icon-left::before {
-  margin-right: 6px;
-  font-size: 32px;
-}
-
-aside .bg-fixed.views-exposed-form form {
-  padding: 0 4px 4px 16px;
-}
-
-aside .bg-fixed.views-exposed-form form .form-item {  
-  margin-top: 8px;
-  margin-bottom: 12px;
-  margin-right: 4px;
-}
-
-aside .bg-fixed.fixed {
-/*
-  height: auto;
+.card {
   padding: 0;
-  top: 14%;
-*/
-  max-width: 38%; /* 16.66666667%; */
-  background: #fff;
 }
 
-aside .bg-fixed.fixed .inner {
-  max-height: 660px;
-  overflow-y: scroll; 
-  padding-bottom: 32px;
+.card .card-inner {
+  margin-bottom: -0.419rem;
 }
 
-aside .bg-fixed.swap-bg.fixed {
-  background-position: center -3px;
-  min-height: 328px;
-  max-width: 39%;/* 35.667%; */
-  top: 17%;
+.card .card-text {
+  padding: 1rem 1.5rem;
 }
 
-aside .bg-fixed.swap-bg.fixed {
-  padding: 3.5% 0 0;
-}
-
-aside .bg-fixed.swap-bg.fixed h4 {
-  margin: 0;
-  padding: 4px 8px 12px 12px;
-  background: rgba(255, 255, 255, 0.86);
-}
-
-aside .bg-fixed.fixed.views-exposed-form form {
-  padding: 0 8px 0 16px;
-}
-
-
-.fixed-100-w {
-  position: fixed;
-  width: 100%;
-  height: auto;
-}
-
-.fixed-100 {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  right: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-}
-
-.fixed-0-50 {
-  position: fixed;
-  top: 50%;
-  left: 0;
-}
-
-.fixed-0-98 {
-  position: fixed;
-  bottom: 2%;
-  left: 0;
-}
-
-/*
-.toolbar-vertical.navbar-fixed #navbar,
-.toolbar-vertical.navbar-fixed #content-tools.fixed {
-  top: 39px;
-}
-
-.toolbar-horizontal.toolbar-tray-open.navbar-fixed #navbar,
-.toolbar-horizontal.toolbar-tray-open #content-tools.fixed  {
-  top: 78px;
-}
-
-.toolbar-horizontal.toolbar-tray-open.admin-toolbar.navbar-fixed #navbar, .toolbar-horizontal.toolbar-tray-open.admin-toolbar #drawer,
-.toolbar-horizontal.toolbar-tray-open.admin-toolbar #content-tools.fixed  {
-  top: 78px;
-}
-
-.toolbar-horizontal.toolbar-tray-open.admin-toolbar.adminimal-admin-toolbar.navbar-fixed #navbar, .toolbar-horizontal.toolbar-tray-open.admin-toolbar.adminimal-admin-toolbar #drawer,
-.toolbar-horizontal.toolbar-tray-open.admin-toolbar.adminimal-admin-toolbar #content-tools.fixed {
-  top: 78px;
-}
-*/
-
-/*
-body.toolbar-fixed.navbar-fixed #navbar {
-  top: 39px;
-} 
-
-body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar { 
-  top: 78px;
-}
-*/
-
-
-.adminimal-admin-toolbar.toolbar-fixed.toolbar-vertical {
-  padding-top: 39px;
-}
 
 /* PiP video */
 .pip {
@@ -885,7 +725,7 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
 }
 
 .h-0 {
-  height: 0;
+  height: 0 !important;
 }
 
 .h-100 {
@@ -1005,7 +845,6 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
   max-height: 620px;
 }
 
-
 .w-full,
 .full-width {
   width: 100%;
@@ -1122,11 +961,13 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
 
 /* Some media queries */
 
+/*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   aside .fixed-bg {
     background-attachment: scroll;
   }
 }
+*/
 
 @media only screen and (min-width: 1920px) {
    .pip {
@@ -1137,6 +978,7 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
 
 @media only screen and (min-width: 1441px) and (max-width: 1919px) {
   
+/*
   aside .bg-fixed {
     min-height: inherit;
   }
@@ -1155,6 +997,7 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
   .bg-fixed.bg-fixed-default.fixed {
     margin-top: 2px;
   }
+*/
 
   .pip {
     padding-bottom: 11%;
@@ -1163,6 +1006,7 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
 }
 
 
+/*
 @media only screen and (min-width: 1113px) and (max-width: 1440px) {
   .bg-fixed .block-inner-bg {
     padding: 0 48px 0 48px;
@@ -1182,6 +1026,7 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
   }
 
 }
+*/
 
 @media only screen and (min-width: 1025px) {
 
@@ -1204,62 +1049,10 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
   }
 }
 
-@media only screen and (min-width: 835px) and (max-width: 1112px) {
-
-  .bg-fixed {
-    height: 190px;
-  } 
-
-  .bg-fixed.fixed {
-    height: 54px;
-  } 
-
-  .bg-fixed .block-inner,
-  .bg-fixed .block-inner-bg {
-    top: 126px;
-  }
-}
-
-
-@media only screen and (min-width: 835px) and (max-width: 1112px) {
-
-
-
-  .bg-fixed {
-    height: 190px;
-  } 
-
-  .bg-fixed.bg-fixed-default {
-    height: auto;
-  }
-
-
-  .bg-fixed.fixed {
-    height: 54px;
-  } 
-
-  .bg-fixed .block-inner,
-  .bg-fixed .block-inner-bg {
-    top: 126px;
-  }
-
-  aside .bg-fixed {
-    height: auto;
-  }
-
-  aside .bg-fixed.swap-bg.fixed {
-    min-height: 358px;
-  } 
-
-}
-
 @media only screen and (max-width: 1024px) {
-  
   .pr-64 {
     padding-right: 16px;
   } 
-
-
 }
 
 
@@ -1277,66 +1070,12 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
 
 /* iPad like portraits */
 
-@media only screen and (max-width: 834px) {
-
-  .bg-fixed .block-inner-bg {
-    top: 30px;
-    height: 146px;
-    opacity: 0.86;
-  }
-
-  .bg-fixed .block-inner-bg .block-page-title-block {
-    padding-left: 24px;
-  }
-
-  .filters-menu-trigger {
-    margin-bottom: 12px;
-    margin-right: 12px;
-  }
-
-  .filters-menu-trigger h4 {
-    position: relative;
-    top: 6px;
-    background: #fff; 
-    left: 6px;
-   }
-}
-
-
-
-
-/* Smaller than basic iPad like portrait */
-@media only screen and (min-width: 769px) and (max-width: 1024px) {
-
-  /*
-  aside .bg-fixed.fixed {
-    top: 58%;
-  }
-  */
-
-  /*   A hack! Still need to better resolve issue with PAge title block "knowing" how many sidebars is there in the page */
-  /* So that is like col-md-offset-4 value */
-/*
-  .sidebar-first .col-md-offset-3 {
-    margin-left: 33.33333333%; 
-  }
-*/
-
-}
-
-
-
 @media only screen and (min-width: 768px) and (max-width: 992px)  {
   .col-lg-4-5,
   .col-md-4-5 {
     flex: 0 0 38%;
     max-width: 38%; 
   }
-
-  .fixed-bg:not(.svg-image) {
-    height: 286px;
-  }
-
 }
 
 @media only screen and (max-width: 768px)  {
@@ -1345,54 +1084,32 @@ body.toolbar-fixed.navbar-fixed.toolbar-tray-open.toolbar-horizontal #navbar {
     min-width: 100%;
     flex: 0 0 100%;  
   }
-
-  .fixed-bg:not(.svg-image) {
-    height: 264px;
-  }
-
 }
 
 
 @media only screen and (max-width: 414px) {
  
- .fixed-bg:not(.svg-image) {
-    height: 143px;
-  }
-  
-  .sticky-element {
+  #navbar .sticky-element {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   }
-
-  .bg-fixed .block-inner-bg {
-    top: 24px;
-    height: 104px;
-  }
- 
-  .bg-fixed.bg-fixed-default.fixed {
-    top: 8.5%;
-   }
-
-  .browse-on-map-actors {
-    padding-left: 16px;
-  }
   
-  .filters-menu-trigger,
-  .filters-menu-trigger h4 {
-    text-align: right;
+  .card {
+    padding: 0;
   }
 
-  .filters-menu-trigger h4 {
-    position: relative;
-    left: 4px;
+  .card .card-inner {
+    margin: 0;
+  }
+
+  .card .card-image {
+    padding: 0 0 1rem 0;
+  }
+
+  .card .card-text {
+    padding: 0 1rem 1rem 1rem; 
   }
 
   .xs-only {
     display: flex !important;
-  }
-}
-
-@media only screen and (max-width: 320px) {
-  .bg-fixed.fixed {
-    margin-top: 18px;
   }
 }

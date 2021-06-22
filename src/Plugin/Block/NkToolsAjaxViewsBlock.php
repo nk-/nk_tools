@@ -295,6 +295,7 @@ class NkToolsAjaxViewsBlock extends NkToolsBlockBase {
         // A View pager 
         //$pager = isset($view_display['display_options']['pager']) && !empty($view_display['display_options']['pager']['type']) ? $view_display['display_options']['pager']['type'] : 'none'; 
         $build['#attached']['drupalSettings']['nk_tools']['asyncBlocks'][$hash][$delta] = [
+          'widget_type' => 'link',
           'use_rendered' =>  $use_rendered[$delta],
           'trigger' => is_array($config['view_trigger']) && isset($config['view_trigger'][$delta]) && !empty($config['view_trigger'][$delta]) ? $config['view_trigger'][$delta] : NULL, 
           'once' => TRUE,

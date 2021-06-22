@@ -36,6 +36,7 @@
                     if (input.length && input.data('target')) {
                       var icon =  input.next().find('i');
                       self.searchInline(input, $('.' + input.data('target')), '.rtp-brightcove-playlist-list', 500);
+                      //self.searchInline(input, $(input.data('target')), 500);
                       self.processIcon(input, icon, true);
                     }
                   });
@@ -78,14 +79,21 @@
                   var icon =  input.next().find('i');
                   var alterIcon = icon.data('icon-alter') ? icon.data('icon-alter') : 'forward';
 
-                  // We are on the Search URL with ?query= included 
-                  if (settings.path.currentQuery && settings.path.currentQuery[queryName]) {
-              
+                  var hasArgument = nk_tools_search.argument ?nk_tools_search.argument : null;
+                  var hasQueryParam = settings.path.currentQuery && settings.path.currentQuery[queryName];
+
+                  // We are on the Search URL with /% argument included 
+                  if (hasQueryParam || hasArgument) {
+
                     if (nk_tools.layout && nk_tools.layout.hidden_class && icon.length && config.collapsed) {
                       input.toggleClass(nk_tools.layout.hidden_class);  
                     }
 
-                    input.val(settings.path.currentQuery[queryName]); 
+                    var filterValue = hasArgument ? hasArgument : hasQueryParam;
+                    if (filterValue) {
+                      input.val(filterValue); 
+                    }
+
                     input.trigger('focus');
                     input.toggleClass('active');
 
@@ -101,17 +109,17 @@
                       e.preventDefault();
                       
                       if ($(e.currentTarget).val()) {
-                        window.location.href = viewPath + '/?' + queryName + '=' + $(e.currentTarget).val(); 
+                        // window.location.href = viewPath + '/?' + queryName + '=' + $(e.currentTarget).val(); 
+                        window.location.href = viewPath + '/' + $(e.currentTarget).val();
                       }
                     }
                   });
                   
                   self.processIcon(input, icon);
+               });
 
-                });
 
-
-                $(context).find('.toggle-search').once('searchToggle').each(function() {
+                $('.toggle-search').each(function() {
                   var toggle = $(this); 
                   var input = toggle.parent().find('input:first');
                   if (input.length) {
@@ -122,49 +130,58 @@
                     });
 
                     $(window).on('load resize', function(event) {
-                      if (input.is(':visible')) { 
-                        if ($(window).width() < 1024) {
-                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
-                        } 
+                      if (!input.val()) {
+                        if (input.is(':visible')) { 
+                          if ($(window).width() < 1024) {
+                            self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                          } 
+                        }
+                        else {
+                          if ($(window).width() > 1023) {
+                            self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                          }  
+                        }
                       }
-                      else {
-                        if ($(window).width() > 1023) {
-                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
-                        } 
+                      else if (input.val()) {
+                        if ($(event.currentTarget).scrollTop() > 156 || $('body').scrollTop() > 156) {
+                          var uiWidget = $('.ui-widget-content.search-api-autocomplete-search');
+                          if (uiWidget.length) {
+                            uiWidget.css('display', 'none');
+                          }
+                        }
                       }
                     }); 
-
                     
-                    $(window).once('onceScroll').on("scroll", function(event) {                
-                      if ($('#page').hasClass('sticky')) {
-                        if (input.is(':visible')) {
-                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                    $(window).once('onceScroll').on('scroll', function(event) {                
+                      
+                      if (!input.val()) {
+                        if ($('#page').hasClass('sticky')) {
+                          if (input.is(':visible')) {
+                            self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                          }
+                        }
+                        else {
+                          if ($(window).width() > 1023 && input.is(':hidden')) {
+                            self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                          }
                         }
                       }
-                      else {
-                        if ($(window).width() > 1023 && input.is(':hidden')) {
-                          self.toggleCallback(toggle, input, icon, viewPath, queryName, nk_tools, nk_tools_search);
+                      else if (input.val()) {
+                        if ($(event.currentTarget).scrollTop() > 156 || $('body').scrollTop() > 156) {
+                          var uiWidget = $('.ui-widget-content.search-api-autocomplete-search');
+                          if (uiWidget.length) {
+                            uiWidget.css('display', 'none');
+                          }
                         }
                       }
                     }); 
-
                   }
-
-             
-
                 });    
-                
-                
-
-
               }
-
             break;
-
           }
         });
       }
-
     },
 
     processIcon: function(input, icon, clear) {
@@ -229,8 +246,20 @@
                 
         // If the field was opened and there is a value (search term) entered go to a search page           
         if (input.val() && queryName) {
-          //actions.find('.form-submit').trigger('click');
-          // Facets: /search?filters[0]=content_type:people
+          if (alterIcon !== 'close') {
+            // window.location.href = viewPath + '/?' + queryName + '=' + input.val();
+            window.location.href = viewPath + '/' + input.val();
+          }
+          else {
+            input.val('');
+            if (icon.length) {
+              icon.text(originalIcon).removeClass(iconAnimation);
+            }
+
+          }
+
+
+/*
           if (viewPath) {
             window.location.href = viewPath + '/?' + queryName + '=' + input.val();
           }
@@ -241,6 +270,7 @@
               icon.text(originalIcon).removeClass(iconAnimation);
             }
           }
+*/
         }
         else {
 
@@ -257,7 +287,6 @@
       }
     },    
 
-  
     searchInline: function(searchInput, parent, linksList, delay) {
 
       var self = this;

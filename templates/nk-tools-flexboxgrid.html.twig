@@ -1,5 +1,6 @@
 {%
   set parent_classes = [
+    'nk-tools-flexbox-grid',
     'pl-8',
     'pr-8',
     'row',
@@ -9,11 +10,12 @@
 
 {% 
   set column_classes = [
+    'nk-tools-flexbox-grid-item',
     config.class,
     'pl-0',
     'pr-0',
-    'pt-24',
-    'pb-24', 
+    'pt-12',
+    'pb-12', 
     'col-xs-12',
     'col-sm-12',
 
@@ -43,7 +45,6 @@
     {% if item is not null and item is not empty %}
     <div {{ create_attribute({'class': column_classes}) }}>
      {% if config.icon %}
-
        {% if icon_type == 'icon' %}
          <i class="col-xs-1 fs-32 material-icons">{{ icon_attribute }}</i>
          <div class="col-xs-11 pl-0 pr-8">{{ item|render }}</div>

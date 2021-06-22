@@ -28,6 +28,7 @@ class NkToolsPageTitleBlock extends NkToolsBlockBase implements TitleBlockPlugin
    */
   public function defaultConfiguration() {
     return [
+      'view' => NULL,
       'description' => [
         'format' => 'basic_html',
         'value' => NULL,
@@ -42,6 +43,13 @@ class NkToolsPageTitleBlock extends NkToolsBlockBase implements TitleBlockPlugin
     
     $form = parent::blockForm($form, $form_state);
     $config = $this->getConfiguration();
+
+    $form['view'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Include view argument'),
+      '#description' => $this->t('It will check if this is a View\'s page and with argument in URL. If such, we append argument value to the page title.'),
+      '#default_value' => $config['view'],
+    ];
 
     $form['description'] = [
       '#base_type' => 'textarea',
@@ -61,24 +69,41 @@ class NkToolsPageTitleBlock extends NkToolsBlockBase implements TitleBlockPlugin
   public function build() {
 
     $config = $this->getConfiguration();
-  
-    $title_attributes = [
+
+    $append_args = NULL;
+    if ($config['view'] && $this->currentRoute->getParameters()->has('view_id') && $this->currentRoute->getParameters()->has('display_id')) {
+      $view_id_route =  $this->currentRoute->getParameter('view_id');
+      $display_id_route = $this->currentRoute->getParameter('display_id');
+      $current_args = [];
+      foreach ($this->currentRoute->getParameters() as $arg_key => $arg) {
+        if (strpos($arg_key, 'arg_') !== FALSE && $arg) {
+          $current_args[$arg_key] = $arg;
+        }
+      }
+      if (!empty($current_args)) {
+        $append_args = count($current_args) > 1 ? implode(', ', $current_args) : reset($current_args);
+      }
+    }
+
+    $base_attributes = [
       'class' => []
     ];
 
     $build = parent::build() + [
       '#theme' => 'nk_tools_page_title',
       '#title' => $this->title,
-      '#title_attributes' => new Attribute($title_attributes)
+      '#title_attributes' => new Attribute($base_attributes)
     ];
+
+    if ($append_args) {
+      $build['#append_args'] = $append_args; //FilteredMarkup::create(' <em class="text-highlight highlighted">' . $append_args . '</em>');
+      $build['#append_args_attributes'] = new Attribute($base_attributes);
+    }
 
     $description = !empty($config['description']) && isset($config['description']['value']) && !empty($config['description']['value']) ? $config['description']['value'] : NULL; 
     if ($description) {
       $build['#description'] =  FilteredMarkup::create($description);
-      $description_attributes = [
-        'class' => []
-      ];
-      $build['#description_attributes'] = new Attribute($description_attributes);
+      $build['#description_attributes'] = new Attribute($base_attributes);
     }
 
     return $build;
@@ -90,7 +115,8 @@ class NkToolsPageTitleBlock extends NkToolsBlockBase implements TitleBlockPlugin
   public function blockSubmit($form, FormStateInterface $form_state) {
     parent::blockSubmit($form, $form_state);
     $values = $form_state->getValues();
-    $this->configuration['description'] = $values['description']; 
+    $this->configuration['description'] = $values['description'];
+    $this->configuration['view'] = $values['view']; 
   }
 
   /**

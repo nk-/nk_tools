@@ -622,7 +622,7 @@ class NkToolsMultiBlock extends NkToolsBlockBase {
       $webform_delta = isset($config['webform_delta']) && is_numeric($config['webform_delta']) ? $config['webform_delta'] : count($items);
       $items[$webform_delta] = [
         '#type' => 'webform',
-        '#webform' => $this->getWebform(),
+        '#webform' => $webform_default_value = $this->entityTypeManager->getStorage('webform')->load($this->configuration['webform_reference']), //$this->getWebform(),
         '#default_data' => [],
       ];
 

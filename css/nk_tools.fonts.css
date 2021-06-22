@@ -61,8 +61,12 @@
   font-size: 1rem !important;
 }
 
+.fs-09 {
+  font-size: 0.9rem;
+}
+
 .fs-085 {
-  font-size: 0.85em !important;
+  font-size: 0.85rem !important;
 }
 
 .fs-72 {
@@ -203,7 +207,7 @@
 }
 
 .fw-600 {
-  font-weight: 600;
+  font-weight: 600 !important;
 }
 
 /* Letter spacing */

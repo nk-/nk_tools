@@ -1,0 +1,25 @@
+
+@media only screen and (max-width: 414px)  { 
+
+  .nk-tools-banner-block .banner-caption {
+    padding: 0 1.5rem;
+  }
+
+  .nk-tools-banner-block .banner-caption h1 {
+    font-size: 1rem;
+    line-height: 1.3;
+    margin: 0.5rem 0;
+  }
+
+  .nk-tools-banner-block.playing .video-title-badge,
+  .nk-tools-banner-block.playing .video-title-content,
+  .nk-tools-banner-block.playing .banner-caption h1,
+  .nk-tools-banner-block .play-media-btn {
+    display: none;
+  }
+  
+  .nk-tools-banner-block.playing .video-title-content {
+    position: relative;
+    top: 20px;
+  }
+}

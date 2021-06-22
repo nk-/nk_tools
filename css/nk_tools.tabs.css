@@ -168,14 +168,14 @@
 }
 
 /**
- * visual cue of the selection
+ * Visual cue of the selection
  */
 .tabs-widget input[name="tabs"]:checked + h3 {
   background: #333;
 }
 
 /**
- * the marker for tabs (down arrow)
+ * The marker for tabs (down arrow)
  */
 .tabs-widget input[name="tabs"]:checked + h3:after {
   content: '';
@@ -195,15 +195,6 @@
  * Make it plain/simple below 45em (stack everything)
  */
 @media screen and (max-width: 45em) {
-  
-  /* hide unecessary label/control pairs */
-/*
-  .tabs-widget label,
-  .tabs-widget input[name="tabs"] {
-    display: none;
-  }
-*/
-  
 
  .tabs-widget > input[name="tabs"],
  .tabs-widget > label {
@@ -219,7 +210,7 @@
  }
 
 
- /* reveal all panels */
+ /* Reveal all panels */
   .tabs-widget > input + h3 {
     display: block !important;
     position: static !important;
@@ -228,26 +219,8 @@
     width: auto !important; 
     border-bottom: 1px solid #fff;
   }
-
-/*
-  .tabs-widget > input + h3 + div {
-    display: block !important;
-    position: static !important;
-    padding: 1em !important;
-    height: auto !important; 
-    width: auto !important; 
-  }
-*/
   
-  /* "unstyle" the heading */
-/*
-  .tabs-widget > h3 {
-    width: auto;
-    position: static !important;
-  }
-*/
-  
-  /* "kill" the marker */
+  /* Kill the marker */
   .tabs-widget > h3:after {
     display: none !important;
   }

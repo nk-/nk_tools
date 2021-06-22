@@ -1,13 +1,15 @@
 <?php
 
 use Drupal\Core\Site\Settings;
-use Drupal\node\NodeInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormStateInterface;
-
 use Drupal\Core\Render\Markup;
 
+use Drupal\Component\Utility\Html;
+
+use Drupal\node\NodeInterface;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_theme().
@@ -126,11 +128,12 @@ function nk_tools_theme() {
       'variables' => [
         'title' => NULL,
         'title_attributes' => [],
+        'append_args' => NULL,
+        'append_args_attributes' => [],
         'description' => NULL,
         'description_attributes' => []
       ]
     ],
-
 
     'nk_tools_user_login_form' => [
       'render element' => 'form',
@@ -148,6 +151,17 @@ function nk_tools_theme() {
     ]
 
   ];  
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function nk_tools_views_pre_render(ViewExecutable $view) {
+
+  if ($view->ajaxEnabled()) {
+    $view->element['#attached']['library'][] = 'nk_tools/nk_tools_factory_ajax';
+    // $view->element['#attached']['library'][] = 'nk_tools/async_vew';
+  }
 }
 
 /**
@@ -191,6 +205,8 @@ function nk_tools_form_views_exposed_form_alter(&$form, FormStateInterface $form
       }
     }
   }
+
+  \Drupal::service('nk_tools.main_service')->processAjaxViewFilters($form, $form_state, $skip);
 }
 
 /**
@@ -329,6 +345,10 @@ function nk_tools_theme_suggestions_region_alter(array &$suggestions, array $var
  * Implements hook_theme_suggestions_HOOK_alter().
  */
 function nk_tools_theme_suggestions_block_alter(array &$suggestions, array $variables) {
+  
+  $id = Html::getUniqueId($variables['elements']['#id']);
+
+  // Multi block
   if ($variables['elements']['#base_plugin_id'] == 'nk_tools_multi_block') {
     $node = NULL;
     if ($variables['elements']['content']['#node'] && $variables['elements']['content']['#node'] instanceof NodeInterface) {
@@ -357,6 +377,16 @@ function nk_tools_theme_suggestions_block_alter(array &$suggestions, array $vari
           $suggestions[] = 'block__nk_tools_multi_block__' . $context . '__' . $node->getType() .'__hidden';
         }
       }
+    }
+  }
+
+  // Basic block
+  if ($variables['elements']['#base_plugin_id'] == 'nk_tools_basic_block') {
+    if (isset($variables['elements']['#configuration']['block_variable']) && !empty($variables['elements']['#configuration']['block_variable'])) {
+      $block = $variables['elements'];
+      $block_variables = strpos($block['#configuration']['block_variable'], ',') !== FALSE ? array_map('trim', explode(',', $block['#configuration']['block_variable'])) : $block['#configuration']['block_variable'];
+      $block_variables = count($block_variables) > 1 ? implode('__', $block_variables) : reset($block_variables);
+      $suggestions[] = 'block__' . $id . '__' . $block_variables;
     }
   }
 }
@@ -428,6 +458,9 @@ function nk_tools_preprocess(&$variables, $hook) {
   $nk_tools_config = \Drupal::config('nk_tools.settings');
   $variables['nk_tools'] = $nk_tools_config->get('layout');
 
+  // Get the current user
+  $user = \Drupal::service('current_user'); 
+  // Check for admin route
   $admin_route = \Drupal::service('router.admin_context')->isAdminRoute();
   //$current_theme = \Drupal::service('theme.manager')->getActiveTheme();
   if (!$admin_route) {
@@ -439,7 +472,12 @@ function nk_tools_preprocess(&$variables, $hook) {
     // This is our main JS factory with re-usable methods, so load it everywhere
     $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory';
     $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_layout';
-    $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_ajax';
+    //$variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_ajax';
+  }
+  
+  // Check for toolbar permission and if granted attach library for tweaking it
+  if ($user->hasPermission('access administration menu')) {
+    $variables['#attached']['library'][] = 'nk_tools/nk_tools_factory_toolbar';
   }
 }
 

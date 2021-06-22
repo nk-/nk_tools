@@ -42,7 +42,8 @@ nk_tools_factory:
       css/nk_tools.graphics.css: {}
     component:
       css/nk_tools.forms.css: {}
-      
+      css/nk_tools.elements.css: {}
+ 
   dependencies:
     - core/jquery.once
     - core/drupalSettings
@@ -66,14 +67,38 @@ nk_tools_factory_ajax:
     - core/drupalSettings
     - core/drupal.debounce
 
-fixed_banner:
+nk_tools_factory_ajax_response:
   version: VERSION
-  js:
-    js/nk_tools.fixed_banner.js: {}
+  js: 
+    js/nk_tools.factory.ajax_response.js: {}
   dependencies:
     - core/jquery.once
     - core/drupalSettings
     - core/drupal.debounce
+
+nk_tools_factory_toolbar:
+  version: VERSION
+  js:
+    js/nk_tools.admin_toolbar.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce
+  css:
+    component:
+      css/nk_tools.admin_toolbar.css: {}
+
+nk_tools_factory_banner:
+  version: VERSION
+  js:
+    js/nk_tools.banner.js: {}
+  dependencies:
+    - core/jquery.once
+    - core/drupalSettings
+    - core/drupal.debounce
+  css:
+    component:
+      css/nk_tools.banners.css: {}
 
 async_vew:
   version: VERSION
